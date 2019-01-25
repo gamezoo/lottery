@@ -1,0 +1,154 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>注册</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.bootcss.com/layer/2.3/layer.js"></script>
+<style>
+.register-container {
+	padding-top: 2%;
+}
+
+.register-success-container {
+	padding-top: 2%;
+}
+
+.handle-result {
+	text-align: center;
+	padding-top: 8%;
+}
+
+.handle-result-icon {
+	margin-bottom: 24px;
+}
+
+.handle-result-icon i {
+	font-size: 100px;
+	color: #52c41a;
+}
+
+.handle-result-title {
+	font-size: 42px;
+	color: #000000d9;
+	font-weight: 500;
+	line-height: 32px;
+	margin-bottom: 24px;
+}
+
+.handle-result-desc {
+	font-size: 21px;
+	line-height: 22px;
+	color: #2b2a2a73;
+}
+</style>
+</head>
+
+<body>
+	<div class="container">
+		<div th:replace="common/header::html"></div>
+		<div id="register" v-cloak>
+			<div class="container register-container" v-if="!registerSuccessFlag">
+				<div class="col-sm-6 offset-sm-3">
+					<h2>用户注册</h2>
+					<form>
+						<div class="form-group">
+							<label>用户名:</label> <input type="text" class="form-control" placeholder="以字母开头,长度为6-12个字母和数字!" v-model="userName">
+						</div>
+						<div class="form-group">
+							<label>真实姓名:</label> <input type="text" class="form-control" placeholder="必须与提款银行卡姓名一致,否则无法出款" v-model="realName">
+						</div>
+						<div class="form-group">
+							<label>登录密码:</label> <input type="password" class="form-control" placeholder="6-15位字母数字混合,且不能全为字母或数字!" v-model="password">
+						</div>
+						<div class="form-group">
+							<label>确认密码:</label> <input type="password" class="form-control" placeholder="确认密码" v-model="confirmPassword">
+						</div>
+						<button type="button" class="btn btn-danger" v-on:click="register">立即注册</button>
+					</form>
+					<div class="alert alert-light" style="font-size: 15px;">
+						  <span style="color: red;">*</span> 资金密码默认为登录密码,账号注册后可登录到个人中心进行修改.
+					</div>
+				</div>
+			</div>
+			<div class="container register-success-container" v-if="registerSuccessFlag">
+				<div class="handle-result">
+					<div class="handle-result-icon">
+						<i><svg viewBox="64 64 896 896" data-icon="check-circle" width="1em" height="1em" fill="currentColor" aria-hidden="true">
+							<path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm193.5 301.7l-210.6 292a31.8 31.8 0 0 1-51.7 0L318.5 484.9c-3.8-5.3 0-12.7 6.5-12.7h46.9c10.2 0 19.9 4.9 25.9 13.3l71.2 98.8 157.2-218c6-8.3 15.6-13.3 25.9-13.3H699c6.5 0 10.3 7.4 6.5 12.7z"></path></svg></i>
+					</div>
+					<div class="handle-result-title">账号注册成功</div>
+					<div class="handle-result-desc">你的用户名是:{{userName}}</div>
+				</div>
+				<div style="text-align: center; padding-top: 3%;">
+					<button type="button" class="btn btn-primary btn-lg" v-on:click="toLoginPage">立即登录</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		new Vue({
+			el : '#register',
+			data : {
+				registerSuccessFlag : false,
+				userName : '',
+				realName : '',
+				password : '',
+				confirmPassword : ''
+			},
+			computed : {},
+			created : function() {
+			},
+			methods : {
+
+				/**
+				 * 注册
+				 */
+				register : function() {
+					var that = this;
+					if (that.userName == null || that.userName == '') {
+						layer.alert('请输入用户名');
+						return;
+					}
+					if (that.realName == null || that.realName == '') {
+						layer.alert('请输入真实姓名');
+						return;
+					}
+					if (that.password == null || that.password == '') {
+						layer.alert('请输入登录密码');
+						return;
+					}
+					if (that.confirmPassword == null || that.confirmPassword == '') {
+						layer.alert('请输入确认密码');
+						return;
+					}
+					if (that.password != that.confirmPassword) {
+						layer.alert('密码不一致');
+						return;
+					}
+					that.$http.post('/userAccount/register', {
+						userName : that.userName,
+						realName : that.realName,
+						loginPwd : that.password
+					}, {
+						emulateJSON : true
+					}).then(function(res) {
+						that.registerSuccessFlag = true;
+					});
+				},
+
+				/**
+				 * 跳转到登陆页面
+				 */
+				toLoginPage : function() {
+					window.location.href = '/';
+				}
+			}
+		});
+	</script>
+</body>
+</html>

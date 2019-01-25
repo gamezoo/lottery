@@ -1,0 +1,193 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<style>
+#betting-order-details-modal .modal-mask {
+	position: fixed;
+	z-index: 9998;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: table;
+	transition: opacity .3s ease;
+}
+
+#betting-order-details-modal .modal-wrapper {
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.betting-order-details-dialog {
+	max-width: 100%;
+	width: 50%;
+}
+
+.betting-order-details-dialog .modal-body {
+	height: 450px;
+	overflow: auto;
+}
+
+.betting-order-details-dialog .modal-title span {
+	padding-left: 10px;
+	color: #E37D23;
+}
+
+.betting-summary-title {
+	margin-bottom: 20px;
+	padding-left: 10px;
+	border-left: 3px solid #3080fe;
+}
+
+.betting-order-details-item label {
+	color: #9a9898;
+	padding-right: 4px;
+}
+
+.betting-order-details-highlight {
+	color: #E37D23 !important;
+}
+
+.betting-order-details-table thead th {
+	border-top: 0;
+	border-bottom: 0;
+	text-align: center;
+	color: #666;
+	font-size: 14px;
+	font-weight: normal;
+	background-color: #dedede;
+}
+
+.betting-order-details-table tbody tr {
+	background-color: #EEEEEE;
+}
+
+.betting-order-details-table tr td {
+	text-align: center;
+	border-top: 0;
+	color: #666;
+	border-bottom: 0;
+	border-left: 0;
+}
+</style>
+</head>
+
+<body>
+	<div id="betting-order-details-modal" v-cloak>
+		<div v-show="showBettingOrderDetailsFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog betting-order-details-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">
+									投注订单详情<span>订单号:{{bettingOrderDetails.orderNo}}</span>
+								</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="showBettingOrderDetailsFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<div class="betting-summary-title">订单摘要</div>
+								<div class="row">
+									<div class="col-sm-6 betting-order-details-item">
+										<label>投注用户:</label> <span>{{bettingOrderDetails.userName}}</span>
+									</div>
+									<div class="col-sm-6 betting-order-details-item">
+										<label>奖期:</label> <span>{{bettingOrderDetails.gameName}} 第{{bettingOrderDetails.issueNum}}期</span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-6 betting-order-details-item">
+										<label>投注模式:</label> <span>{{bettingOrderDetails.baseAmount}}元</span>
+									</div>
+									<div class="col-sm-6 betting-order-details-item">
+										<label>投注倍数:</label> <span>{{bettingOrderDetails.multiple}}</span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-6 betting-order-details-item">
+										<label>单倍注数:</label> <span>{{bettingOrderDetails.totalBettingCount}}</span>
+									</div>
+									<div class="col-sm-6 betting-order-details-item">
+										<label>总金额:</label> <span>{{bettingOrderDetails.totalBettingAmount}}元</span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-6 betting-order-details-item">
+										<label>投注时间:</label> <span>{{bettingOrderDetails.bettingTime}}</span>
+									</div>
+									<div class="col-sm-6 betting-order-details-item">
+										<label>中奖金额:</label> <span class="betting-order-details-highlight">{{bettingOrderDetails.totalWinningAmount}}元</span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-6 betting-order-details-item">
+										<label>订单状态:</label> <span>{{bettingOrderDetails.stateName}}</span>
+									</div>
+									<div class="col-sm-6 betting-order-details-item">
+										<label>开奖号码:</label> <span class="betting-order-details-highlight">{{bettingOrderDetails.lotteryNum}}</span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-6 offset-md-6 betting-order-details-item">
+										<label>订单盈亏:</label> <span class="betting-order-details-highlight">{{bettingOrderDetails.totalProfitAndLoss}}元</span>
+									</div>
+								</div>
+								<div class="betting-summary-title" style="">订单明细</div>
+								<table class="table table-sm betting-order-details-table">
+									<thead>
+										<tr>
+											<th>玩法名称</th>
+											<th>投注内容</th>
+											<th>投注注数</th>
+											<th>投注金额</th>
+											<th>奖金</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr v-for="bettingRecord in bettingOrderDetails.bettingRecords">
+											<td>{{bettingRecord.gamePlayName}}</td>
+											<td>{{bettingRecord.selectedNo}}</td>
+											<td>{{bettingRecord.bettingCount}}</td>
+											<td class="betting-order-details-highlight">{{bettingRecord.bettingAmount}}</td>
+											<td>{{bettingRecord.winningAmount}}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-info" v-on:click="showBettingOrderDetailsFlag = false">返回</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var bettingOrderDetailsModal = new Vue({
+			el : '#betting-order-details-modal',
+			data : {
+				showBettingOrderDetailsFlag : false,
+				bettingOrderDetails : {}
+			},
+			computed : {},
+			created : function() {
+			},
+			methods : {
+				loadAndShowBettingOrderDetails : function(id) {
+					var that = this;
+					that.$http.get('/betting/findMyBettingOrderDetails', {
+						params : {
+							id : id
+						}
+					}).then(function(res) {
+						that.bettingOrderDetails = res.body.data;
+						that.showBettingOrderDetailsFlag = true;
+					});
+				}
+			}
+		});
+	</script>
+</body>
+</html>

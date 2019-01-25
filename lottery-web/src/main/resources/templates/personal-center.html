@@ -1,0 +1,164 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>个人中心</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.bootcss.com/dayjs/1.7.8/dayjs.min.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/locale/bootstrap-table-zh-CN.min.js"></script>
+<link href="/css/personal-center.css" rel="stylesheet" type="text/css">
+</head>
+
+<body style="height: 100%;">
+	<div class="container">
+		<div th:replace="common/header::html"></div>
+		<div th:replace="common/personal-navbar::html"></div>
+		<div id="personal-center" v-cloak>
+			<div class="row">
+				<div class="col-sm-12">
+					<nav class="navbar navbar-expand-sm bg-light personal-center-navbar">
+						<ul class="navbar-nav">
+							<li class="nav-item" v-bind:class="{'selected-personal-center-navbar-item': currentTab == 'bankCardInfo'}" v-on:click="switchBankCardInfoTab"><a class="nav-link" href="#"><span>银行卡资料管理</span></a></li>
+							<li class="nav-item" v-bind:class="{'selected-personal-center-navbar-item': currentTab == 'loginPwdModify'}" v-on:click="switchLoginPwdModifyTab"><a class=" nav-link" href="#"><span>登录密码修改</span></a></li>
+							<li class="nav-item" v-bind:class="{'selected-personal-center-navbar-item': currentTab == 'moneyPwdModify'}" v-on:click="switchMoneyPwdModifyTab"><a class="nav-link" href="#"><span>资金密码修改</span></a></li>
+							<li class="nav-item" v-bind:class="{'selected-personal-center-navbar-item': currentTab == 'accountChange'}" v-on:click="switchAccountChangeTab"><a class="nav-link" href="#"><span>个人账变</span></a></li>
+							<li class="nav-item" v-bind:class="{'selected-personal-center-navbar-item': currentTab == 'rechargeWithdraw'}" v-on:click="switchRechargeWithdrawTab"><a class="nav-link" href="#"><span>个人充提</span></a></li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+			<div id="bankCardInfoTab" v-show="currentTab == 'bankCardInfo'">
+				<div class="col-sm-6 offset-sm-3" v-show="editBankInfoFlag">
+					<form class="edit-bank-info-form">
+						<div class="form-group">
+							<label>开户银行:</label> <input type="text" class="form-control" v-model="openAccountBank">
+						</div>
+						<div class="form-group">
+							<label>开户人姓名:</label> <input type="text" class="form-control" v-model="accountHolder">
+						</div>
+						<div class="form-group">
+							<label>银行卡账号:</label> <input type="text" class="form-control" v-model="bankCardAccount">
+						</div>
+						<div class="col-sm-6 offset-sm-3">
+							<button type="button" class="btn btn-danger" v-on:click="bindBankInfo">确认提交</button>
+							<button type="button" class="btn" v-on:click="editBankInfoFlag = false">返回</button>
+						</div>
+					</form>
+				</div>
+				<div class="none-bank-card-info" v-show="!editBankInfoFlag && bankInfo.bankInfoLatelyModifyTime == null">
+					<div class="row">
+						<div class="col-sm-7 offset-sm-3">
+							<div class="alert alert-light" style="font-size: 30px;">
+								<span style="color: red;">*</span> 您还没绑定银行卡,如需提现请绑定银行卡.
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-6 offset-sm-5">
+							<button type="button" class="btn btn-secondary btn-lg" v-on:click="editBankInfo">马上绑定</button>
+						</div>
+					</div>
+				</div>
+				<div class="bank-card-info" v-show="!editBankInfoFlag && bankInfo.bankInfoLatelyModifyTime != null">
+					<div class="row">
+						<div class="col-sm-6 offset-sm-3 bank-card-info-item">
+							<label>开户银行:</label> <span>{{bankInfo.openAccountBank}}</span>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-6 offset-sm-3 bank-card-info-item">
+							<label>开户人姓名:</label> <span>{{bankInfo.accountHolder}}</span>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-6 offset-sm-3 bank-card-info-item">
+							<label>银行卡账号:</label> <span>{{bankInfo.bankCardAccount}}</span>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-6 offset-sm-3 bank-card-info-item">
+							<label>最近操作时间:</label> <span>{{bankInfo.bankInfoLatelyModifyTime}}</span>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-6 offset-sm-4">
+							<button type="button" class="btn btn-secondary btn-sm" v-on:click="editBankInfo">更换银行卡</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="loginPwdModifyTab" v-show="currentTab == 'loginPwdModify'" class="col-sm-6 offset-sm-3">
+				<form>
+					<div class="form-group">
+						<label>旧的登录密码:</label> <input type="password" class="form-control" v-model="oldLoginPwd">
+					</div>
+					<div class="form-group">
+						<label>新的登录密码:</label> <input type="password" class="form-control" v-model="newLoginPwd">
+					</div>
+					<div class="form-group">
+						<label>确认登录密码:</label> <input type="password" class="form-control" v-model="confirmLoginPwd">
+					</div>
+					<button type="button" class="btn btn-danger" v-on:click="modifyLoginPwd">确认修改</button>
+				</form>
+			</div>
+			<div id="moneyPwdModifyTab" v-show="currentTab == 'moneyPwdModify'" class="col-sm-6 offset-sm-3">
+				<form>
+					<div class="form-group">
+						<label>旧的资金密码:</label> <input type="password" class="form-control" v-model="oldMoneyPwd">
+					</div>
+					<div class="form-group">
+						<label>新的资金密码:</label> <input type="password" class="form-control" v-model="newMoneyPwd">
+					</div>
+					<div class="form-group">
+						<label>确认资金密码:</label> <input type="password" class="form-control" v-model="confirmMoneyPwd">
+					</div>
+					<button type="button" class="btn btn-danger" v-on:click="modifyMoneyPwd">确认修改</button>
+				</form>
+			</div>
+			<div v-show="currentTab == 'accountChange'">
+				<form class="form-inline common-query-cond-form">
+					<div class="form-group common-query-cond">
+						<label>游戏:</label> <select class="form-control" v-model="accountChangeGameCode">
+							<option value="">所有游戏</option>
+							<option v-for="dictItem in gameDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
+						</select>
+					</div>
+					<div class="form-group common-query-cond">
+						<label>时间:</label><input type="date" class="form-control" v-model="accountChangeStartTime"><span>到</span><input type="date" class="form-control" v-model="accountChangeEndTime">
+					</div>
+					<div class="form-group common-query-cond">
+						<label>账变类型:</label> <select class="form-control" v-model="accountChangeTypeCode">
+							<option value="">请选择</option>
+							<option v-for="dictItem in accountChangeTypeDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
+						</select>
+					</div>
+					<button type="button" class="btn btn-danger" v-on:click="refreshAccountChangeTable">搜索</button>
+				</form>
+				<table class="common-table account-change-table"></table>
+			</div>
+			<div v-show="currentTab == 'rechargeWithdraw'">
+				<form class="form-inline common-query-cond-form">
+					<div class="form-group common-query-cond">
+						<label>充值或提现:</label> <select class="form-control" v-model="rechargeWithdrawOrderType">
+							<option value="">请选择</option>
+							<option v-for="dictItem in rechargeWithdrawOrderTypeDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
+						</select>
+					</div>
+					<div class="form-group common-query-cond">
+						<label>时间:</label><input type="date" class="form-control" v-model="rechargeWithdrawStartTime"><span>到</span><input type="date" class="form-control" v-model="rechargeWithdrawEndTime">
+					</div>
+					<button type="button" class="btn btn-danger" v-on:click="refreshRechargeWithdrawTable">搜索</button>
+				</form>
+				<table class="common-table recharge-withdraw-table"></table>
+			</div>
+		</div>
+	</div>
+	<script src="/js/personal-center.js"></script>
+</body>
+</html>

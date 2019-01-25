@@ -1,0 +1,205 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>投注记录</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.bootcss.com/dayjs/1.7.8/dayjs.min.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/locale/bootstrap-table-zh-CN.min.js"></script>
+<style type="text/css">
+.betting-record-query-cond-form {
+	padding-left: 25px;
+	padding-right: 25px;
+	padding-top: 8px;
+}
+
+.betting-record-query-cond {
+	padding-right: 30px;
+}
+
+.betting-record-query-cond label {
+	padding-right: 5px;
+}
+
+.betting-record-query-cond span {
+	padding-left: 2px;
+	padding-right: 2px;
+}
+
+.fixed-table-header {
+	background-color: #dedede;
+}
+
+.betting-record-table {
+	border-bottom: 0 !important;
+}
+
+.betting-record-table thead th {
+	border-top: 0;
+	border-bottom: 0;
+	text-align: center;
+	color: #666;
+	font-size: 14px;
+	font-weight: normal;
+	background-color: #dedede;
+}
+
+.betting-record-table tr td {
+	text-align: center;
+	border-top: 0;
+	color: #666;
+	border-bottom: 1px dashed #a0a0a0;
+	border-left: 0;
+}
+
+.betting-record-table .betting-record-order-no {
+	color: #2765a1;
+	cursor: pointer;
+}
+
+.betting-record-table .betting-record-state {
+	color: #ec494c;
+}
+</style>
+</head>
+
+<body style="height: 100%;">
+	<div class="container">
+		<div th:replace="common/header::html"></div>
+		<div th:replace="common/personal-navbar::html"></div>
+		<div id="betting-record" v-cloak>
+			<form class="form-inline betting-record-query-cond-form" action="#">
+				<div class="form-group betting-record-query-cond">
+					<label>游戏:</label> <select class="form-control" v-model="gameCode">
+						<option value="">请选择</option>
+						<option value="CQSSC">重庆时时彩</option>
+					</select>
+				</div>
+				<div class="form-group betting-record-query-cond">
+					<label>时间:</label><input type="date" class="form-control" v-model="startTime"><span>到</span><input type="date" class="form-control" v-model="endTime">
+				</div>
+				<div class="form-group betting-record-query-cond">
+					<label>状态:</label> <select class="form-control" v-model="state">
+						<option value="">全部</option>
+						<option value="1">未开奖</option>
+						<option value="2">未中奖</option>
+						<option value="3">已中奖</option>
+					</select>
+				</div>
+				<button type="button" class="btn btn-danger" v-on:click="refreshTable">搜索</button>
+			</form>
+			<table class="betting-record-table"></table>
+		</div>
+		<div th:replace="component/betting-order-details-modal::html"></div>
+	</div>
+	<script type="text/javascript">
+		var bettingRecord = new Vue({
+			el : '#betting-record',
+			data : {
+				gameCode : '',
+				startTime : dayjs().format('YYYY-MM-DD'),
+				endTime : dayjs().format('YYYY-MM-DD'),
+				state : '',
+				bettingRecords : []
+			},
+			computed : {},
+			created : function() {
+			},
+			mounted : function() {
+				this.initTable();
+			},
+			methods : {
+				initTable : function() {
+					var that = this;
+					$('.betting-record-table').bootstrapTable({
+						classes : 'table table-hover',
+						height : 490,
+						url : '/betting/findMyBettingOrderInfoByPage',
+						pagination : true,
+						sidePagination : 'server',
+						pageNumber : 1,
+						pageSize : 10,
+						pageList : [ 10, 25, 50, 100 ],
+						queryParamsType : '',
+						queryParams : function(params) {
+							var condParam = {
+								pageSize : params.pageSize,
+								pageNum : params.pageNumber,
+								gameCode : that.gameCode,
+								startTime : that.startTime,
+								endTime : that.endTime,
+								state : that.state
+							};
+							return condParam;
+						},
+						responseHandler : function(res) {
+							return {
+								total : res.data.total,
+								rows : res.data.content
+							};
+						},
+						columns : [ {
+							field : 'orderNo',
+							title : '订单号',
+							cellStyle : {
+								classes : 'betting-record-order-no'
+							}
+						}, {
+							field : 'bettingTime',
+							title : '投注时间'
+						}, {
+							field : 'gameName',
+							title : '游戏'
+						}, {
+							field : 'issueNum',
+							title : '期号'
+						}, {
+							field : 'stateName',
+							title : '状态',
+							cellStyle : {
+								classes : 'betting-record-state'
+							}
+						}, {
+							field : 'totalBettingAmount',
+							title : '投注金额',
+							formatter : function(value) {
+								return value + '元';
+							}
+						}, {
+							field : 'totalWinningAmount',
+							title : '中奖金额',
+							formatter : function(value) {
+								return value + '元';
+							}
+						}, {
+							field : 'totalProfitAndLoss',
+							title : '盈亏',
+							formatter : function(value) {
+								return value + '元';
+							}
+						}, {
+							title : '操作'
+						} ],
+						onClickCell : function(field, value, row) {
+							if ('orderNo' == field) {
+								bettingOrderDetailsModal.loadAndShowBettingOrderDetails(row.id);
+							}
+						}
+					});
+				},
+				refreshTable : function() {
+					$('.betting-record-table').bootstrapTable('refreshOptions', {
+						pageNumber : 1
+					});
+				}
+			}
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>充值</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<style type="text/css">
+.recharge-form {
+	padding-top: 50px;
+}
+
+.recharge-form-item {
+	padding-bottom: 16px;
+}
+
+.recharge-form-item label {
+	padding-right: 20px;
+	min-width: 13%;
+	text-align: end;
+	color: #9a9898;
+}
+
+.recharge-form-item ul {
+	list-style: none;
+	display: inline-block;
+	padding-inline-start: 0;
+	margin-bottom: 0;
+}
+
+.recharge-form-item .recharge-way {
+	display: inline-block;
+	margin-right: 15px;
+	height: 45px;
+	width: 130px;
+	line-height: 40px;
+	text-align: center;
+	border: 2px solid #eee;
+	border-radius: 6px;
+	cursor: pointer;
+}
+
+.recharge-form-item .recharge-way span {
+	font-size: 14px;
+}
+
+.selected-recharge-way {
+	border-color: #e4393c !important;
+}
+
+.recharge-way i {
+	height: 30px;
+	width: 30px;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.recharge-way span {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.recharge-account-item span {
+	font-size: 18px;
+	color: #e4393c;
+}
+
+.recharge-amount-input-item {
+	margin-right: 6px;
+}
+
+.recharge-form-item .quick-input-amount {
+	display: inline-block;
+	margin-right: 8px;
+	height: 31px;
+	width: 100px;
+	line-height: 28px;
+	text-align: center;
+	border-radius: 6px;
+	cursor: pointer;
+	background: #fffaf7;
+	border: 2px solid #ffecdf;
+	color: #e4393c;
+}
+</style>
+</head>
+
+<body style="height: 100%;">
+	<div class="container">
+		<div th:replace="common/header::html"></div>
+		<div th:replace="common/personal-navbar::html"></div>
+		<div id="recharge" v-cloak>
+			<div class="recharge-form">
+				<div class="row">
+					<div class="col-sm-10 offset-sm-2 recharge-form-item">
+						<label>充值方式</label> <span>
+							<ul>
+								<li class="recharge-way" v-for="rechargeWay in rechargeWays" v-bind:class="{'selected-recharge-way': selectedRechargeWay == rechargeWay}" v-on:click="chooseRechargeWay(rechargeWay)"><i :style="{background: 'url('+ rechargeWay.icon +')' }"></i> <span>{{rechargeWay.rechargeWayName}}</span></li>
+							</ul>
+						</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-10 offset-sm-2 recharge-form-item recharge-account-item">
+						<label>充值账号</label> <span>{{header.userName}}</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-10 offset-sm-2 recharge-form-item recharge-amount-item">
+						<label>充值金额</label> <span> <input type="text" class="recharge-amount-input-item" v-model="rechargeAmount">
+							<ul>
+								<li class="quick-input-amount" v-on:click="rechargeAmount = 100">100元</li>
+								<li class="quick-input-amount" v-on:click="rechargeAmount = 300">300元</li>
+								<li class="quick-input-amount" v-on:click="rechargeAmount = 500">500元</li>
+								<li class="quick-input-amount" v-on:click="rechargeAmount = 5000">5000元</li>
+							</ul>
+						</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-9 offset-sm-3">
+						<div class="alert alert-light" style="font-size: 14px; padding-top: 0;">备注:最低充值100元,最高充值50000元.单次充值额度:100~50000元</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-8 offset-sm-4">
+						<button type="button" class="btn btn-success" v-on:click="confirmPay">确认支付</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div th:replace="component/recharge-pay-modal::html"></div>
+	</div>
+	<script type="text/javascript">
+		var recharge = new Vue({
+			el : '#recharge',
+			data : {
+				selectedRechargeWay : '',
+				rechargeWays : [ {
+					rechargeWayCode : 'zfbsm',
+					rechargeWayName : '支付宝',
+					icon : '/images/recharge/alipay.png'
+				}, {
+					rechargeWayCode : 'wxsm',
+					rechargeWayName : '微信',
+					icon : '/images/recharge/wechat.png'
+				} ],
+				rechargeAmount : ''
+			},
+			computed : {},
+			created : function() {
+			},
+			mounted : function() {
+			},
+			methods : {
+				chooseRechargeWay : function(rechargeWay) {
+					this.selectedRechargeWay = rechargeWay;
+				},
+				confirmPay : function() {
+					var that = this;
+					if (that.selectedRechargeWay == null || that.selectedRechargeWay == '') {
+						layer.alert('请选择支付方式');
+						return;
+					}
+					if (that.rechargeAmount == null || that.rechargeAmount == '') {
+						layer.alert('请输入充值金额');
+						return;
+					}
+					if (that.btnClickFlag) {
+						return;
+					}
+					layer.open({
+						title : '提示',
+						icon : 7,
+						closeBtn : 0,
+						btn : [],
+						content : '正在创建充值订单...',
+						time : 2000
+					});
+					that.$http.post('/recharge/generateRechargeOrder', {
+						rechargeWayCode : that.selectedRechargeWay.rechargeWayCode,
+						rechargeAmount : that.rechargeAmount
+					}, {
+						emulateJSON : true
+					}).then(function(res) {
+						layer.open({
+							title : '提示',
+							icon : '1',
+							closeBtn : 0,
+							btn : [],
+							content : '充值订单创建成功,正在跳转到支付页面!',
+							time : 2000,
+							end : function() {
+								window.location.href = res.body.data.payUrl;
+							}
+						});
+					});
+				}
+			}
+		});
+	</script>
+</body>
+</html>

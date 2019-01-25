@@ -1,0 +1,97 @@
+package me.zohar.lottery.game.vo;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.BeanUtils;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import me.zohar.lottery.game.domain.GamePlay;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class GamePlayVO {
+
+	/**
+	 * 主键id
+	 */
+	private String id;
+
+	/**
+	 * 游戏玩法代码
+	 */
+	private String gamePlayCode;
+
+	/**
+	 * 游戏玩法名称
+	 */
+	private String gamePlayName;
+
+	/**
+	 * 赔率
+	 */
+	private Double odds;
+
+	/**
+	 * 玩法描述
+	 */
+	private String gamePlayDesc;
+
+	/**
+	 * 排序号
+	 */
+	private Double orderNo;
+
+	/**
+	 * 所属游戏代码
+	 */
+	private String gameCode;
+
+	/**
+	 * 所属游戏名称
+	 */
+	private String gameName;
+	
+	/**
+	 * 状态,启用:1;禁用:0
+	 */
+	private String state;
+
+	/**
+	 * 所属游戏玩法类别代码
+	 */
+	private String gamePlayCategoryCode;
+
+	/**
+	 * 所属游戏玩法类别名称
+	 */
+	private String gamePlayCategoryName;
+
+	/**
+	 * 所属游戏玩法子类别代码
+	 */
+	private String subGamePlayCategoryCode;
+
+	/**
+	 * 所属游戏玩法子类别名称
+	 */
+	private String subGamePlayCategoryName;
+
+	/**
+	 * 号位集合
+	 */
+	private List<NumLocateVO> numLocates = new ArrayList<>();
+
+	public static GamePlayVO convertFor(GamePlay gamePlay) {
+		if (gamePlay == null) {
+			return null;
+		}
+		GamePlayVO vo = new GamePlayVO();
+		BeanUtils.copyProperties(gamePlay, vo);
+		return vo;
+	}
+
+}

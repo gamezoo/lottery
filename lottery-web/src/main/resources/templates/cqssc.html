@@ -1,0 +1,224 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>首页</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.bootcss.com/dayjs/1.7.8/dayjs.min.js"></script>
+<script src="https://cdn.bootcss.com/dayjs/1.7.8/locale/zh-cn.js"></script>
+<link href="/css/cqssc.css" rel="stylesheet" type="text/css">
+</head>
+
+<body style="height: 100%;">
+	<div class="container">
+		<div th:replace="common/header::html"></div>
+		<div id="content" v-cloak>
+			<div class="row">
+				<div class="col-sm-4 lottery-game-category">
+					<div class="lottery-logo">
+						<img src="/images/lottery-logo/cqssc.png" />
+					</div>
+					<h3>重庆时时彩</h3>
+					<p>
+						第<span class="lately-issue">{{latelyIssue.issueNum}}</span>期
+					</p>
+				</div>
+				<div class="col-sm-4 lottery-result">
+					<div class="game-category-name">
+						<span class="game-name">重庆时时彩</span> <label>第<em class="lately-issue">{{latelyIssue.issueNum}}</em>期
+						</label>
+					</div>
+					<div class="lotterying-tip" v-show="latelyIssue.id != null && splitlotteryNum(latelyIssue.lotteryNum).length == 0">正在开奖中...</div>
+					<div class="lottery-closed" v-show="latelyIssue.id == null">
+						<p class="lottery-closed-tip">休市中...</p>
+						<p class="nexttime-open-lottery">距离下次开市:</p>
+						<p class="open-countdown-clock">
+							<span>{{openCountdownHour}}时<em>:</em></span><span>{{openCountdownMinute}}分<em>:</em></span><span>{{openCountdownSecond}}秒</span>
+						</p>
+					</div>
+
+					<div class="lottery-num" v-show="splitlotteryNum(latelyIssue.lotteryNum).length != 0">
+						<span v-for="num in splitlotteryNum(latelyIssue.lotteryNum)">{{num}}</span>
+					</div>
+				</div>
+				<div class="col-sm-4 lottery-countdown">
+					<div>
+						<span>第<span class="current-issue">{{currentIssue.issueNum}}</span>期
+						</span> <span class="betting-state">{{bettingState}}</span>
+					</div>
+					<div class="countdown-clock">
+						<span>{{countdownHour}}</span><em>:</em><span>{{countdownMinute}}</span><em>:</em><span>{{countdownSecond}}</span>
+					</div>
+				</div>
+			</div>
+			<div class="row play-row">
+				<div class="col-sm-12">
+					<ul class="nav nav-tabs play-tabs">
+						<li class="nav-item" v-for="gamePlayCategory in gamePlayCategorys" v-on:click="switchGamePlayCategory(gamePlayCategory)"><a class="nav-link" href="#" v-bind:class="{'active': gamePlayCategory == selectedGamePlayCategory}">{{gamePlayCategory.gamePlayCategoryName}}</a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="row betting-main">
+				<div class="col-sm-9">
+					<div class="play-category">
+						<div class="definite-play" v-for="subGamePlayCategory in subGamePlayCategorys">
+							<dt>{{subGamePlayCategory.subGamePlayCategoryName}}</dt>
+							<dd v-for="play in subGamePlayCategory.plays" v-bind:class="{'definite-play-selected': play == selectedPlay}" v-on:click="switchPlay(play)">{{play.gamePlayName}}</dd>
+						</div>
+					</div>
+					<div class="select-no-area">
+						<div class="no-locate" v-for="(numLocate, i) in numLocates">
+							<ul>
+								<li class="no-locate-label">{{numLocate.locateName}}</li>
+								<li>
+									<ul class="ball-list">
+										<li v-for="(num, j) in numLocate.nums" v-bind:class="{'ball-selected': num.selectedFlag}" v-on:click="switchNumSelectedState(i, j)">{{num.num}}</li>
+									</ul>
+								</li>
+								<li class="quick-select-no" v-if="numLocate.hasFilterBtnFlag">
+									<dl>
+										<dd v-on:click="selectAllNo(i)">全</dd>
+										<dd v-on:click="selectOddNum(i)">奇</dd>
+										<dd v-on:click="selectEvenNum(i)">偶</dd>
+										<dd v-on:click="selectBigNum(i)">大</dd>
+										<dd v-on:click="selectSmallNum(i)">小</dd>
+										<dd v-on:click="clearSelected(i)">清</dd>
+									</dl>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div class="pre-betting-btn-operation-area">
+						<button type="button" class="btn btn-success btn-sm" v-on:click="addToPreBettingOrder">添加号码</button>
+						<button type="button" class="btn btn-danger btn-sm">一键投注</button>
+						<button type="button" class="btn btn-success btn-sm">机选10注</button>
+						<!-- <button type="button" class="btn btn-danger btn-sm" v-bind:class="{'disabled': bettingCount <= 1}">显示包牌组合</button> -->
+					</div>
+					<div class="row betting-amount-area">
+						<div class="col-sm-2 base-amount">
+							<div>
+								<span v-on:click="switchYuanJiaoMode(2)" v-bind:class="{'selected-base-amount': baseAmount == 2}">2元</span> <span v-on:click="switchYuanJiaoMode(0.2)" v-bind:class="{'selected-base-amount': baseAmount == 0.2}">2角</span>
+							</div>
+							<div>
+								<span v-on:click="switchYuanJiaoMode(1)" v-bind:class="{'selected-base-amount': baseAmount == 1}">1元</span> <span v-on:click="switchYuanJiaoMode(0.1)" v-bind:class="{'selected-base-amount': baseAmount == 0.1}">1角</span>
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<div class="betting-multiple">
+								<span class="betting-multiple-label">倍数</span> <span class="betting-multiple-btn" v-on:click="multipleSubtract1">-</span> <input class="betting-multiple-value" maxlength="5" v-model="inputMultiple"><span class="betting-multiple-btn" v-on:click="multipleAdd1">+</span>
+							</div>
+							<div class="multiple-total">
+								您当前选择了 <em class="betting-count">{{bettingCount}}</em> 注,共￥ <em class="betting-amount">{{bettingCount * baseAmount}}</em>
+							</div>
+						</div>
+						<div class="col-sm-4 offset-md-2">
+							<div class="play-introduce-play-odds">
+								<i class="play-introduce" v-on:mouseenter="showPlayIntroduceDesc" v-on:mouseleave="hidePlayIntroduceDesc">玩法介绍<label>?</label>
+									<div class="play-introduce-desc" style="display: none;">{{selectedPlay.gamePlayDesc}}</div>
+								</i> <i class="play-odds"><label class="play-odds-label">赔率:</label><label class="play-odds-value">{{selectedPlay.odds}}</label></i>
+							</div>
+						</div>
+					</div>
+					<div class="row pre-betting-area">
+						<div class="col-sm-12">
+							<div class="card">
+								<div class="card-body">
+									<table class="table table-sm pre-betting-table">
+										<thead>
+											<tr>
+												<th>玩法</th>
+												<th>号码</th>
+												<th>注数</th>
+												<th>倍/元</th>
+												<th></th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr v-for="(preBettingRecord, index) in preBettingRecords">
+												<td>{{preBettingRecord.gamePlayName}}</td>
+												<td class="pre-betting-selected-no">{{preBettingRecord.selectedNo}}</td>
+												<td>{{preBettingRecord.bettingCount}}注</td>
+												<td class="pre-betting-amount">￥{{baseAmount * multiple * preBettingRecord.bettingCount}}</td>
+												<td class="del-pre-betting-record" v-on:click="delPreBettingOrder(index)"><span>X</span></td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row betting-btn-operation-area">
+						<div class="col-sm-6 betting-total">
+							<span>总计<em class="betting-count">{{preBettingTotalCount}}</em>注, 合计￥<em class="betting-amount">{{preBettingTotalAmount}}</em>
+							</span>
+						</div>
+						<div class="col-sm-3 offset-md-3 betting-btn-operation">
+							<button type="button" class="btn btn-sm" v-on:click="clearPreBettingOrder">清空</button>
+							<button type="button" class="btn btn-success btn-sm" v-on:click="placeOrder">确认投注</button>
+						</div>
+
+					</div>
+				</div>
+				<div class="col-sm-3">
+					<div class="card lately-lottery-result-card">
+						<div class="card-header">最近开奖</div>
+						<div class="card-body lately-lottery-result-card-body">
+							<table class="table table-sm lately-lottery-result">
+								<thead>
+									<tr>
+										<th>期号</th>
+										<th>开奖号</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr v-for="latelyLotteryResult in latelyThe5TimeLotteryResults">
+										<td>{{latelyLotteryResult.issueNum}}</td>
+										<td class="lottery-num"><b v-for="lotteryNum in latelyLotteryResult.lotteryNums">{{lotteryNum}}</b></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="card today-latest-betting-record-card">
+						<div class="card-header">
+							<span>今日投注</span><span class="float-right betting-record-link" v-on:click="gotoBettingRecordPage">投注记录>></span>
+						</div>
+						<div class="card-body today-latest-betting-record-card-body">
+							<table class="table table-sm today-latest-betting-record">
+								<thead>
+									<tr>
+										<th>玩法</th>
+										<th>期号</th>
+										<th>金额</th>
+										<th>状态</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr v-for="bettingRecord in todayLatestBettingRecords">
+										<td><a v-on:click="bettingOrderDetailsModal.loadAndShowBettingOrderDetails(bettingRecord.bettingOrderId)">{{bettingRecord.gamePlayName}}</a></td>
+										<td>{{bettingRecord.issueNum}}</td>
+										<td>{{bettingRecord.bettingAmount}}</td>
+										<td>{{bettingRecord.stateName}}</td>
+									</tr>
+									<tr v-if="todayLatestBettingRecords.length == 0">
+										<td colspan="4" class="none-betting-record">暂时没有记录!</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div th:replace="component/betting-order-details-modal::html"></div>
+	</div>
+	<script src="/js/cqssc.js"></script>
+</body>
+</html>

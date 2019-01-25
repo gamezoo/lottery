@@ -1,0 +1,124 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>盛大彩票</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<style type="text/css">
+.handle-result {
+	text-align: center;
+	padding-top: 8%;
+}
+
+.handle-result-icon {
+	margin-bottom: 24px;
+}
+
+.handle-result-icon i {
+	font-size: 100px;
+	color: #52c41a;
+}
+
+.handle-result-title {
+	font-size: 42px;
+	color: #000000d9;
+	font-weight: 500;
+	line-height: 32px;
+	margin-bottom: 24px;
+}
+
+.handle-result-desc {
+	font-size: 21px;
+	line-height: 22px;
+	color: #2b2a2a73;
+}
+</style>
+</head>
+
+<body style="height: 100%;">
+	<div class="container">
+		<div th:replace="common/header::html"></div>
+		<div id="recharge" v-cloak>
+			<div class="handle-result">
+				<div class="handle-result-icon">
+					<i><svg viewBox="64 64 896 896" data-icon="check-circle" width="1em" height="1em" fill="currentColor" aria-hidden="true">
+							<path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm193.5 301.7l-210.6 292a31.8 31.8 0 0 1-51.7 0L318.5 484.9c-3.8-5.3 0-12.7 6.5-12.7h46.9c10.2 0 19.9 4.9 25.9 13.3l71.2 98.8 157.2-218c6-8.3 15.6-13.3 25.9-13.3H699c6.5 0 10.3 7.4 6.5 12.7z"></path></svg></i>
+				</div>
+				<div class="handle-result-title">首页</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var recharge = new Vue({
+			el : '#recharge',
+			data : {
+				selectedRechargeWay : '',
+				rechargeWays : [ {
+					rechargeWayCode : 'zfbsm',
+					rechargeWayName : '支付宝',
+					icon : '/images/recharge/alipay.png'
+				}, {
+					rechargeWayCode : 'wxsm',
+					rechargeWayName : '微信',
+					icon : '/images/recharge/wechat.png'
+				} ],
+				rechargeAmount : ''
+			},
+			computed : {},
+			created : function() {
+			},
+			mounted : function() {
+			},
+			methods : {
+				chooseRechargeWay : function(rechargeWay) {
+					this.selectedRechargeWay = rechargeWay;
+				},
+				confirmPay : function() {
+					var that = this;
+					if (that.selectedRechargeWay == null || that.selectedRechargeWay == '') {
+						layer.alert('请选择支付方式');
+						return;
+					}
+					if (that.rechargeAmount == null || that.rechargeAmount == '') {
+						layer.alert('请输入充值金额');
+						return;
+					}
+					if (that.btnClickFlag) {
+						return;
+					}
+					layer.open({
+						title : '提示',
+						icon : 7,
+						closeBtn : 0,
+						btn : [],
+						content : '正在创建充值订单...',
+						time : 2000
+					});
+					that.$http.post('/recharge/generateRechargeOrder', {
+						rechargeWayCode : that.selectedRechargeWay.rechargeWayCode,
+						rechargeAmount : that.rechargeAmount
+					}, {
+						emulateJSON : true
+					}).then(function(res) {
+						layer.open({
+							title : '提示',
+							icon : '1',
+							closeBtn : 0,
+							btn : [],
+							content : '充值订单创建成功,正在跳转到支付页面!',
+							time : 2000,
+							end : function() {
+								window.location.href = res.body.data.payUrl;
+							}
+						});
+					});
+				}
+			}
+		});
+	</script>
+</body>
+</html>
