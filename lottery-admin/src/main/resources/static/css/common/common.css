@@ -1,0 +1,51 @@
+@charset "UTF-8";
+
+[v-cloak] {
+	display: none;
+}
+
+.fixed-table-header {
+	background-color: #dedede;
+}
+
+.common-query-cond-form {
+	padding-left: 25px;
+	padding-right: 25px;
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+.common-query-cond {
+	padding-right: 30px;
+}
+
+.common-query-cond label {
+	padding-right: 5px;
+}
+
+.common-query-cond span {
+	padding-left: 2px;
+	padding-right: 2px;
+}
+
+.common-table {
+	border-bottom: 0 !important;
+}
+
+.common-table thead th {
+	border-top: 0;
+	border-bottom: 0;
+	text-align: center;
+	color: #666;
+	font-size: 14px;
+	font-weight: normal;
+	background-color: #dedede;
+}
+
+.common-table tr td {
+	text-align: center;
+	border-top: 0;
+	color: #666;
+	border-bottom: 1px dashed #a0a0a0;
+	border-left: 0;
+}

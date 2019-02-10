@@ -172,7 +172,6 @@ new Vue({
 						odds : obj.odds,
 						numLocates : obj.numLocates,
 						gameCode : obj.gameCode,
-						gameName : obj.gameName,
 						gamePlayCategoryCode : obj.gamePlayCategoryCode,
 						gamePlayCategoryName : obj.gamePlayCategoryName,
 						subGamePlayCategoryCode : obj.subGamePlayCategoryCode,

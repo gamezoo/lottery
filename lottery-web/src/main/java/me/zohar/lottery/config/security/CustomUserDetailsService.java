@@ -7,8 +7,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
-import me.zohar.lottery.useraccount.domain.UserAccount;
-import me.zohar.lottery.useraccount.repo.UserAccountRepo;
+import me.zohar.lottery.useraccount.service.UserAccountService;
+import me.zohar.lottery.useraccount.vo.LoginAccountInfoVO;
 
 /**
  * 通过实现UserDetailsService接口提供复杂认证
@@ -22,17 +22,17 @@ import me.zohar.lottery.useraccount.repo.UserAccountRepo;
 public class CustomUserDetailsService implements UserDetailsService {
 
 	@Autowired
-	private UserAccountRepo userAccountRepo;
+	private UserAccountService userAccountService;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		UserAccount userAccount = userAccountRepo.findByUserName(username);
-		if (userAccount == null) {
+		LoginAccountInfoVO loginAccountInfo = userAccountService.getLoginAccountInfo(username);
+		if (loginAccountInfo == null) {
 			log.warn("账号不存在:{}", username);
 			throw new UsernameNotFoundException("用户名或密码不正确");
 		}
 
-		return new UserAccountDetails(userAccount);
+		return new UserAccountDetails(loginAccountInfo);
 	}
 
 }

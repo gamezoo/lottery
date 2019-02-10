@@ -161,6 +161,9 @@ public class BettingService {
 			if (gamePlay == null) {
 				throw new BizException(BizErrorCode.游戏玩法不存在.getCode(), BizErrorCode.游戏玩法不存在.getMsg());
 			}
+			if (Constant.游戏玩法状态_禁用.equals(gamePlay.getState())) {
+				throw new BizException(BizErrorCode.游戏玩法被禁用.getCode(), BizErrorCode.游戏玩法被禁用.getMsg());
+			}
 			Double odds = gamePlay.getOdds();
 			if (odds == null || odds <= 0) {
 				throw new BizException(BizErrorCode.玩法赔率异常.getCode(), BizErrorCode.玩法赔率异常.getMsg());

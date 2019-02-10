@@ -73,32 +73,18 @@ public class GamePlay {
 	private String gameCode;
 
 	/**
-	 * 所属游戏名称
-	 */
-	private String gameName;
-
-	/**
 	 * 状态,启用:1;禁用:0
 	 */
 	private String state;
-
-	/**
-	 * 所属游戏玩法类别代码
-	 */
-	private String gamePlayCategoryCode;
 
 	/**
 	 * 所属游戏玩法类别名称
 	 */
 	private String gamePlayCategoryName;
 
-	/**
-	 * 所属游戏玩法子类别代码
-	 */
-	private String subGamePlayCategoryCode;
 
 	/**
-	 * 所属游戏玩法子类别名称
+	 * 所属游戏子玩法类别名称
 	 */
 	private String subGamePlayCategoryName;
 	
@@ -107,6 +93,12 @@ public class GamePlay {
 	 */
 	@Version
 	private Long version;
+	
+	/**
+	 * 对应游戏id
+	 */
+	@Column(name = "game_id", length = 32)
+	private String gameId;
 
 	/**
 	 * 号位集合
@@ -115,5 +107,6 @@ public class GamePlay {
 	@JoinColumn(name = "game_play_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@OrderBy("orderNo ASC")
 	private Set<NumLocate> numLocates;
+	
 
 }

@@ -7,19 +7,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import me.zohar.lottery.common.vo.Result;
-import me.zohar.lottery.game.service.GamePlayService;
+import me.zohar.lottery.game.service.GameService;
 
 @Controller
 @RequestMapping("/game")
 public class GameController {
 
 	@Autowired
-	private GamePlayService gamePlayService;
+	private GameService gameService;
 
 	@GetMapping("/findGamePlayAndNumLocateByGameCode")
 	@ResponseBody
 	public Result findGamePlayAndNumLocateByGameCode(String gameCode) {
-		return Result.success().setData(gamePlayService.findGamePlayAndNumLocateByGameCode(gameCode));
+		return Result.success().setData(gameService.findGamePlayAndNumLocateByGameCode(gameCode));
 	}
 
 }

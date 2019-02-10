@@ -36,6 +36,7 @@ import me.zohar.lottery.useraccount.repo.AccountChangeLogRepo;
 import me.zohar.lottery.useraccount.repo.UserAccountRepo;
 import me.zohar.lottery.useraccount.vo.AccountChangeLogVO;
 import me.zohar.lottery.useraccount.vo.BankInfoVO;
+import me.zohar.lottery.useraccount.vo.LoginAccountInfoVO;
 import me.zohar.lottery.useraccount.vo.UserAccountInfoVO;
 
 @Service
@@ -80,6 +81,11 @@ public class UserAccountService {
 		String newMoneyPwd = pwdEncoder.encode(param.getNewMoneyPwd());
 		userAccount.setMoneyPwd(newMoneyPwd);
 		userAccountRepo.save(userAccount);
+	}
+	
+	@Transactional(readOnly = true)
+	public LoginAccountInfoVO getLoginAccountInfo(String userName) {
+		return LoginAccountInfoVO.convertFor(userAccountRepo.findByUserName(userName));
 	}
 
 	@Transactional(readOnly = true)

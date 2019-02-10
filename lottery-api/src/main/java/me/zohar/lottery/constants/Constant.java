@@ -10,6 +10,10 @@ public class Constant {
 	
 	public static final String 游戏状态_休市中 = "3";
 	
+	public static final String 游戏玩法状态_启用 = "1";
+	
+	public static final String 游戏玩法状态_禁用 = "0";
+	
 	public static final String 游戏当前期号 = "_GAME_CURRENT_ISSUE";
 	
 	public static final String 当前开奖期号ID = "CURRENT_LOTTERY_ISSUE_ID";

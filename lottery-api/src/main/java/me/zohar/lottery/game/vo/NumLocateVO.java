@@ -7,14 +7,10 @@ import java.util.List;
 import org.springframework.beans.BeanUtils;
 
 import cn.hutool.core.collection.CollectionUtil;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import me.zohar.lottery.game.domain.NumLocate;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class NumLocateVO {
 
 	/**

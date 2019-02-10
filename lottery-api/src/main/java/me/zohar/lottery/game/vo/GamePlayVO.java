@@ -5,14 +5,11 @@ import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import me.zohar.lottery.dictconfig.DictHolder;
 import me.zohar.lottery.game.domain.GamePlay;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class GamePlayVO {
 
 	/**
@@ -51,19 +48,14 @@ public class GamePlayVO {
 	private String gameCode;
 
 	/**
-	 * 所属游戏名称
-	 */
-	private String gameName;
-	
-	/**
 	 * 状态,启用:1;禁用:0
 	 */
 	private String state;
-
+	
 	/**
-	 * 所属游戏玩法类别代码
+	 * 状态中文值
 	 */
-	private String gamePlayCategoryCode;
+	private String stateName;
 
 	/**
 	 * 所属游戏玩法类别名称
@@ -71,12 +63,7 @@ public class GamePlayVO {
 	private String gamePlayCategoryName;
 
 	/**
-	 * 所属游戏玩法子类别代码
-	 */
-	private String subGamePlayCategoryCode;
-
-	/**
-	 * 所属游戏玩法子类别名称
+	 * 所属游戏子玩法类别名称
 	 */
 	private String subGamePlayCategoryName;
 
@@ -91,6 +78,7 @@ public class GamePlayVO {
 		}
 		GamePlayVO vo = new GamePlayVO();
 		BeanUtils.copyProperties(gamePlay, vo);
+		vo.setStateName(DictHolder.getDictItemName("gamePlayState", vo.getState()));
 		return vo;
 	}
 
