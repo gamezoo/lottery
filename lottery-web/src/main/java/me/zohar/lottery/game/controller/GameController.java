@@ -16,6 +16,12 @@ public class GameController {
 	@Autowired
 	private GameService gameService;
 
+	@GetMapping("/findAllOpenGame")
+	@ResponseBody
+	public Result findAllOpenGame() {
+		return Result.success().setData(gameService.findAllOpenGame());
+	}
+
 	@GetMapping("/findGamePlayAndNumLocateByGameCode")
 	@ResponseBody
 	public Result findGamePlayAndNumLocateByGameCode(String gameCode) {

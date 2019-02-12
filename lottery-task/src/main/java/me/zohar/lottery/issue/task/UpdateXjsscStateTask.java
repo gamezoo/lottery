@@ -19,7 +19,7 @@ public class UpdateXjsscStateTask {
 	public void execute() {
 		try {
 			log.info("更新新疆时时彩状态定时任务start");
-			issueService.updateGameState(GameCode.新疆时时彩);
+			issueService.updateGameCurrentIssueState(GameCode.新疆时时彩);
 			log.info("更新新疆时时彩状态定时任务end");
 		} catch (Exception e) {
 			log.error("更新新疆时时彩状态定时任务发生异常", e);

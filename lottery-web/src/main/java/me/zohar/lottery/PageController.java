@@ -45,6 +45,16 @@ public class PageController {
 	public String cqssc() {
 		return "cqssc";
 	}
+	
+	/**
+	 * 新疆时时彩
+	 * 
+	 * @return
+	 */
+	@GetMapping("/xjssc")
+	public String xjssc() {
+		return "xjssc";
+	}
 
 	/**
 	 * 个人中心页面

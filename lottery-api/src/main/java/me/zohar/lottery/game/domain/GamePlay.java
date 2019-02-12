@@ -95,12 +95,6 @@ public class GamePlay {
 	private Long version;
 	
 	/**
-	 * 对应游戏id
-	 */
-	@Column(name = "game_id", length = 32)
-	private String gameId;
-
-	/**
 	 * 号位集合
 	 */
 	@OneToMany(fetch = FetchType.LAZY)

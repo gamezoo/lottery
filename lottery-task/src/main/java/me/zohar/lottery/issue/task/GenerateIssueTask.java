@@ -23,13 +23,13 @@ public class GenerateIssueTask {
 	/**
 	 * 每天零点10分执行一次
 	 */
-	@Scheduled(cron = "0 10 0 * * ?")
-//	@Scheduled(fixedRate = 6000)
+//	@Scheduled(cron = "0 10 0 * * ?")
+	@Scheduled(fixedRate = 6000)
 	public void execute() {
 		try {
 			log.info("执行生成期号数据定时任务start");
 			cqsscService.generateIssue(new Date());
-			xjsscService.generateIssue(new Date());
+//			xjsscService.generateIssue(new Date());
 			log.info("执行生成期号数据定时任务end");
 		} catch (Exception e) {
 			log.error("执行生成期号数据定时任务发生异常", e);

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import me.zohar.lottery.common.param.PageParam;
 import me.zohar.lottery.common.vo.Result;
+import me.zohar.lottery.game.param.GameParam;
 import me.zohar.lottery.game.param.GamePlayParam;
 import me.zohar.lottery.game.service.GameService;
 
@@ -24,6 +25,26 @@ public class GameController {
 	@ResponseBody
 	public Result findAllGame(PageParam param) {
 		return Result.success().setData(gameService.findAllGame());
+	}
+	
+	@GetMapping("/delGameById")
+	@ResponseBody
+	public Result delGameById(String id) {
+		gameService.delGameById(id);
+		return Result.success();
+	}
+
+	@PostMapping("/addOrUpdateGame")
+	@ResponseBody
+	public Result addOrUpdateGame(@RequestBody GameParam gameParam) {
+		gameService.addOrUpdateGame(gameParam);
+		return Result.success();
+	}
+
+	@GetMapping("/findGameById")
+	@ResponseBody
+	public Result findGameById(String id) {
+		return Result.success().setData(gameService.findGameById(id));
 	}
 
 	@GetMapping("/findGamePlayByGameCode")
@@ -51,7 +72,7 @@ public class GameController {
 		gameService.addOrUpdateGamePlay(gamePlayParam);
 		return Result.success();
 	}
-	
+
 	@GetMapping("/delGamePlayById")
 	@ResponseBody
 	public Result delGamePlayById(String id) {

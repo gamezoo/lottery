@@ -14,7 +14,11 @@ var gameManage = new Vue({
 	el : '#game-manage',
 	data : {
 		games : [],
-		addOrUpdateGameFlag: false,
+		editGame : {},
+		addOrUpdateGameFlag : false,
+		gameActionTitle : '',
+		issueSettingFlag : false,
+		issueSettingDetails : {},
 		showGameManageFlag : true,
 		selectedGame : {},
 		selectedGamePlay : {},
@@ -38,9 +42,208 @@ var gameManage = new Vue({
 			that.$http.get('/game/findAllGame', {}).then(function(res) {
 				that.games = res.body.data;
 			});
-			
+
 		},
-		
+
+		openIssueSettingModal : function(game) {
+			var that = this;
+			that.issueSettingFlag = true;
+			that.$http.get('/issue/getIssueSettingDetailsByGameCode', {
+				params : {
+					gameCode : game.gameCode
+				}
+			}).then(function(res) {
+				if (res.body.data != null) {
+					that.issueSettingDetails = res.body.data;
+				} else {
+					that.issueSettingDetails = {
+						gameCode : game.gameCode,
+						dateFormat : '',
+						issueFormat : '',
+						issueGenerateRules : []
+					};
+				}
+			});
+		},
+
+		addIssueGenerateRule : function(index) {
+			this.issueSettingDetails.issueGenerateRules.push({
+				startTime : '',
+				timeInterval : '',
+				issueCount : ''
+			});
+		},
+
+		delIssueGenerateRule : function(index) {
+			this.issueSettingDetails.issueGenerateRules.splice(index, 1);
+		},
+
+		/**
+		 * 新增或修改期号设置
+		 */
+		addOrUpdateIssueSetting : function() {
+			var that = this;
+			var issueSettingDetails = that.issueSettingDetails;
+			if (issueSettingDetails.dateFormat == null || issueSettingDetails.dateFormat == '') {
+				layer.alert('请输入日期格式', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			if (issueSettingDetails.issueFormat == null || issueSettingDetails.issueFormat == '') {
+				layer.alert('请输入期号格式', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			if (issueSettingDetails.issueGenerateRules == null || issueSettingDetails.issueGenerateRules.length == 0) {
+				layer.alert('请设置期号规则', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			for (var i = 0; i < issueSettingDetails.issueGenerateRules.length; i++) {
+				var issueGenerateRule = issueSettingDetails.issueGenerateRules[i];
+				if (issueGenerateRule.startTime == null || issueGenerateRule.startTime == '') {
+					layer.alert('请输入开始时间', {
+						title : '提示',
+						icon : 7,
+						time : 3000
+					});
+					return;
+				}
+				if (issueGenerateRule.timeInterval == null || issueGenerateRule.timeInterval == '') {
+					layer.alert('请输入时间间隔', {
+						title : '提示',
+						icon : 7,
+						time : 3000
+					});
+					return;
+				}
+				if (issueGenerateRule.issueCount == null || issueGenerateRule.issueCount == '') {
+					layer.alert('请输入期数', {
+						title : '提示',
+						icon : 7,
+						time : 3000
+					});
+					return;
+				}
+			}
+
+			that.$http.post('/issue/addOrUpdateIssueSetting', issueSettingDetails).then(function(res) {
+				layer.alert('操作成功!', {
+					icon : 1,
+					time : 3000,
+					shade : false
+				});
+				that.issueSettingFlag = false;
+				that.initGameManageTable();
+			});
+		},
+
+		openAddGameModal : function() {
+			this.addOrUpdateGameFlag = true;
+			this.gameActionTitle = '新增游戏';
+			this.editGame = {
+				gameName : '',
+				gameCode : '',
+				gameDesc : '',
+				state : '1',
+				orderNo : '',
+				copyGameCode : ''
+			};
+		},
+
+		delGame : function(game) {
+			var that = this;
+			layer.confirm('确定要删除吗?', {
+				icon : 7,
+				title : '提示'
+			}, function(index) {
+				layer.close(index);
+				that.$http.get('/game/delGameById', {
+					params : {
+						id : game.id
+					}
+				}).then(function(res) {
+					layer.alert('操作成功!', {
+						icon : 1,
+						time : 3000,
+						shade : false
+					});
+					that.initGameManageTable();
+				});
+			});
+		},
+
+		openEditGameModal : function(game) {
+			var that = this;
+			that.addOrUpdateGameFlag = true;
+			that.gameActionTitle = '编辑游戏';
+			that.$http.get('/game/findGameById', {
+				params : {
+					id : game.id
+				}
+			}).then(function(res) {
+				that.editGame = res.body.data;
+			});
+		},
+
+		/**
+		 * 新增或修改游戏
+		 */
+		addOrUpdateGame : function() {
+			var that = this;
+			var editGame = that.editGame;
+			if (editGame.gameName == null || editGame.gameName == '') {
+				layer.alert('请输入游戏名称', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			if (editGame.gameCode == null || editGame.gameCode == '') {
+				layer.alert('请输入游戏代码', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			if (editGame.state == null || editGame.state == '') {
+				layer.alert('请选择状态', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			if (editGame.orderNo == null || editGame.orderNo == '') {
+				layer.alert('请选择排序号', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			that.$http.post('/game/addOrUpdateGame', editGame).then(function(res) {
+				layer.alert('操作成功!', {
+					icon : 1,
+					time : 3000,
+					shade : false
+				});
+				that.addOrUpdateGameFlag = false;
+				that.initGameManageTable();
+			});
+		},
+
 		toGamePlaySetting : function(game) {
 			this.selectedGame = game;
 			this.loadGamePlayAndInitTree();

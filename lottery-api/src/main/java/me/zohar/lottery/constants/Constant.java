@@ -1,14 +1,20 @@
 package me.zohar.lottery.constants;
 
 public class Constant {
+	
+	public static final String 游戏状态_启用 = "1";
+	
+	public static final String 游戏状态_禁用 = "2";
+	
+	public static final String 游戏状态_维护中 = "3";
 
-	public static final String 游戏状态 = "_GAME_STATE";
+	public static final String 游戏当期状态 = "_GAME_CURRENT_ISSUE_STATE";
 	
-	public static final String 游戏状态_可以投注 = "1";
+	public static final String 游戏当期状态_可以投注 = "1";
 	
-	public static final String 游戏状态_已截止投注 = "2";
+	public static final String 游戏当期状态_已截止投注 = "2";
 	
-	public static final String 游戏状态_休市中 = "3";
+	public static final String 游戏当期状态_休市中 = "3";
 	
 	public static final String 游戏玩法状态_启用 = "1";
 	

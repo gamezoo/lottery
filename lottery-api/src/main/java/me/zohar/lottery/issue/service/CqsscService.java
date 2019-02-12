@@ -51,31 +51,22 @@ public class CqsscService {
 
 	public void generateIssueInner(Date lotteryDate) {
 		String lotteryDateFormat = DateUtil.format(lotteryDate, DatePattern.PURE_DATE_PATTERN);
-		// 生成0点到2点的开奖结果数据,5分钟一期,共24期
-		for (int i = 0; i < 24; i++) {
+
+		// 生成0点10分到2点50分的期号数据,20分钟一期,共9期
+		for (int i = 0; i < 9; i++) {
 			long issueNum = Long.parseLong(lotteryDateFormat + String.format("%03d", i + 1));
-			Date startTime = DateUtil.offset(lotteryDate, DateField.MINUTE, i * 5);
-			Date endTime = DateUtil.offset(startTime, DateField.MINUTE, 5);
+			Date startTime = DateUtil.offset(lotteryDate, DateField.MINUTE, 10 + i * 20);
+			Date endTime = DateUtil.offset(startTime, DateField.MINUTE, 20);
 			Issue issue = Issue.builder().id(IdUtils.getId()).gameCode(GameCode.重庆时时彩).lotteryDate(lotteryDate)
 					.lotteryTime(endTime).issueNum(issueNum).startTime(startTime).endTime(endTime).build();
 			issueRepo.save(issue);
 		}
 
-		// 生成10点到22点的开奖结果数据,10分钟一期,共72期
-		for (int i = 0; i < 72; i++) {
-			long issueNum = Long.parseLong(lotteryDateFormat + String.format("%03d", 24 + i + 1));
-			Date startTime = DateUtil.offset(lotteryDate, DateField.MINUTE, 60 * 10 + i * 10);
-			Date endTime = DateUtil.offset(startTime, DateField.MINUTE, 10);
-			Issue issue = Issue.builder().id(IdUtils.getId()).gameCode(GameCode.重庆时时彩).lotteryDate(lotteryDate)
-					.lotteryTime(endTime).issueNum(issueNum).startTime(startTime).endTime(endTime).build();
-			issueRepo.save(issue);
-		}
-
-		// 生成22点到24点的开奖结果数据,5分钟一期,共24期
-		for (int i = 0; i < 24; i++) {
-			long issueNum = Long.parseLong(lotteryDateFormat + String.format("%03d", 96 + i + 1));
-			Date startTime = DateUtil.offset(lotteryDate, DateField.MINUTE, 60 * 22 + i * 5);
-			Date endTime = DateUtil.offset(startTime, DateField.MINUTE, 5);
+		// 生成7点10分到23点30分的期号数据,20分钟一期,共50期
+		for (int i = 0; i < 50; i++) {
+			long issueNum = Long.parseLong(lotteryDateFormat + String.format("%03d", 9 + i + 1));
+			Date startTime = DateUtil.offset(lotteryDate, DateField.MINUTE, 60 * 7 + 10 + i * 20);
+			Date endTime = DateUtil.offset(startTime, DateField.MINUTE, 20);
 			Issue issue = Issue.builder().id(IdUtils.getId()).gameCode(GameCode.重庆时时彩).lotteryDate(lotteryDate)
 					.lotteryTime(endTime).issueNum(issueNum).startTime(startTime).endTime(endTime).build();
 			issueRepo.save(issue);
@@ -86,7 +77,7 @@ public class CqsscService {
 	 * 同步当前时间的开奖号码
 	 */
 	public void syncLotteryNum() {
-		IssueVO latestWithInterface = getLatestLotteryIssueWithAiCai();
+		IssueVO latestWithInterface = getLatestLotteryResultWitOpenCai();
 		if (latestWithInterface == null) {
 			return;
 		}

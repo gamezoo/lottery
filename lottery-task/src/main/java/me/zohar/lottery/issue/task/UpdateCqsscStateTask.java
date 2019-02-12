@@ -19,7 +19,7 @@ public class UpdateCqsscStateTask {
 	public void execute() {
 		try {
 			log.info("更新重庆时时彩状态定时任务start");
-			issueService.updateGameState(GameCode.重庆时时彩);
+			issueService.updateGameCurrentIssueState(GameCode.重庆时时彩);
 			log.info("更新重庆时时彩状态定时任务end");
 		} catch (Exception e) {
 			log.error("更新重庆时时彩状态定时任务发生异常", e);

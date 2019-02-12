@@ -21,10 +21,20 @@ import me.zohar.lottery.betting.domain.BettingRecord;
 import me.zohar.lottery.betting.enums.BettingOrderState;
 import me.zohar.lottery.betting.repo.BettingOrderRepo;
 import me.zohar.lottery.betting.repo.BettingRecordRepo;
+import me.zohar.lottery.common.exception.BizErrorCode;
+import me.zohar.lottery.common.exception.BizException;
+import me.zohar.lottery.common.valid.ParamValid;
 import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.issue.domain.Issue;
+import me.zohar.lottery.issue.domain.IssueGenerateRule;
+import me.zohar.lottery.issue.domain.IssueSetting;
 import me.zohar.lottery.issue.enums.GamePlay;
+import me.zohar.lottery.issue.param.IssueGenerateRuleParam;
+import me.zohar.lottery.issue.param.IssueSettingParam;
+import me.zohar.lottery.issue.repo.IssueGenerateRuleRepo;
 import me.zohar.lottery.issue.repo.IssueRepo;
+import me.zohar.lottery.issue.repo.IssueSettingRepo;
+import me.zohar.lottery.issue.vo.IssueSettingDetailsVO;
 import me.zohar.lottery.issue.vo.IssueVO;
 import me.zohar.lottery.useraccount.domain.AccountChangeLog;
 import me.zohar.lottery.useraccount.domain.UserAccount;
@@ -37,7 +47,7 @@ public class IssueService {
 
 	@Autowired
 	private StringRedisTemplate redisTemplate;
-	
+
 	@Autowired
 	private KafkaTemplate<String, String> kafkaTemplate;
 
@@ -56,8 +66,15 @@ public class IssueService {
 	@Autowired
 	private AccountChangeLogRepo accountChangeLogRepo;
 
+	@Autowired
+	private IssueSettingRepo issueSettingRepo;
+
+	@Autowired
+	private IssueGenerateRuleRepo issueGenerateRuleRepo;
+
 	/**
 	 * 同步开奖号码
+	 * 
 	 * @param gameCode
 	 * @param issueNum
 	 * @param lotteryNum
@@ -78,18 +95,18 @@ public class IssueService {
 	}
 
 	/**
-	 * 更新游戏状态
+	 * 更新游戏当期状态
 	 * 
 	 * @param gameCode
 	 */
 	@Transactional
-	public void updateGameState(String gameCode) {
+	public void updateGameCurrentIssueState(String gameCode) {
 		Date now = new Date();
 		Issue issue = issueRepo.findTopByGameCodeAndStartTimeLessThanEqualAndEndTimeGreaterThan(gameCode, now, now);
 		if (issue == null) {
-			String stateWithRedis = redisTemplate.opsForValue().get(gameCode + Constant.游戏状态);
-			if (!Constant.游戏状态_休市中.equals(stateWithRedis)) {
-				redisTemplate.opsForValue().set(gameCode + Constant.游戏状态, Constant.游戏状态_休市中);
+			String stateWithRedis = redisTemplate.opsForValue().get(gameCode + Constant.游戏当期状态);
+			if (!Constant.游戏当期状态_休市中.equals(stateWithRedis)) {
+				redisTemplate.opsForValue().set(gameCode + Constant.游戏当期状态, Constant.游戏当期状态_休市中);
 			}
 			String currentIssueWithRedis = redisTemplate.opsForValue().get(gameCode + Constant.游戏当前期号);
 			if (StrUtil.isNotEmpty(currentIssueWithRedis)) {
@@ -98,13 +115,13 @@ public class IssueService {
 			return;
 		}
 		long second = DateUtil.between(issue.getEndTime(), now, DateUnit.SECOND);
-		String state = Constant.游戏状态_已截止投注;
+		String state = Constant.游戏当期状态_已截止投注;
 		if (second > 30) {
-			state = Constant.游戏状态_可以投注;
+			state = Constant.游戏当期状态_可以投注;
 		}
-		String stateWithRedis = redisTemplate.opsForValue().get(gameCode + Constant.游戏状态);
+		String stateWithRedis = redisTemplate.opsForValue().get(gameCode + Constant.游戏当期状态);
 		if (!state.equals(stateWithRedis)) {
-			redisTemplate.opsForValue().set(gameCode + Constant.游戏状态, state);
+			redisTemplate.opsForValue().set(gameCode + Constant.游戏当期状态, state);
 		}
 		String currentIssueWithRedis = redisTemplate.opsForValue().get(gameCode + Constant.游戏当前期号);
 		if (!("" + issue.getIssueNum()).equals(currentIssueWithRedis)) {
@@ -207,6 +224,50 @@ public class IssueService {
 		Issue latelyIssue = issueRepo.findTopByGameCodeAndIssueNumLessThanOrderByIssueNumDesc(gameCode,
 				currentIssue.getIssueNum());
 		return IssueVO.convertFor(latelyIssue);
+	}
+
+	public IssueSettingDetailsVO getIssueSettingDetailsByGameCode(String gameCode) {
+		IssueSetting issueSetting = issueSettingRepo.findByGameCode(gameCode);
+		return IssueSettingDetailsVO.convertFor(issueSetting);
+	}
+
+	@ParamValid
+	@Transactional
+	public void addOrUpdateIssueSetting(IssueSettingParam issueSettingParam) {
+		// 新增
+		if (StrUtil.isBlank(issueSettingParam.getId())) {
+			IssueSetting existIssueSetting = issueSettingRepo.findByGameCode(issueSettingParam.getGameCode());
+			if (existIssueSetting != null) {
+				throw new BizException(BizErrorCode.期号设置已存在.getCode(), BizErrorCode.期号设置已存在.getMsg());
+			}
+
+			IssueSetting issueSetting = issueSettingParam.convertToPo();
+			issueSettingRepo.save(issueSetting);
+			for (int i = 0; i < issueSettingParam.getIssueGenerateRules().size(); i++) {
+				IssueGenerateRuleParam issueGenerateRuleParam = issueSettingParam.getIssueGenerateRules().get(i);
+				IssueGenerateRule issueGenerateRule = issueGenerateRuleParam.convertToPo();
+				issueGenerateRule.setIssueSettingId(issueSetting.getId());
+				issueGenerateRule.setOrderNo((double) (i + 1));
+				issueGenerateRuleRepo.save(issueGenerateRule);
+			}
+		}
+		// 修改
+		else {
+			List<IssueGenerateRule> issueGenerateRules = issueGenerateRuleRepo
+					.findByIssueSettingId(issueSettingParam.getId());
+			issueGenerateRuleRepo.deleteAll(issueGenerateRules);
+
+			IssueSetting issueSetting = issueSettingRepo.getOne(issueSettingParam.getId());
+			issueSetting.updateFormat(issueSettingParam.getDateFormat(), issueSettingParam.getIssueFormat());
+			issueSettingRepo.save(issueSetting);
+			for (int i = 0; i < issueSettingParam.getIssueGenerateRules().size(); i++) {
+				IssueGenerateRuleParam issueGenerateRuleParam = issueSettingParam.getIssueGenerateRules().get(i);
+				IssueGenerateRule issueGenerateRule = issueGenerateRuleParam.convertToPo();
+				issueGenerateRule.setIssueSettingId(issueSetting.getId());
+				issueGenerateRule.setOrderNo((double) (i + 1));
+				issueGenerateRuleRepo.save(issueGenerateRule);
+			}
+		}
 	}
 
 }

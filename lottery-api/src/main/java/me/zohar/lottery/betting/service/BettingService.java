@@ -137,11 +137,11 @@ public class BettingService {
 	@ParamValid
 	@Transactional
 	public void placeOrder(PlaceOrderParam placeOrderParam, String userAccountId) {
-		String gameState = template.opsForValue().get(placeOrderParam.getGameCode() + Constant.游戏状态);
-		if (Constant.游戏状态_休市中.equals(gameState)) {
+		String gameState = template.opsForValue().get(placeOrderParam.getGameCode() + Constant.游戏当期状态);
+		if (Constant.游戏当期状态_休市中.equals(gameState)) {
 			throw new BizException(BizErrorCode.休市中.getCode(), BizErrorCode.休市中.getMsg());
 		}
-		if (Constant.游戏状态_已截止投注.equals(gameState)) {
+		if (Constant.游戏当期状态_已截止投注.equals(gameState)) {
 			throw new BizException(BizErrorCode.已截止投注.getCode(), BizErrorCode.已截止投注.getMsg());
 		}
 		String gameCurrentIssueNum = template.opsForValue().get(placeOrderParam.getGameCode() + Constant.游戏当前期号);

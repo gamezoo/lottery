@@ -1,16 +1,8 @@
 package me.zohar.lottery.game.domain;
 
-import java.util.Set;
-
 import javax.persistence.Column;
-import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -50,6 +42,11 @@ public class Game {
 	 * 游戏名称
 	 */
 	private String gameName;
+	
+	/**
+	 * 游戏说明
+	 */
+	private String gameDesc;
 
 	/**
 	 * 状态,启用:1;禁用:0
@@ -60,13 +57,5 @@ public class Game {
 	 * 排序号
 	 */
 	private Double orderNo;
-	
-	/**
-	 * 游戏玩法集合
-	 */
-	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(name = "game_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@OrderBy("orderNo ASC")
-	private Set<GamePlay> gamePlays;
 	
 }

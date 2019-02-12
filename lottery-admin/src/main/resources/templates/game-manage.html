@@ -22,20 +22,9 @@
 
 <link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <style type="text/css">
-#betting-order-details-modal .modal-mask {
-	position: fixed;
-	z-index: 9998;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	display: table;
-	transition: opacity .3s ease;
-}
-
-#betting-order-details-modal .modal-wrapper {
-	display: table-cell;
-	vertical-align: middle;
+.add-or-update-game-dialog {
+	max-width: 100%;
+	width: 45%;
 }
 
 .betting-order-details-dialog {
@@ -68,7 +57,7 @@
 <body>
 	<nav class="navbar navbar-expand-sm bg-light">
 		<ul class="navbar-nav">
-			<li class="nav-item"><a class="nav-link" href="#">彩种管理</a></li>
+			<li class="nav-item"><a class="nav-link" href="#">游戏管理</a></li>
 			<li class="nav-item"><a class="nav-link" href="#">开奖结果</a></li>
 			<li class="nav-item"><a class="nav-link" href="#">投注记录</a></li>
 		</ul>
@@ -76,9 +65,9 @@
 	<div id="game-manage" v-cloak>
 		<div v-show="showGameManageFlag">
 			<form class="form-inline common-query-cond-form float-right">
-				<button type="button" class="btn btn-info btn-sm" v-on:click="">新增游戏</button>
+				<button type="button" class="btn btn-info btn-sm" v-on:click="openAddGameModal">新增游戏</button>
 			</form>
-			<table class="table common-table game-manage-table">
+			<table class="table table-hover common-table game-manage-table">
 				<thead>
 					<tr>
 						<th>游戏名称</th>
@@ -94,7 +83,12 @@
 						<td>{{game.gameCode}}</td>
 						<td>{{game.stateName}}</td>
 						<td>{{game.orderNo}}</td>
-						<td><button type="button" class="btn btn-default btn-sm" v-on:click="toGamePlaySetting(game)">玩法设置</button></td>
+						<td>
+							<button type="button" class="btn btn-default btn-sm" v-on:click="toGamePlaySetting(game)">玩法设置</button>
+							<button type="button" class="btn btn-secondary btn-sm" v-on:click="openIssueSettingModal(game)">期号规则</button>
+							<button type="button" class="btn btn-success btn-sm" v-on:click="openEditGameModal(game)">编辑</button>
+							<button type="button" class="btn btn-danger btn-sm" v-on:click="delGame(game)">删除</button>
+						</td>
 					</tr>
 				</tbody>
 			</table>
@@ -146,9 +140,6 @@
 							</div>
 							<div class="row">
 								<div class="col-sm-6 game-play-details-item">
-									<label>游戏代码:</label> <span>{{selectedGamePlay.gameCode}}</span>
-								</div>
-								<div class="col-sm-6 game-play-details-item">
 									<label>排序号:</label> <span>{{selectedGamePlay.orderNo}}</span>
 								</div>
 							</div>
@@ -192,99 +183,110 @@
 			</div>
 		</div>
 
+		<div id="issue-setting-modal" v-show="issueSettingFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog issue-setting-modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">期号设置</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="issueSettingFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<form>
+									<div class="input-group mb-3">
+										<div class="input-group-prepend">
+											<span class="input-group-text">期号显示格式</span>
+										</div>
+										<input type="text" class="form-control" placeholder="年月日" v-model="issueSettingDetails.dateFormat"> <input type="text" class="form-control" placeholder="期号" v-model="issueSettingDetails.issueFormat">
+									</div>
+									<div class="" style="margin-top: 20px; margin-bottom: 20px; padding-left: 10px; border-left: 3px solid #3080fe;">
+										<span>期号规则</span>
+										<button type="button" class="btn btn-info btn-sm float-right" v-on:click="addIssueGenerateRule">增加规则</button>
+									</div>
+									<table class="table table-sm common-table">
+										<thead>
+											<tr>
+												<th>开始时间</th>
+												<th>时间间隔(分钟)</th>
+												<th>期数</th>
+												<th>操作</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr v-for="(issueGenerateRule, index) in issueSettingDetails.issueGenerateRules">
+												<td><input type="time" class="form-control" v-model="issueGenerateRule.startTime"></td>
+												<td><input type="text" class="form-control" v-model="issueGenerateRule.timeInterval"></td>
+												<td><input type="text" class="form-control" v-model="issueGenerateRule.issueCount"></td>
+												<td>
+													<button type="button" class="btn btn-danger btn-sm" v-on:click="delIssueGenerateRule(index)">删除</button>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="addOrUpdateIssueSetting">保存</button>
+								<button type="button" class="btn btn-sm" v-on:click="issueSettingFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<div id="add-or-update-game-modal" v-show="addOrUpdateGameFlag">
 			<div class="modal-mask">
 				<div class="modal-wrapper">
 					<div class="modal-dialog add-or-update-game-dialog">
 						<div class="modal-content">
 							<div class="modal-header">
-								<h5 class="modal-title">{{gamePlayActionTitle}}</h5>
-								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="addOrUpdateFlag = false">
+								<h5 class="modal-title">{{gameActionTitle}}</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="addOrUpdateGameFlag = false">
 									<span aria-hidden="true">&times;</span>
 								</button>
 							</div>
 							<div class="modal-body">
-								<div class="game-play-summary-title" style="">玩法摘要</div>
-								<div class="row">
-									<div class="col-sm-6 game-play-details-item">
-										<label>玩法名称:</label> <span><input type="text" v-model="editGamePlay.gamePlayName"></span>
-									</div>
-									<div class="col-sm-6 game-play-details-item">
-										<label>玩法代码:</label> <span><input type="text" v-model="editGamePlay.gamePlayCode"></span>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-sm-6 game-play-details-item">
-										<label>玩法类别:</label> <span> <input type="text" v-model="editGamePlay.gamePlayCategoryName">
-										</span>
-									</div>
-									<div class="col-sm-6 game-play-details-item">
-										<label>子玩法类别:</label> <span> <input type="text" v-model="editGamePlay.subGamePlayCategoryName">
-										</span>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-sm-6 game-play-details-item">
-										<label>赔率:</label> <span><input type="text" v-model="editGamePlay.odds"></span>
-									</div>
-									<div class="col-sm-6 game-play-details-item">
-										<label>状态:</label> <span class="game-play-details-highlight"> <input type="radio" name="gamePlayStateRadio" v-model="editGamePlay.state" value="1">启用<input type="radio" name="gamePlayStateRadio" v-model="editGamePlay.state" value="0">禁用
-										</span>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-sm-6 game-play-details-item">
-										<label>游戏代码:</label> <span><input type="text" disabled="disabled" v-model="editGamePlay.gameCode"></span>
-									</div>
-									<div class="col-sm-6 game-play-details-item">
-										<label>排序号:</label> <span><input type="text" v-model="editGamePlay.orderNo"></span>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-sm-12 game-play-details-item">
-										<label>玩法说明:</label>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-sm-12">
-										<div style="margin-left: 70px;">
-											<textarea class="form-control" rows="5" v-model="editGamePlay.gamePlayDesc"></textarea>
+								<form>
+									<div class="form-group row">
+										<div class="col-sm-6">
+											<label>游戏名称:</label> <input type="text" class="form-control" v-model="editGame.gameName">
+										</div>
+										<div class="col-sm-6">
+											<label>游戏代码:</label> <input type="text" class="form-control" v-model="editGame.gameCode">
 										</div>
 									</div>
-								</div>
-								<div class="game-play-summary-title" style="margin-top: 20px;">
-									<span>号位明细</span>
-									<button type="button" class="btn btn-info btn-sm float-right" v-on:click="addNumLocate">增加号位</button>
-								</div>
-								<table class="table table-sm common-table">
-									<thead>
-										<tr>
-											<th>号位</th>
-											<th>可选号球</th>
-											<th>最大可选数量</th>
-											<th>快捷按钮</th>
-											<th>操作</th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr v-for="(numLocate, index) in editGamePlay.numLocates">
-											<td><input type="text" v-model="numLocate.numLocateName"></td>
-											<td><input type="text" v-model="numLocate.nums"></td>
-											<td><input type="text" v-model="numLocate.maxSelected"></td>
-											<td><select v-model="numLocate.hasFilterBtnFlag">
-													<option value="true">显示</option>
-													<option value="false">不显示</option>
-											</select></td>
-											<td>
-												<button type="button" class="btn btn-danger btn-sm" v-on:click="delNumLocate(index)">删除</button>
-											</td>
-										</tr>
-									</tbody>
-								</table>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>游戏说明:</label>
+											<textarea class="form-control" rows="3" v-model="editGame.gameDesc"></textarea>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-6">
+											<label>状态:</label>
+											<div class="radio">
+												<label class="radio-inline"><input type="radio" name="gameStateRadio" v-model="editGame.state" value="1">启用</label> <label class="radio-inline"><input type="radio" name="gameStateRadio" v-model="editGame.state" value="2">禁用</label> <label class="radio-inline"><input type="radio" name="gameStateRadio" v-model="editGame.state" value="3">维护中</label>
+											</div>
+										</div>
+										<div class="col-sm-6">
+											<label>排序号:</label> <input type="text" class="form-control" v-model="editGame.orderNo">
+										</div>
+									</div>
+									<div class="form-group">
+										<label>复制已有游戏的玩法</label> <select class="form-control" v-model="editGame.copyGameCode">
+											<option value="">--请选择要复制的游戏--</option>
+											<option v-for="game in games" v-if="game.id != editGame.id" v-bind:value="game.gameCode">{{game.gameName}}</option>
+										</select>
+									</div>
+								</form>
 							</div>
 							<div class="modal-footer">
-								<button type="button" class="btn btn-success btn-sm" v-on:click="addOrUpdateGamePlay">保存</button>
-								<button type="button" class="btn btn-sm" v-on:click="addOrUpdateFlag = false">取消</button>
+								<button type="button" class="btn btn-success btn-sm" v-on:click="addOrUpdateGame">保存</button>
+								<button type="button" class="btn btn-sm" v-on:click="addOrUpdateGameFlag = false">取消</button>
 							</div>
 						</div>
 					</div>
@@ -333,9 +335,6 @@
 									</div>
 								</div>
 								<div class="row">
-									<div class="col-sm-6 game-play-details-item">
-										<label>游戏代码:</label> <span><input type="text" disabled="disabled" v-model="editGamePlay.gameCode"></span>
-									</div>
 									<div class="col-sm-6 game-play-details-item">
 										<label>排序号:</label> <span><input type="text" v-model="editGamePlay.orderNo"></span>
 									</div>

@@ -23,57 +23,57 @@ public class GamePlayParam {
 	/**
 	 * 游戏玩法代码
 	 */
-	@NotBlank(message = "gamePlayCode不能为空")
+	@NotBlank
 	private String gamePlayCode;
 
 	/**
 	 * 游戏玩法名称
 	 */
-	@NotBlank(message = "gamePlayName不能为空")
+	@NotBlank
 	private String gamePlayName;
 
 	/**
 	 * 赔率
 	 */
-	@NotNull(message = "odds不能为空")
+	@NotNull
 	@DecimalMin(value = "0", inclusive = false, message = "odds不能少于或等于0")
 	private Double odds;
 
 	/**
 	 * 玩法描述
 	 */
-	@NotBlank(message = "gamePlayDesc不能为空")
+	@NotBlank
 	private String gamePlayDesc;
 	
 	/**
 	 * 排序号
 	 */
-	@NotNull(message = "orderNo不能为空")
+	@NotNull
 	@DecimalMin(value = "0", inclusive = true, message = "orderNo不能少于0")
 	private Double orderNo;
 
 	/**
 	 * 所属游戏代码
 	 */
-	@NotBlank(message = "gameCode不能为空")
+	@NotBlank
 	private String gameCode;
 
 	/**
 	 * 状态,启用:1;禁用:0
 	 */
-	@NotBlank(message = "state不能为空")
+	@NotBlank
 	private String state;
 	
 	/**
 	 * 所属游戏玩法类别名称
 	 */
-	@NotBlank(message = "gamePlayCategoryName不能为空")
+	@NotBlank
 	private String gamePlayCategoryName;
 
 	/**
 	 * 所属游戏子玩法类别名称
 	 */
-	@NotBlank(message = "subGamePlayCategoryName不能为空")
+	@NotBlank
 	private String subGamePlayCategoryName;
 	
 	/**

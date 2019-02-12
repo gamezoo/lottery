@@ -28,6 +28,11 @@ public class GameVO {
 	 * 游戏名称
 	 */
 	private String gameName;
+	
+	/**
+	 * 游戏说明
+	 */
+	private String gameDesc;
 
 	/**
 	 * 状态

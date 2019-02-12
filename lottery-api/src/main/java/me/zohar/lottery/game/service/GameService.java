@@ -2,6 +2,7 @@ package me.zohar.lottery.game.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +14,13 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import me.zohar.lottery.common.exception.BizErrorCode;
 import me.zohar.lottery.common.exception.BizException;
+import me.zohar.lottery.common.utils.IdUtils;
 import me.zohar.lottery.common.valid.ParamValid;
+import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.game.domain.Game;
 import me.zohar.lottery.game.domain.GamePlay;
 import me.zohar.lottery.game.domain.NumLocate;
+import me.zohar.lottery.game.param.GameParam;
 import me.zohar.lottery.game.param.GamePlayParam;
 import me.zohar.lottery.game.param.NumLocateParam;
 import me.zohar.lottery.game.repo.GamePlayRepo;
@@ -42,6 +46,30 @@ public class GameService {
 	public List<GameVO> findAllGame() {
 		List<Game> games = gameRepo.findAll(Sort.by(Sort.Order.asc("orderNo")));
 		return GameVO.convertFor(games);
+	}
+
+	@Transactional(readOnly = true)
+	public List<GameVO> findAllOpenGame() {
+		List<Game> games = gameRepo.findByStateOrderByOrderNo(Constant.游戏状态_启用);
+		return GameVO.convertFor(games);
+	}
+
+	@Transactional
+	public void delGameById(String id) {
+		Game game = gameRepo.getOne(id);
+		List<GamePlay> gamePlays = gamePlayRepo.findByGameCodeOrderByOrderNo(game.getGameCode());
+		for (GamePlay gamePlay : gamePlays) {
+			List<NumLocate> numLocates = numLocateRepo.findByGamePlayId(gamePlay.getId());
+			numLocateRepo.deleteAll(numLocates);
+		}
+		gamePlayRepo.deleteAll(gamePlays);
+		gameRepo.delete(game);
+	}
+
+	@Transactional(readOnly = true)
+	public GameVO findGameById(String id) {
+		Game game = gameRepo.getOne(id);
+		return GameVO.convertFor(game);
 	}
 
 	@Transactional(readOnly = true)
@@ -88,6 +116,62 @@ public class GameService {
 		numLocateRepo.deleteAll(numLocates);
 		GamePlay gamePlay = gamePlayRepo.getOne(id);
 		gamePlayRepo.delete(gamePlay);
+	}
+
+	@ParamValid
+	@Transactional
+	public void addOrUpdateGame(GameParam gameParam) {
+		// 新增
+		if (StrUtil.isBlank(gameParam.getId())) {
+			Game existGame = gameRepo.findByGameCode(gameParam.getGameCode());
+			if (existGame != null) {
+				throw new BizException(BizErrorCode.游戏代码已存在.getCode(), BizErrorCode.游戏代码已存在.getMsg());
+			}
+			Game game = gameParam.convertToPo();
+			gameRepo.save(game);
+			copyGamePlay(game, gameParam.getCopyGameCode());
+		}
+		// 修改
+		else {
+			Game existGame = gameRepo.findByGameCode(gameParam.getGameCode());
+			if (existGame != null && !existGame.getId().equals(gameParam.getId())) {
+				throw new BizException(BizErrorCode.游戏代码已存在.getCode(), BizErrorCode.游戏代码已存在.getMsg());
+			}
+			Game game = gameRepo.getOne(gameParam.getId());
+			BeanUtils.copyProperties(gameParam, game);
+			gameRepo.save(game);
+			copyGamePlay(game, gameParam.getCopyGameCode());
+		}
+	}
+
+	@Transactional
+	public void copyGamePlay(Game game, String copyGameCode) {
+		if (StrUtil.isBlank(copyGameCode)) {
+			return;
+		}
+		List<GamePlay> gamePlays = gamePlayRepo.findByGameCodeOrderByOrderNo(copyGameCode);
+		for (GamePlay gamePlay : gamePlays) {
+			GamePlay existGamePlay = gamePlayRepo.findByGameCodeAndGamePlayCode(game.getGameCode(),
+					gamePlay.getGamePlayCode());
+			if (existGamePlay != null) {
+				continue;
+			}
+
+			GamePlay newGamePlay = new GamePlay();
+			BeanUtils.copyProperties(gamePlay, newGamePlay);
+			newGamePlay.setId(IdUtils.getId());
+			newGamePlay.setGameCode(game.getGameCode());
+			gamePlayRepo.save(newGamePlay);
+
+			Set<NumLocate> numLocates = gamePlay.getNumLocates();
+			for (NumLocate numLocate : numLocates) {
+				NumLocate newNumLocate = new NumLocate();
+				BeanUtils.copyProperties(numLocate, newNumLocate);
+				newNumLocate.setId(IdUtils.getId());
+				newNumLocate.setGamePlayId(newGamePlay.getId());
+				numLocateRepo.save(newNumLocate);
+			}
+		}
 	}
 
 	@ParamValid
