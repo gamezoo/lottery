@@ -11,6 +11,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
@@ -23,6 +26,7 @@ import me.zohar.lottery.betting.repo.BettingOrderRepo;
 import me.zohar.lottery.betting.repo.BettingRecordRepo;
 import me.zohar.lottery.common.exception.BizErrorCode;
 import me.zohar.lottery.common.exception.BizException;
+import me.zohar.lottery.common.utils.IdUtils;
 import me.zohar.lottery.common.valid.ParamValid;
 import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.issue.domain.Issue;
@@ -139,6 +143,9 @@ public class IssueService {
 		if (issue == null || StrUtil.isEmpty(issue.getLotteryNum())) {
 			return;
 		}
+		issue.settlement();
+		issueRepo.save(issue);
+		
 		List<BettingOrder> bettingOrders = bettingOrderRepo.findByGameCodeAndIssueNumAndState(issue.getGameCode(),
 				issue.getIssueNum(), BettingOrderState.投注订单状态_未开奖.getCode());
 		for (BettingOrder bettingOrder : bettingOrders) {
@@ -174,7 +181,6 @@ public class IssueService {
 				userAccountRepo.save(userAccount);
 				accountChangeLogRepo.save(AccountChangeLog.buildWithWinning(userAccount, bettingOrder));
 			}
-
 		}
 	}
 
@@ -266,6 +272,43 @@ public class IssueService {
 				issueGenerateRule.setIssueSettingId(issueSetting.getId());
 				issueGenerateRule.setOrderNo((double) (i + 1));
 				issueGenerateRuleRepo.save(issueGenerateRule);
+			}
+		}
+	}
+
+	@Transactional
+	public void generateIssue(Date currentDate) {
+		List<IssueSetting> issueSettings = issueSettingRepo.findAll();
+		for (IssueSetting issueSetting : issueSettings) {
+			for (int i = 0; i < 5; i++) {
+				Date lotteryDate = DateUtil.offset(DateUtil.beginOfDay(currentDate), DateField.DAY_OF_MONTH, i);
+				List<Issue> issues = issueRepo
+						.findByGameCodeAndLotteryDateOrderByLotteryTimeDesc(issueSetting.getGameCode(), lotteryDate);
+				if (CollectionUtil.isNotEmpty(issues)) {
+					continue;
+				}
+
+				String lotteryDateFormat = DateUtil.format(lotteryDate, issueSetting.getDateFormat());
+				Set<IssueGenerateRule> issueGenerateRules = issueSetting.getIssueGenerateRules();
+				int count = 0;
+				for (IssueGenerateRule issueGenerateRule : issueGenerateRules) {
+					Integer issueCount = issueGenerateRule.getIssueCount();
+					for (int j = 0; j < issueCount; j++) {
+						long issueNum = Long.parseLong(
+								lotteryDateFormat + String.format(issueSetting.getIssueFormat(), count + j + 1));
+						DateTime dateTime = DateUtil.parse(issueGenerateRule.getStartTime(), "hh:mm");
+						Date startTime = DateUtil.offset(lotteryDate, DateField.MINUTE,
+								dateTime.hour(true) * 60 + dateTime.minute() + j * issueGenerateRule.getTimeInterval());
+						Date endTime = DateUtil.offset(startTime, DateField.MINUTE,
+								issueGenerateRule.getTimeInterval());
+
+						Issue issue = Issue.builder().id(IdUtils.getId()).gameCode(issueSetting.getGameCode())
+								.lotteryDate(lotteryDate).lotteryTime(endTime).issueNum(issueNum).startTime(startTime)
+								.endTime(endTime).state(Constant.期号状态_未开奖).build();
+						issueRepo.save(issue);
+					}
+					count += issueCount;
+				}
 			}
 		}
 	}

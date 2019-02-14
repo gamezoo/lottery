@@ -17,8 +17,6 @@
 <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
 <script src="https://cdn.bootcss.com/zTree.v3/3.5.40/js/jquery.ztree.all.min.js"></script>
 <link href="https://cdn.bootcss.com/zTree.v3/3.5.40/css/zTreeStyle/zTreeStyle.css" rel="stylesheet">
-<script src="https://cdn.bootcss.com/layer/2.3/layer.js"></script>
-
 
 <link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <style type="text/css">
@@ -27,12 +25,12 @@
 	width: 45%;
 }
 
-.betting-order-details-dialog {
+.add-or-update-game-play-dialog {
 	max-width: 100%;
 	width: 70%;
 }
 
-.betting-order-details-dialog .modal-body {
+.add-or-update-game-play-dialog .modal-body {
 	height: 450px;
 	overflow: auto;
 }
@@ -55,13 +53,7 @@
 </head>
 
 <body>
-	<nav class="navbar navbar-expand-sm bg-light">
-		<ul class="navbar-nav">
-			<li class="nav-item"><a class="nav-link" href="#">游戏管理</a></li>
-			<li class="nav-item"><a class="nav-link" href="#">开奖结果</a></li>
-			<li class="nav-item"><a class="nav-link" href="#">投注记录</a></li>
-		</ul>
-	</nav>
+	<div th:replace="common/header::html"></div>
 	<div id="game-manage" v-cloak>
 		<div v-show="showGameManageFlag">
 			<form class="form-inline common-query-cond-form float-right">
@@ -183,7 +175,7 @@
 			</div>
 		</div>
 
-		<div id="issue-setting-modal" v-show="issueSettingFlag">
+		<div v-show="issueSettingFlag">
 			<div class="modal-mask">
 				<div class="modal-wrapper">
 					<div class="modal-dialog issue-setting-modal-dialog">
@@ -238,7 +230,7 @@
 			</div>
 		</div>
 
-		<div id="add-or-update-game-modal" v-show="addOrUpdateGameFlag">
+		<div v-show="addOrUpdateGameFlag">
 			<div class="modal-mask">
 				<div class="modal-wrapper">
 					<div class="modal-dialog add-or-update-game-dialog">
@@ -294,63 +286,59 @@
 			</div>
 		</div>
 
-		<div id="betting-order-details-modal" v-show="addOrUpdateFlag">
+		<div v-show="addOrUpdateGamePlayFlag">
 			<div class="modal-mask">
 				<div class="modal-wrapper">
-					<div class="modal-dialog betting-order-details-dialog">
+					<div class="modal-dialog add-or-update-game-play-dialog">
 						<div class="modal-content">
 							<div class="modal-header">
 								<h5 class="modal-title">{{gamePlayActionTitle}}</h5>
-								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="addOrUpdateFlag = false">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="addOrUpdateGamePlayFlag = false">
 									<span aria-hidden="true">&times;</span>
 								</button>
 							</div>
 							<div class="modal-body">
 								<div class="game-play-summary-title" style="">玩法摘要</div>
-								<div class="row">
-									<div class="col-sm-6 game-play-details-item">
-										<label>玩法名称:</label> <span><input type="text" v-model="editGamePlay.gamePlayName"></span>
-									</div>
-									<div class="col-sm-6 game-play-details-item">
-										<label>玩法代码:</label> <span><input type="text" v-model="editGamePlay.gamePlayCode"></span>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-sm-6 game-play-details-item">
-										<label>玩法类别:</label> <span> <input type="text" v-model="editGamePlay.gamePlayCategoryName">
-										</span>
-									</div>
-									<div class="col-sm-6 game-play-details-item">
-										<label>子玩法类别:</label> <span> <input type="text" v-model="editGamePlay.subGamePlayCategoryName">
-										</span>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-sm-6 game-play-details-item">
-										<label>赔率:</label> <span><input type="text" v-model="editGamePlay.odds"></span>
-									</div>
-									<div class="col-sm-6 game-play-details-item">
-										<label>状态:</label> <span class="game-play-details-highlight"> <input type="radio" name="gamePlayStateRadio" v-model="editGamePlay.state" value="1">启用<input type="radio" name="gamePlayStateRadio" v-model="editGamePlay.state" value="0">禁用
-										</span>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-sm-6 game-play-details-item">
-										<label>排序号:</label> <span><input type="text" v-model="editGamePlay.orderNo"></span>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-sm-12 game-play-details-item">
-										<label>玩法说明:</label>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-sm-12">
-										<div style="margin-left: 70px;">
-											<textarea class="form-control" rows="5" v-model="editGamePlay.gamePlayDesc"></textarea>
+								<form>
+									<div class="form-group row">
+										<div class="col-sm-6">
+											<label>玩法名称:</label> <input type="text" class="form-control" v-model="editGamePlay.gamePlayName">
+										</div>
+										<div class="col-sm-6">
+											<label>玩法代码:</label> <input type="text" class="form-control" v-model="editGamePlay.gamePlayCode">
 										</div>
 									</div>
-								</div>
+									<div class="form-group row">
+										<div class="col-sm-6">
+											<label>玩法类别:</label> <input type="text" class="form-control" v-model="editGamePlay.gamePlayCategoryName">
+										</div>
+										<div class="col-sm-6">
+											<label>子玩法类别:</label> <input type="text" class="form-control" v-model="editGamePlay.subGamePlayCategoryName">
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-6">
+											<label>赔率:</label> <input type="text" class="form-control" v-model="editGamePlay.odds">
+										</div>
+										<div class="col-sm-6">
+											<label>状态:</label>
+											<div class="radio">
+												<label class="radio-inline"><input type="radio" name="gamePlayStateRadio" v-model="editGamePlay.state" value="1">启用</label> <label class="radio-inline"><input type="radio" name="gamePlayStateRadio" v-model="editGamePlay.state" value="0">禁用</label>
+											</div>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>排序号:</label> <input type="text" class="form-control" v-model="editGamePlay.orderNo">
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>玩法说明:</label>
+											<textarea class="form-control" rows="4" v-model="editGamePlay.gamePlayDesc"></textarea>
+										</div>
+									</div>
+								</form>
 								<div class="game-play-summary-title" style="margin-top: 20px;">
 									<span>号位明细</span>
 									<button type="button" class="btn btn-info btn-sm float-right" v-on:click="addNumLocate">增加号位</button>
@@ -367,10 +355,10 @@
 									</thead>
 									<tbody>
 										<tr v-for="(numLocate, index) in editGamePlay.numLocates">
-											<td><input type="text" v-model="numLocate.numLocateName"></td>
-											<td><input type="text" v-model="numLocate.nums"></td>
-											<td><input type="text" v-model="numLocate.maxSelected"></td>
-											<td><select v-model="numLocate.hasFilterBtnFlag">
+											<td><input type="text" class="form-control" v-model="numLocate.numLocateName"></td>
+											<td><input type="text" class="form-control" v-model="numLocate.nums"></td>
+											<td><input type="text" class="form-control" v-model="numLocate.maxSelected"></td>
+											<td><select class="form-control" v-model="numLocate.hasFilterBtnFlag">
 													<option value="true">显示</option>
 													<option value="false">不显示</option>
 											</select></td>
@@ -383,7 +371,7 @@
 							</div>
 							<div class="modal-footer">
 								<button type="button" class="btn btn-success btn-sm" v-on:click="addOrUpdateGamePlay">保存</button>
-								<button type="button" class="btn btn-sm" v-on:click="addOrUpdateFlag = false">取消</button>
+								<button type="button" class="btn btn-sm" v-on:click="addOrUpdateGamePlayFlag = false">取消</button>
 							</div>
 						</div>
 					</div>

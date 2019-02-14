@@ -7,6 +7,12 @@ public class Constant {
 	public static final String 游戏状态_禁用 = "2";
 	
 	public static final String 游戏状态_维护中 = "3";
+	
+	public static final String 期号状态_未开奖 = "1";
+	
+	public static final String 期号状态_已开奖 = "2";
+	
+	public static final String 期号状态_已结算 = "3";
 
 	public static final String 游戏当期状态 = "_GAME_CURRENT_ISSUE_STATE";
 	

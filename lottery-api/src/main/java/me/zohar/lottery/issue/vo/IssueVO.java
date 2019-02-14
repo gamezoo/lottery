@@ -39,7 +39,7 @@ public class IssueVO {
 	private String gameName;
 
 	/**
-	 * 期号
+	 * 期数
 	 */
 	private Long issueNum;
 
@@ -67,6 +67,18 @@ public class IssueVO {
 	 * 全部开奖号码,以逗号分隔
 	 */
 	private String lotteryNum;
+	
+	/**
+	 * 同步时间:yyyy-MM-dd HH:mm:ss
+	 */
+	private String syncTime;
+
+	/**
+	 * 状态
+	 */
+	private String state;
+
+	private String stateName;
 
 	public static List<IssueVO> convertFor(List<Issue> issues) {
 		if (CollectionUtil.isEmpty(issues)) {
@@ -90,6 +102,8 @@ public class IssueVO {
 		vo.setLotteryTime(DateUtil.format(issue.getLotteryTime(), DatePattern.NORM_DATETIME_PATTERN));
 		vo.setStartTime(DateUtil.format(issue.getStartTime(), DatePattern.NORM_DATETIME_PATTERN));
 		vo.setEndTime(DateUtil.format(issue.getEndTime(), DatePattern.NORM_DATETIME_PATTERN));
+		vo.setSyncTime(DateUtil.format(issue.getSyncTime(), DatePattern.NORM_DATETIME_PATTERN));
+		vo.setStateName(DictHolder.getDictItemName("issueState", vo.getState()));
 		return vo;
 	}
 

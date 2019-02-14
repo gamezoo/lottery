@@ -1,15 +1,3 @@
-Vue.http.interceptors.push(function(request) {
-	return function(response) {
-		if (response.body.code != 200) {
-			response.ok = false;
-			layer.alert(response.body.msg, {
-				title : '提示',
-				icon : 7,
-				time : 3000
-			});
-		}
-	};
-});
 var gameManage = new Vue({
 	el : '#game-manage',
 	data : {
@@ -23,7 +11,7 @@ var gameManage = new Vue({
 		selectedGame : {},
 		selectedGamePlay : {},
 		editGamePlay : {},
-		addOrUpdateFlag : false,
+		addOrUpdateGamePlayFlag : false,
 		gamePlayActionTitle : '',
 	},
 	computed : {},
@@ -385,12 +373,12 @@ var gameManage = new Vue({
 		},
 
 		cancelEditGamePlay : function() {
-			this.addOrUpdateFlag = false;
+			this.addOrUpdateGamePlayFlag = false;
 		},
 
 		openEditGamePlayModal : function() {
 			var that = this;
-			that.addOrUpdateFlag = true;
+			that.addOrUpdateGamePlayFlag = true;
 			that.gamePlayActionTitle = '编辑玩法';
 			that.$http.get('/game/findGamePlayDetailsById', {
 				params : {
@@ -405,7 +393,7 @@ var gameManage = new Vue({
 		 * 新增玩法
 		 */
 		openAddGamePlayModal : function() {
-			this.addOrUpdateFlag = true;
+			this.addOrUpdateGamePlayFlag = true;
 			this.gamePlayActionTitle = '新增玩法';
 			var treeObj = $.fn.zTree.getZTreeObj('gamePlayTree');
 			treeObj.cancelSelectedNode();
@@ -529,7 +517,7 @@ var gameManage = new Vue({
 					time : 3000,
 					shade : false
 				});
-				that.addOrUpdateFlag = false;
+				that.addOrUpdateGamePlayFlag = false;
 				that.selectedGamePlay = {};
 				that.loadGamePlayAndInitTree();
 			});

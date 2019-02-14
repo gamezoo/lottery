@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import me.zohar.lottery.common.vo.Result;
 import me.zohar.lottery.issue.param.IssueSettingParam;
+import me.zohar.lottery.issue.param.LotterySituationQueryCondParam;
 import me.zohar.lottery.issue.service.IssueService;
+import me.zohar.lottery.issue.service.LotterySituationService;
 
 @Controller
 @RequestMapping("/issue")
@@ -18,6 +20,9 @@ public class IssueController {
 
 	@Autowired
 	private IssueService issueService;
+	
+	@Autowired
+	private LotterySituationService lotterySituationService;
 
 	@GetMapping("/getIssueSettingDetailsByGameCode")
 	@ResponseBody
@@ -30,6 +35,12 @@ public class IssueController {
 	public Result addOrUpdateIssueSetting(@RequestBody IssueSettingParam issueSettingParam) {
 		issueService.addOrUpdateIssueSetting(issueSettingParam);
 		return Result.success();
+	}
+	
+	@GetMapping("/findLotterySituationByPage")
+	@ResponseBody
+	public Result findLotterySituationByPage(LotterySituationQueryCondParam param) {
+		return Result.success().setData(lotterySituationService.findLotterySituationByPage(param));
 	}
 
 }

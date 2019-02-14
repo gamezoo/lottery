@@ -23,7 +23,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "recharge_withdraw_log", schema = "lottery")
+@Table(name = "v_recharge_withdraw_log", schema = "lottery")
 @DynamicInsert(true)
 @DynamicUpdate(true)
 public class RechargeWithdrawLog {

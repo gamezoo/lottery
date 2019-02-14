@@ -25,5 +25,14 @@ public class PageController {
 	public String gameManage() {
 		return "game-manage";
 	}
+	
+	/**
+	 * 开奖情况
+	 * @return
+	 */
+	@GetMapping("/lottery-situation")
+	public String lotterySituation() {
+		return "lottery-situation";
+	}
 
 }

@@ -35,6 +35,24 @@ public class DictTest {
 	}
 	
 	/**
+	 * 初始化期号状态字典
+	 */
+	@Test
+	@Transactional(readOnly = false)
+	@Rollback(false)
+	public void initIssueStateDict() {
+		DictType dictType = new DictType();
+		dictType.setId(IdUtils.getId());
+		dictType.setDictTypeCode("issueState");
+		dictType.setDictTypeName("期号状态");
+		dictTypeRepo.save(dictType);
+
+		dictItemRepo.save(buildDictItem("1", "未开奖", 1d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("2", "已开奖", 2d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("3", "已结算", 2d, dictType.getId()));
+	}
+	
+	/**
 	 * 初始化游戏玩法状态字典
 	 */
 	@Test

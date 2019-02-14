@@ -6,28 +6,26 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Version;
-
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import me.zohar.lottery.constants.Constant;
 
-@Builder
+/**
+ * 开奖情况实体
+ * 
+ * @author zohar
+ * @date 2019年2月14日
+ *
+ */
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "issue", schema = "lottery")
-@DynamicInsert(true)
-@DynamicUpdate(true)
-public class Issue {
+@Table(name = "v_lottery_situation", schema = "lottery")
+public class LotterySituation {
 
 	/**
 	 * 主键id
@@ -35,7 +33,7 @@ public class Issue {
 	@Id
 	@Column(name = "id", length = 32)
 	private String id;
-	
+
 	/**
 	 * 所属游戏代码
 	 */
@@ -75,38 +73,25 @@ public class Issue {
 	 * 同步时间
 	 */
 	private Date syncTime;
-	
+
 	/**
 	 * 结算时间
 	 */
 	private Date settlementTime;
-	
+
 	/**
 	 * 状态
 	 */
 	private String state;
 
 	/**
-	 * 乐观锁版本号
+	 * 总投注金额
 	 */
-	@Version
-	private Long version;
+	private Double totalBettingAmount;
 
 	/**
-	 * 同步开奖号码
+	 * 总中奖金额
 	 */
-	public void syncLotteryNum(String lotteryNum) {
-		this.setLotteryNum(lotteryNum);
-		this.setSyncTime(new Date());
-		this.setState(Constant.期号状态_已开奖);
-	}
-	
-	/**
-	 * 结算
-	 */
-	public void settlement() {
-		this.setSettlementTime(new Date());
-		this.setState(Constant.期号状态_已结算);
-	}
+	private Double totalWinningAmount;
 
 }

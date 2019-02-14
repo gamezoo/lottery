@@ -15,16 +15,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
-import me.zohar.lottery.common.utils.IdUtils;
 import me.zohar.lottery.constants.GameCode;
-import me.zohar.lottery.issue.domain.Issue;
-import me.zohar.lottery.issue.repo.IssueRepo;
 import me.zohar.lottery.issue.vo.IssueVO;
 
 @Service
@@ -33,45 +28,6 @@ public class CqsscService {
 
 	@Autowired
 	private IssueService issueService;
-
-	@Autowired
-	private IssueRepo issueRepo;
-
-	public void generateIssue(Date currentDate) {
-		for (int i = 0; i < 5; i++) {
-			Date lotteryDate = DateUtil.offset(DateUtil.beginOfDay(currentDate), DateField.DAY_OF_MONTH, i);
-			List<Issue> issues = issueRepo.findByGameCodeAndLotteryDateOrderByLotteryTimeDesc(GameCode.重庆时时彩,
-					lotteryDate);
-			if (CollectionUtil.isNotEmpty(issues)) {
-				continue;
-			}
-			generateIssueInner(lotteryDate);
-		}
-	}
-
-	public void generateIssueInner(Date lotteryDate) {
-		String lotteryDateFormat = DateUtil.format(lotteryDate, DatePattern.PURE_DATE_PATTERN);
-
-		// 生成0点10分到2点50分的期号数据,20分钟一期,共9期
-		for (int i = 0; i < 9; i++) {
-			long issueNum = Long.parseLong(lotteryDateFormat + String.format("%03d", i + 1));
-			Date startTime = DateUtil.offset(lotteryDate, DateField.MINUTE, 10 + i * 20);
-			Date endTime = DateUtil.offset(startTime, DateField.MINUTE, 20);
-			Issue issue = Issue.builder().id(IdUtils.getId()).gameCode(GameCode.重庆时时彩).lotteryDate(lotteryDate)
-					.lotteryTime(endTime).issueNum(issueNum).startTime(startTime).endTime(endTime).build();
-			issueRepo.save(issue);
-		}
-
-		// 生成7点10分到23点30分的期号数据,20分钟一期,共50期
-		for (int i = 0; i < 50; i++) {
-			long issueNum = Long.parseLong(lotteryDateFormat + String.format("%03d", 9 + i + 1));
-			Date startTime = DateUtil.offset(lotteryDate, DateField.MINUTE, 60 * 7 + 10 + i * 20);
-			Date endTime = DateUtil.offset(startTime, DateField.MINUTE, 20);
-			Issue issue = Issue.builder().id(IdUtils.getId()).gameCode(GameCode.重庆时时彩).lotteryDate(lotteryDate)
-					.lotteryTime(endTime).issueNum(issueNum).startTime(startTime).endTime(endTime).build();
-			issueRepo.save(issue);
-		}
-	}
 
 	/**
 	 * 同步当前时间的开奖号码
