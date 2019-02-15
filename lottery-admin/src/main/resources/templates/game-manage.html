@@ -175,7 +175,7 @@
 			</div>
 		</div>
 
-		<div v-show="issueSettingFlag">
+		<div v-if="issueSettingFlag">
 			<div class="modal-mask">
 				<div class="modal-wrapper">
 					<div class="modal-dialog issue-setting-modal-dialog">
@@ -230,7 +230,7 @@
 			</div>
 		</div>
 
-		<div v-show="addOrUpdateGameFlag">
+		<div v-if="addOrUpdateGameFlag">
 			<div class="modal-mask">
 				<div class="modal-wrapper">
 					<div class="modal-dialog add-or-update-game-dialog">
@@ -286,7 +286,7 @@
 			</div>
 		</div>
 
-		<div v-show="addOrUpdateGamePlayFlag">
+		<div v-if="addOrUpdateGamePlayFlag">
 			<div class="modal-mask">
 				<div class="modal-wrapper">
 					<div class="modal-dialog add-or-update-game-play-dialog">

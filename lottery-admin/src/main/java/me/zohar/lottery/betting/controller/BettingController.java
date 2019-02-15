@@ -1,7 +1,8 @@
 package me.zohar.lottery.betting.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,10 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import me.zohar.lottery.betting.param.BettingOrderQueryCondParam;
-import me.zohar.lottery.betting.param.PlaceOrderParam;
+import me.zohar.lottery.betting.param.ChangeOrderParam;
 import me.zohar.lottery.betting.service.BettingService;
 import me.zohar.lottery.common.vo.Result;
-import me.zohar.lottery.config.security.UserAccountDetails;
 
 @Controller
 @RequestMapping("/betting")
@@ -28,50 +28,36 @@ public class BettingController {
 	 * @param id
 	 * @return
 	 */
-	@GetMapping("/findMyBettingOrderDetails")
+	@GetMapping("/findBettingOrderDetails")
 	@ResponseBody
-	public Result findMyBettingOrderDetails(String id) {
-		UserAccountDetails user = (UserAccountDetails) SecurityContextHolder.getContext().getAuthentication()
-				.getPrincipal();
-		return Result.success().setData(bettingService.findMyBettingOrderDetails(id, user.getUserAccountId()));
+	public Result findBettingOrderDetails(String id) {
+		return Result.success().setData(bettingService.findBettingOrderDetails(id));
 	}
 
 	/**
-	 * 分页获取我的投注订单信息
+	 * 分页获取投注订单信息
 	 * 
 	 * @param param
 	 * @return
 	 */
-	@GetMapping("/findMyBettingOrderInfoByPage")
+	@GetMapping("/findBettingOrderInfoByPage")
 	@ResponseBody
-	public Result findMyBettingOrderInfoByPage(BettingOrderQueryCondParam param) {
-		UserAccountDetails user = (UserAccountDetails) SecurityContextHolder.getContext().getAuthentication()
-				.getPrincipal();
-		param.setUserAccountId(user.getUserAccountId());
+	public Result findBettingOrderInfoByPage(BettingOrderQueryCondParam param) {
 		return Result.success().setData(bettingService.findBettingOrderInfoByPage(param));
 	}
-
-	@GetMapping("/findTodayLatestThe5TimeBettingRecord")
-	@ResponseBody
-	public Result findTodayLatestThe5TimeBettingRecord(String gameCode) {
-		UserAccountDetails user = (UserAccountDetails) SecurityContextHolder.getContext().getAuthentication()
-				.getPrincipal();
-		return Result.success()
-				.setData(bettingService.findTodayLatestThe5TimeBettingRecord(user.getUserAccountId(), gameCode));
-	}
-
+	
 	/**
-	 * 下单
+	 * 改单
 	 * 
 	 * @return
 	 */
-	@PostMapping("/placeOrder")
+	@PostMapping("/changeOrder")
 	@ResponseBody
-	public Result placeOrder(@RequestBody PlaceOrderParam placeOrderParam) {
-		UserAccountDetails user = (UserAccountDetails) SecurityContextHolder.getContext().getAuthentication()
-				.getPrincipal();
-		bettingService.placeOrder(placeOrderParam, user.getUserAccountId());
+	public Result changeOrder(@RequestBody List<ChangeOrderParam> changeOrderParams) {
+		bettingService.changeOrder(changeOrderParams);
 		return Result.success();
 	}
+	
+	
 
 }

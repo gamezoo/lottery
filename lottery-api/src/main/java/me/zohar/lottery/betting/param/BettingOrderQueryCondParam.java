@@ -17,6 +17,11 @@ import me.zohar.lottery.common.param.PageParam;
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class BettingOrderQueryCondParam extends PageParam {
+	
+	/**
+	 * 订单号
+	 */
+	private String orderNo;
 
 	/**
 	 * 游戏代码

@@ -1,22 +1,6 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <style>
-#betting-order-details-modal .modal-mask {
-	position: fixed;
-	z-index: 9998;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	display: table;
-	transition: opacity .3s ease;
-}
-
-#betting-order-details-modal .modal-wrapper {
-	display: table-cell;
-	vertical-align: middle;
-}
-
 .betting-order-details-dialog {
 	max-width: 100%;
 	width: 50%;
@@ -68,21 +52,27 @@
 	border-bottom: 0;
 	border-left: 0;
 }
+
+.change-order-tip {
+	text-align: center;
+	color: red;
+	font-weight: bold;
+}
 </style>
 </head>
 
 <body>
-	<div id="betting-order-details-modal" v-cloak>
-		<div v-show="showBettingOrderDetailsFlag">
+	<div id="change-order-modal" v-cloak>
+		<div v-if="showChangeOrderFlag">
 			<div class="modal-mask">
 				<div class="modal-wrapper">
 					<div class="modal-dialog betting-order-details-dialog">
 						<div class="modal-content">
 							<div class="modal-header">
 								<h5 class="modal-title">
-									投注订单详情<span>订单号:{{bettingOrderDetails.orderNo}}</span>
+									改单<span>订单号:{{bettingOrderDetails.orderNo}}</span>
 								</h5>
-								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="showBettingOrderDetailsFlag = false">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="showChangeOrderFlag = false">
 									<span aria-hidden="true">&times;</span>
 								</button>
 							</div>
@@ -146,17 +136,21 @@
 									</thead>
 									<tbody>
 										<tr v-for="bettingRecord in bettingOrderDetails.bettingRecords">
-											<td>{{bettingRecord.gamePlayName}}</td>
-											<td>{{bettingRecord.selectedNo}}</td>
+											<td><select class="form-control-sm" v-model="bettingRecord.gamePlayCode">
+													<option v-for="gamePlay in gamePlays" v-bind:value="gamePlay.gamePlayCode">{{gamePlay.gamePlayName}}</option>
+											</select></td>
+											<td><input type="text" class="form-control-sm" v-model="bettingRecord.selectedNo"></td>
 											<td>{{bettingRecord.bettingCount}}</td>
 											<td class="betting-order-details-highlight">{{bettingRecord.bettingAmount}}</td>
 											<td>{{bettingRecord.winningAmount}}</td>
 										</tr>
 									</tbody>
 								</table>
+								<div class="change-order-tip">暂支持修改玩法和投注内容!</div>
 							</div>
 							<div class="modal-footer">
-								<button type="button" class="btn btn-sm" v-on:click="showBettingOrderDetailsFlag = false">返回</button>
+								<button type="button" class="btn btn-success btn-sm" v-on:click="changeOrder">确定</button>
+								<button type="button" class="btn btn-sm" v-on:click="showChangeOrderFlag = false">返回</button>
 							</div>
 						</div>
 					</div>
@@ -165,25 +159,73 @@
 		</div>
 	</div>
 	<script type="text/javascript">
-		var bettingOrderDetailsModal = new Vue({
-			el : '#betting-order-details-modal',
+		var changeOrderModalVM = new Vue({
+			el : '#change-order-modal',
 			data : {
-				showBettingOrderDetailsFlag : false,
+				showChangeOrderFlag : false,
+				gamePlays : [],
 				bettingOrderDetails : {}
 			},
 			computed : {},
 			created : function() {
 			},
 			methods : {
-				loadAndShowBettingOrderDetails : function(id) {
+				show : function(id, gameCode) {
 					var that = this;
-					that.$http.get('/betting/findMyBettingOrderDetails', {
+					that.$http.get('/game/findGamePlayByGameCode', {
+						params : {
+							gameCode : gameCode
+						}
+					}).then(function(res) {
+						that.gamePlays = res.body.data;
+					});
+					that.$http.get('/betting/findBettingOrderDetails', {
 						params : {
 							id : id
 						}
 					}).then(function(res) {
 						that.bettingOrderDetails = res.body.data;
-						that.showBettingOrderDetailsFlag = true;
+						that.showChangeOrderFlag = true;
+					});
+				},
+
+				changeOrder : function() {
+					var that = this;
+					var params = [];
+					var bettingRecords = that.bettingOrderDetails.bettingRecords;
+					for (var i = 0; i < bettingRecords.length; i++) {
+						var bettingRecord = bettingRecords[i];
+						if (bettingRecord.gamePlayCode == null || bettingRecord.gamePlayCode == '') {
+							layer.alert('请选择玩法', {
+								title : '提示',
+								icon : 7,
+								time : 3000
+							});
+							return;
+						}
+						if (bettingRecord.selectedNo == null || bettingRecord.selectedNo == '') {
+							layer.alert('请输入投注内容', {
+								title : '提示',
+								icon : 7,
+								time : 3000
+							});
+							return;
+						}
+						params.push({
+							bettingOrderId : that.bettingOrderDetails.id,
+							bettingRecordId : bettingRecord.id,
+							gamePlayCode : bettingRecord.gamePlayCode,
+							selectedNo : bettingRecord.selectedNo
+						});
+					}
+					that.$http.post('/betting/changeOrder', params).then(function(res) {
+						layer.alert('操作成功!', {
+							icon : 1,
+							time : 3000,
+							shade : false
+						});
+						that.showChangeOrderFlag = false;
+						bettingRecordVM.refreshTable();
 					});
 				}
 			}

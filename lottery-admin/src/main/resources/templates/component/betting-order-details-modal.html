@@ -1,22 +1,6 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <style>
-#betting-order-details-modal .modal-mask {
-	position: fixed;
-	z-index: 9998;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	display: table;
-	transition: opacity .3s ease;
-}
-
-#betting-order-details-modal .modal-wrapper {
-	display: table-cell;
-	vertical-align: middle;
-}
-
 .betting-order-details-dialog {
 	max-width: 100%;
 	width: 50%;
@@ -73,7 +57,7 @@
 
 <body>
 	<div id="betting-order-details-modal" v-cloak>
-		<div v-show="showBettingOrderDetailsFlag">
+		<div v-if="showBettingOrderDetailsFlag">
 			<div class="modal-mask">
 				<div class="modal-wrapper">
 					<div class="modal-dialog betting-order-details-dialog">
@@ -177,7 +161,7 @@
 			methods : {
 				loadAndShowBettingOrderDetails : function(id) {
 					var that = this;
-					that.$http.get('/betting/findMyBettingOrderDetails', {
+					that.$http.get('/betting/findBettingOrderDetails', {
 						params : {
 							id : id
 						}

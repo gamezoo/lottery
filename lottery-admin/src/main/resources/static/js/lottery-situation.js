@@ -6,7 +6,10 @@ var issueManage = new Vue({
 		issueStateDictItems : [],
 		state : '',
 		issueNum : '',
-		lotteryDate : dayjs().format('YYYY-MM-DD')
+		lotteryDate : dayjs().format('YYYY-MM-DD'),
+		manualLotteryFlag : false,
+		autoSettlementFlag : true,
+		selectedIssue : {}
 	},
 	computed : {},
 	created : function() {
@@ -83,7 +86,7 @@ var issueManage = new Vue({
 					title : '日期'
 				}, {
 					field : 'lotteryNum',
-					title : '开奖结果'
+					title : '开奖号码'
 				}, {
 					field : 'stateName',
 					title : '状态'
@@ -103,17 +106,100 @@ var issueManage = new Vue({
 					field : 'totalWinningAmount',
 					title : '中奖金额'
 				}, {
-					title : '操作'
+					title : '操作',
+					formatter : function(value, row, index) {
+						if (row.state == '1') {
+							return '<button type="button" class="manual-lottery-btn btn btn-outline-info btn-sm">手动开奖</button>';
+						} else if (row.state == '2') {
+							return '<button type="button" class="manual-settlement-btn btn btn-outline-success btn-sm">手动结算</button>';
+						}
+					},
+					events : {
+						'click .manual-lottery-btn' : function(event, value, row, index) {
+							that.openManualLotteryModal(row.id);
+						},
+						'click .manual-settlement-btn' : function(event, value, row, index) {
+							that.manualSettlement(row.id);
+						}
+					}
 				} ]
 			});
-
 		},
 
 		refreshTable : function() {
 			$('.lottery-situation-table').bootstrapTable('refreshOptions', {
 				pageNumber : 1
 			});
-		}
+		},
 
+		openManualLotteryModal : function(id) {
+			var that = this;
+			that.manualLotteryFlag = true;
+			that.autoSettlementFlag = true;
+			that.$http.get('/issue/findIssueById', {
+				params : {
+					id : id
+				}
+			}).then(function(res) {
+				that.selectedIssue = res.body.data;
+			});
+		},
+
+		manualLottery : function() {
+			var that = this;
+			var selectedIssue = that.selectedIssue;
+			if (selectedIssue.lotteryNum == null || selectedIssue.lotteryNum == '') {
+				layer.alert('请输入开奖号码', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+
+			that.$http.post('/issue/manualLottery', {
+				id : selectedIssue.id,
+				lotteryNum : selectedIssue.lotteryNum,
+				autoSettlementFlag : that.autoSettlementFlag
+			}, {
+				emulateJSON : true
+			}).then(function(res) {
+				var msg = null;
+				if (!that.autoSettlementFlag) {
+					msg = '操作成功!';
+				} else {
+					msg = '已通知系统进行结算!';
+				}
+				layer.alert(msg, {
+					icon : 1,
+					time : 3000,
+					shade : false
+				});
+				that.manualLotteryFlag = false;
+				that.refreshTable();
+			});
+		},
+
+		manualSettlement : function(id) {
+			var that = this;
+			layer.confirm('确定要结算吗?', {
+				icon : 7,
+				title : '提示'
+			}, function(index) {
+				layer.close(index);
+				that.$http.get('/issue/manualSettlement', {
+					params : {
+						id : id
+					}
+				}).then(function(res) {
+					layer.alert('已通知系统进行结算!', {
+						icon : 1,
+						time : 3000,
+						shade : false
+					});
+					that.refreshTable();
+				});
+			});
+		}
 	}
 });

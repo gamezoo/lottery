@@ -35,6 +35,11 @@ public class BettingRecordVO {
 	 * 注数
 	 */
 	private Long bettingCount;
+	
+	/**
+	 * 游戏玩法代码
+	 */
+	private String gamePlayCode;
 
 	/**
 	 * 游戏玩法名称

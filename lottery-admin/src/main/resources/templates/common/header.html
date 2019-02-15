@@ -15,7 +15,7 @@
 			<ul class="navbar-nav">
 				<li class="nav-item" v-bind:class="{'active': currentPathName == '/game-manage'}" v-on:click="navTo('/game-manage')"><a class="nav-link" href="#">游戏管理</a></li>
 				<li class="nav-item" v-bind:class="{'active': currentPathName == '/lottery-situation'}" v-on:click="navTo('/lottery-situation')"><a class="nav-link" href="#">开奖情况</a></li>
-				<li class="nav-item"><a class="nav-link" href="#">投注记录</a></li>
+				<li class="nav-item" v-bind:class="{'active': currentPathName == '/betting-record'}" v-on:click="navTo('/betting-record')"><a class="nav-link" href="#">投注记录</a></li>
 			</ul>
 		</nav>
 	</div>

@@ -34,5 +34,14 @@ public class PageController {
 	public String lotterySituation() {
 		return "lottery-situation";
 	}
+	
+	/**
+	 * 投注记录
+	 * @return
+	 */
+	@GetMapping("/betting-record")
+	public String bettingRecord() {
+		return "betting-record";
+	}
 
 }

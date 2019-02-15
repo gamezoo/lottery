@@ -43,6 +43,50 @@
 			<button type="button" class="btn btn-danger" v-on:click="refreshTable">搜索</button>
 		</form>
 		<table class="common-table lottery-situation-table"></table>
+
+		<div v-show="manualLotteryFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog manual-lottery-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">手动开奖</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="manualLotteryFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<form>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>游戏:</label> <input type="text" class="form-control" v-model="selectedIssue.gameName" disabled>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>期数:</label> <input type="text" class="form-control" v-model="selectedIssue.issueNum" disabled>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>开奖号码:</label> <input type="text" class="form-control" v-model="selectedIssue.lotteryNum">
+										</div>
+									</div>
+									<div class="form-check">
+										<label class="form-check-label"> <input class="form-check-input" type="checkbox" v-model="autoSettlementFlag">开奖并结算
+										</label>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="manualLottery">确定</button>
+								<button type="button" class="btn btn-sm" v-on:click="manualLotteryFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 	<script src="/js/lottery-situation.js"></script>
 </body>

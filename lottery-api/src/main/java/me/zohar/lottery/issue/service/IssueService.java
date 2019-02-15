@@ -35,6 +35,7 @@ import me.zohar.lottery.issue.domain.IssueSetting;
 import me.zohar.lottery.issue.enums.GamePlay;
 import me.zohar.lottery.issue.param.IssueGenerateRuleParam;
 import me.zohar.lottery.issue.param.IssueSettingParam;
+import me.zohar.lottery.issue.param.ManualLotteryParam;
 import me.zohar.lottery.issue.repo.IssueGenerateRuleRepo;
 import me.zohar.lottery.issue.repo.IssueRepo;
 import me.zohar.lottery.issue.repo.IssueSettingRepo;
@@ -90,7 +91,7 @@ public class IssueService {
 			log.error("当前期号没有生成,请检查定时任务是否发生了异常.gameCode:{},issueNum:{}", gameCode, issueNum);
 			return;
 		}
-		if (latestIssue.getSyncTime() != null) {
+		if (!Constant.期号状态_未开奖.equals(latestIssue.getState())) {
 			return;
 		}
 		latestIssue.syncLotteryNum(lotteryNum);
@@ -145,7 +146,7 @@ public class IssueService {
 		}
 		issue.settlement();
 		issueRepo.save(issue);
-		
+
 		List<BettingOrder> bettingOrders = bettingOrderRepo.findByGameCodeAndIssueNumAndState(issue.getGameCode(),
 				issue.getIssueNum(), BettingOrderState.投注订单状态_未开奖.getCode());
 		for (BettingOrder bettingOrder : bettingOrders) {
@@ -311,6 +312,47 @@ public class IssueService {
 				}
 			}
 		}
+	}
+
+	@Transactional(readOnly = true)
+	public IssueVO findIssueById(String id) {
+		Issue issue = issueRepo.getOne(id);
+		return IssueVO.convertFor(issue);
+	}
+
+	/**
+	 * 手动开奖
+	 * 
+	 * @param id
+	 * @param lotteryNum
+	 */
+	@ParamValid
+	@Transactional
+	public void manualLottery(ManualLotteryParam param) {
+		Issue issue = issueRepo.getOne(param.getId());
+		if (!Constant.期号状态_未开奖.equals(issue.getState())) {
+			throw new BizException(BizErrorCode.该期已开奖.getCode(), BizErrorCode.该期已开奖.getMsg());
+		}
+		issue.syncLotteryNum(param.getLotteryNum());
+		issueRepo.save(issue);
+
+		if (param.getAutoSettlementFlag()) {
+			kafkaTemplate.send(Constant.当前开奖期号ID, param.getId());
+		}
+	}
+
+	/**
+	 * 手动结算
+	 * 
+	 * @param id
+	 */
+	@Transactional(readOnly = true)
+	public void manualSettlement(String id) {
+		Issue issue = issueRepo.getOne(id);
+		if (!Constant.期号状态_已开奖.equals(issue.getState())) {
+			throw new BizException(BizErrorCode.开奖后才能结算.getCode(), BizErrorCode.开奖后才能结算.getMsg());
+		}
+		kafkaTemplate.send(Constant.当前开奖期号ID, id);
 	}
 
 }

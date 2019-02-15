@@ -48,7 +48,7 @@ public class BettingController {
 		UserAccountDetails user = (UserAccountDetails) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		param.setUserAccountId(user.getUserAccountId());
-		return Result.success().setData(bettingService.findBettingOrderInfoByPage(param));
+		return Result.success().setData(bettingService.findMyBettingOrderInfoByPage(param));
 	}
 
 	@GetMapping("/findTodayLatestThe5TimeBettingRecord")

@@ -24,6 +24,7 @@ import cn.hutool.core.util.StrUtil;
 import me.zohar.lottery.betting.domain.BettingOrder;
 import me.zohar.lottery.betting.domain.BettingRecord;
 import me.zohar.lottery.betting.param.BettingRecordParam;
+import me.zohar.lottery.betting.param.ChangeOrderParam;
 import me.zohar.lottery.betting.param.BettingOrderQueryCondParam;
 import me.zohar.lottery.betting.param.PlaceOrderParam;
 import me.zohar.lottery.betting.repo.BettingOrderRepo;
@@ -66,7 +67,7 @@ public class BettingService {
 
 	@Transactional(readOnly = true)
 	public BettingOrderDetailsVO findMyBettingOrderDetails(String id, String userAccountId) {
-		BettingOrderDetailsVO vo = findBettingRecordById(id);
+		BettingOrderDetailsVO vo = findBettingOrderDetails(id);
 		if (!userAccountId.equals(vo.getUserAccountId())) {
 			throw new BizException(BizErrorCode.无权查看投注记录.getCode(), BizErrorCode.无权查看投注记录.getMsg());
 		}
@@ -74,9 +75,23 @@ public class BettingService {
 	}
 
 	@Transactional(readOnly = true)
-	public BettingOrderDetailsVO findBettingRecordById(String id) {
+	public BettingOrderDetailsVO findBettingOrderDetails(String id) {
 		BettingOrder bettingOrder = bettingOrderRepo.getOne(id);
 		return BettingOrderDetailsVO.convertFor(bettingOrder);
+	}
+
+	/**
+	 * 分页获取我的投注订单信息
+	 * 
+	 * @param param
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public PageResult<BettingOrderInfoVO> findMyBettingOrderInfoByPage(BettingOrderQueryCondParam param) {
+		if (StrUtil.isBlank(param.getUserAccountId())) {
+			throw new BizException(BizErrorCode.无权查看投注记录.getCode(), BizErrorCode.无权查看投注记录.getMsg());
+		}
+		return findBettingOrderInfoByPage(param);
 	}
 
 	/**
@@ -95,6 +110,9 @@ public class BettingService {
 
 			public Predicate toPredicate(Root<BettingOrder> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 				List<Predicate> predicates = new ArrayList<Predicate>();
+				if (StrUtil.isNotEmpty(param.getOrderNo())) {
+					predicates.add(builder.equal(root.get("orderNo"), param.getOrderNo()));
+				}
 				if (StrUtil.isNotEmpty(param.getGameCode())) {
 					predicates.add(builder.equal(root.get("gameCode"), param.getGameCode()));
 				}
@@ -115,8 +133,8 @@ public class BettingService {
 				return predicates.size() > 0 ? builder.and(predicates.toArray(new Predicate[predicates.size()])) : null;
 			}
 		};
-		Page<BettingOrder> result = bettingOrderRepo.findAll(spec, PageRequest.of(param.getPageNum() - 1,
-				param.getPageSize(), Sort.by(Sort.Order.desc("bettingTime"))));
+		Page<BettingOrder> result = bettingOrderRepo.findAll(spec,
+				PageRequest.of(param.getPageNum() - 1, param.getPageSize(), Sort.by(Sort.Order.desc("bettingTime"))));
 		PageResult<BettingOrderInfoVO> pageResult = new PageResult<>(BettingOrderInfoVO.convertFor(result.getContent()),
 				param.getPageNum(), param.getPageSize(), result.getTotalElements());
 		return pageResult;
@@ -189,5 +207,31 @@ public class BettingService {
 		userAccount.setBalance(balance);
 		userAccountRepo.save(userAccount);
 		accountChangeLogRepo.save(AccountChangeLog.buildWithPlaceOrder(userAccount, bettingOrder));
+	}
+
+	/**
+	 * 改单
+	 */
+	@ParamValid
+	@Transactional
+	public void changeOrder(List<ChangeOrderParam> params) {
+		for (ChangeOrderParam param : params) {
+			BettingOrder bettingOrder = bettingOrderRepo.getOne(param.getBettingOrderId());
+			GamePlay gamePlay = gamePlayRepo.findByGameCodeAndGamePlayCode(bettingOrder.getGameCode(),
+					param.getGamePlayCode());
+			if (gamePlay == null) {
+				throw new BizException(BizErrorCode.游戏玩法不存在.getCode(), BizErrorCode.游戏玩法不存在.getMsg());
+			}
+			Double odds = gamePlay.getOdds();
+			if (odds == null || odds <= 0) {
+				throw new BizException(BizErrorCode.玩法赔率异常.getCode(), BizErrorCode.玩法赔率异常.getMsg());
+			}
+
+			BettingRecord bettingRecord = bettingRecordRepo.getOne(param.getBettingRecordId());
+			bettingRecord.setGamePlayCode(gamePlay.getGamePlayCode());
+			bettingRecord.setOdds(gamePlay.getOdds());
+			bettingRecord.setSelectedNo(param.getSelectedNo());
+			bettingRecordRepo.save(bettingRecord);
+		}
 	}
 }
