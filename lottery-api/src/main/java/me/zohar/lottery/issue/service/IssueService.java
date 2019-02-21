@@ -33,13 +33,10 @@ import me.zohar.lottery.issue.domain.Issue;
 import me.zohar.lottery.issue.domain.IssueGenerateRule;
 import me.zohar.lottery.issue.domain.IssueSetting;
 import me.zohar.lottery.issue.enums.GamePlay;
-import me.zohar.lottery.issue.param.IssueGenerateRuleParam;
-import me.zohar.lottery.issue.param.IssueSettingParam;
+import me.zohar.lottery.issue.param.IssueEditParam;
 import me.zohar.lottery.issue.param.ManualLotteryParam;
-import me.zohar.lottery.issue.repo.IssueGenerateRuleRepo;
 import me.zohar.lottery.issue.repo.IssueRepo;
 import me.zohar.lottery.issue.repo.IssueSettingRepo;
-import me.zohar.lottery.issue.vo.IssueSettingDetailsVO;
 import me.zohar.lottery.issue.vo.IssueVO;
 import me.zohar.lottery.useraccount.domain.AccountChangeLog;
 import me.zohar.lottery.useraccount.domain.UserAccount;
@@ -74,9 +71,6 @@ public class IssueService {
 	@Autowired
 	private IssueSettingRepo issueSettingRepo;
 
-	@Autowired
-	private IssueGenerateRuleRepo issueGenerateRuleRepo;
-
 	/**
 	 * 同步开奖号码
 	 * 
@@ -94,8 +88,18 @@ public class IssueService {
 		if (!Constant.期号状态_未开奖.equals(latestIssue.getState())) {
 			return;
 		}
+		if (!latestIssue.getAutomaticLottery()) {
+			log.error("当前期号没有没有设置自动开奖,同步开奖结果失败.gameCode:{},issueNum:{}", gameCode, issueNum);
+			return;
+		}
+
 		latestIssue.syncLotteryNum(lotteryNum);
 		issueRepo.save(latestIssue);
+
+		if (!latestIssue.getAutomaticSettlement()) {
+			log.error("当前期号没有没有设置自动结算,结算失败.gameCode:{},issueNum:{}", gameCode, issueNum);
+			return;
+		}
 		kafkaTemplate.send(Constant.当前开奖期号ID, latestIssue.getId());
 	}
 
@@ -233,50 +237,6 @@ public class IssueService {
 		return IssueVO.convertFor(latelyIssue);
 	}
 
-	public IssueSettingDetailsVO getIssueSettingDetailsByGameCode(String gameCode) {
-		IssueSetting issueSetting = issueSettingRepo.findByGameCode(gameCode);
-		return IssueSettingDetailsVO.convertFor(issueSetting);
-	}
-
-	@ParamValid
-	@Transactional
-	public void addOrUpdateIssueSetting(IssueSettingParam issueSettingParam) {
-		// 新增
-		if (StrUtil.isBlank(issueSettingParam.getId())) {
-			IssueSetting existIssueSetting = issueSettingRepo.findByGameCode(issueSettingParam.getGameCode());
-			if (existIssueSetting != null) {
-				throw new BizException(BizErrorCode.期号设置已存在.getCode(), BizErrorCode.期号设置已存在.getMsg());
-			}
-
-			IssueSetting issueSetting = issueSettingParam.convertToPo();
-			issueSettingRepo.save(issueSetting);
-			for (int i = 0; i < issueSettingParam.getIssueGenerateRules().size(); i++) {
-				IssueGenerateRuleParam issueGenerateRuleParam = issueSettingParam.getIssueGenerateRules().get(i);
-				IssueGenerateRule issueGenerateRule = issueGenerateRuleParam.convertToPo();
-				issueGenerateRule.setIssueSettingId(issueSetting.getId());
-				issueGenerateRule.setOrderNo((double) (i + 1));
-				issueGenerateRuleRepo.save(issueGenerateRule);
-			}
-		}
-		// 修改
-		else {
-			List<IssueGenerateRule> issueGenerateRules = issueGenerateRuleRepo
-					.findByIssueSettingId(issueSettingParam.getId());
-			issueGenerateRuleRepo.deleteAll(issueGenerateRules);
-
-			IssueSetting issueSetting = issueSettingRepo.getOne(issueSettingParam.getId());
-			issueSetting.updateFormat(issueSettingParam.getDateFormat(), issueSettingParam.getIssueFormat());
-			issueSettingRepo.save(issueSetting);
-			for (int i = 0; i < issueSettingParam.getIssueGenerateRules().size(); i++) {
-				IssueGenerateRuleParam issueGenerateRuleParam = issueSettingParam.getIssueGenerateRules().get(i);
-				IssueGenerateRule issueGenerateRule = issueGenerateRuleParam.convertToPo();
-				issueGenerateRule.setIssueSettingId(issueSetting.getId());
-				issueGenerateRule.setOrderNo((double) (i + 1));
-				issueGenerateRuleRepo.save(issueGenerateRule);
-			}
-		}
-	}
-
 	@Transactional
 	public void generateIssue(Date currentDate) {
 		List<IssueSetting> issueSettings = issueSettingRepo.findAll();
@@ -314,12 +274,6 @@ public class IssueService {
 		}
 	}
 
-	@Transactional(readOnly = true)
-	public IssueVO findIssueById(String id) {
-		Issue issue = issueRepo.getOne(id);
-		return IssueVO.convertFor(issue);
-	}
-
 	/**
 	 * 手动开奖
 	 * 
@@ -353,6 +307,22 @@ public class IssueService {
 			throw new BizException(BizErrorCode.开奖后才能结算.getCode(), BizErrorCode.开奖后才能结算.getMsg());
 		}
 		kafkaTemplate.send(Constant.当前开奖期号ID, id);
+	}
+
+	@ParamValid
+	@Transactional
+	public void updateIssue(IssueEditParam param) {
+		Issue issue = issueRepo.getOne(param.getId());
+		if (param.getIssueInvalid()
+				&& (Constant.期号状态_已开奖.equals(issue.getState()) || Constant.期号状态_已结算.equals(issue.getState()))) {
+			throw new BizException(BizErrorCode.期号作废失败.getCode(), BizErrorCode.期号作废失败.getMsg());
+		}
+		if ((Constant.期号状态_未开奖.equals(issue.getState()) || Constant.期号状态_已作废.equals(issue.getState()))) {
+			issue.setState(param.getIssueInvalid() ? Constant.期号状态_已作废 : Constant.期号状态_未开奖);
+		}
+		issue.setAutomaticLottery(param.getAutomaticLottery());
+		issue.setAutomaticSettlement(param.getAutomaticSettlement());
+		issueRepo.save(issue);
 	}
 
 }

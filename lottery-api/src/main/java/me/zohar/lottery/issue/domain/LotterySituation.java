@@ -83,6 +83,16 @@ public class LotterySituation {
 	 * 状态
 	 */
 	private String state;
+	
+	/**
+	 * 自动开奖
+	 */
+	private Boolean automaticLottery;
+	
+	/**
+	 * 自动结算
+	 */
+	private Boolean automaticSettlement;
 
 	/**
 	 * 总投注金额

@@ -49,7 +49,8 @@ public class DictTest {
 
 		dictItemRepo.save(buildDictItem("1", "未开奖", 1d, dictType.getId()));
 		dictItemRepo.save(buildDictItem("2", "已开奖", 2d, dictType.getId()));
-		dictItemRepo.save(buildDictItem("3", "已结算", 2d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("3", "已结算", 3d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("4", "已作废", 4d, dictType.getId()));
 	}
 	
 	/**

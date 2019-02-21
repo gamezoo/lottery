@@ -31,6 +31,10 @@ public class LotterySituationService {
 	@Autowired
 	private LotterySituationRepo lotterySituationRepo;
 
+	public LotterySituationVO findLotterySituationById(String id) {
+		return LotterySituationVO.convertFor(lotterySituationRepo.getOne(id));
+	}
+
 	/**
 	 * 分页获取开奖情况
 	 * 

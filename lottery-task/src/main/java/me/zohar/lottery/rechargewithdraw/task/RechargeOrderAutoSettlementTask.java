@@ -21,7 +21,7 @@ public class RechargeOrderAutoSettlementTask {
 	@Autowired
 	private RechargeService rechargeService;
 
-	@Scheduled(fixedRate = 60000)
+//	@Scheduled(fixedRate = 60000)
 	public void execute() {
 		try {
 			log.info("充值订单自动结算定时任务start");

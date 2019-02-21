@@ -1,8 +1,15 @@
 package me.zohar.lottery.issue.service;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.dom4j.DocumentHelper;
 import org.jsoup.Jsoup;
@@ -19,6 +26,7 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
+import me.zohar.lottery.common.utils.ThreadPoolUtil;
 import me.zohar.lottery.constants.GameCode;
 import me.zohar.lottery.issue.vo.IssueVO;
 
@@ -33,12 +41,58 @@ public class CqsscService {
 	 * 同步当前时间的开奖号码
 	 */
 	public void syncLotteryNum() {
-		IssueVO latestWithInterface = getLatestLotteryResultWitOpenCai();
+		IssueVO latestWithInterface = getLatestLotteryResultWithApi();
 		if (latestWithInterface == null) {
 			return;
 		}
 		issueService.syncLotteryNum(GameCode.重庆时时彩, latestWithInterface.getIssueNum(),
 				latestWithInterface.getLotteryNum());
+	}
+
+	public IssueVO getLatestLotteryResultWithApi() {
+		List<IssueVO> issues = new ArrayList<>();
+		CountDownLatch countlatch = new CountDownLatch(3);
+		List<Future<IssueVO>> futures = new ArrayList<>();
+		futures.add(ThreadPoolUtil.getPool().submit(() -> {
+			return getLatestLotteryIssueWithAiCai();
+		}));
+		futures.add(ThreadPoolUtil.getPool().submit(() -> {
+			return getLatestLotteryResultWith500();
+		}));
+		futures.add(ThreadPoolUtil.getPool().submit(() -> {
+			return getLatestLotteryResultWithOpenCai();
+		}));
+		for (Future<IssueVO> future : futures) {
+			try {
+				IssueVO issueVO = future.get(2, TimeUnit.SECONDS);
+				issues.add(issueVO);
+			} catch (InterruptedException | ExecutionException | TimeoutException e) {
+				log.error("异步future接口出现错误", e);
+			}
+			countlatch.countDown();
+		}
+		try {
+			countlatch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		issues.sort(new Comparator<IssueVO>() {
+
+			@Override
+			public int compare(IssueVO o1, IssueVO o2) {
+				if (o1 == null) {
+					return -1;
+				}
+				if (o2 == null) {
+					return -1;
+				}
+				if (o1 != null && o2 != null) {
+					return o2.getIssueNum().compareTo(o1.getIssueNum());
+				}
+				return 0;
+			}
+		});
+		return issues.isEmpty() ? null : issues.get(0);
 	}
 
 	/**
@@ -94,7 +148,7 @@ public class CqsscService {
 	/**
 	 * 通过开彩票接口获取重庆时时彩最新开奖结果
 	 */
-	public IssueVO getLatestLotteryResultWitOpenCai() {
+	public IssueVO getLatestLotteryResultWithOpenCai() {
 		try {
 			String result = HttpUtil.get("http://f.apiplus.net/cqssc.json");
 			log.info("接口返回结果:{}", result);
@@ -105,7 +159,6 @@ public class CqsscService {
 			String lotteryDateFormat = DateUtil.format(
 					DateUtil.parse(String.valueOf(issueNum).substring(0, 8), DatePattern.PURE_DATE_PATTERN),
 					DatePattern.NORM_DATE_PATTERN);
-
 			String lotteryNum = jsonObject.getString("opencode");
 			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(lotteryDateFormat)
 					.lotteryNum(lotteryNum).build();

@@ -9,7 +9,9 @@ var issueManage = new Vue({
 		lotteryDate : dayjs().format('YYYY-MM-DD'),
 		manualLotteryFlag : false,
 		autoSettlementFlag : true,
-		selectedIssue : {}
+		selectedIssue : {},
+		issueEditFlag : false,
+		issueInvalid : false
 	},
 	computed : {},
 	created : function() {
@@ -80,7 +82,10 @@ var issueManage = new Vue({
 					title : '游戏'
 				}, {
 					field : 'issueNum',
-					title : '期数'
+					title : '期数',
+					cellStyle : {
+						classes : 'lottery-situation-issue-num'
+					}
 				}, {
 					field : 'lotteryDate',
 					title : '日期'
@@ -122,7 +127,12 @@ var issueManage = new Vue({
 							that.manualSettlement(row.id);
 						}
 					}
-				} ]
+				} ],
+				onClickCell : function(field, value, row) {
+					if ('issueNum' == field) {
+						that.openIssueEditModal(row.id);
+					}
+				}
 			});
 		},
 
@@ -132,11 +142,47 @@ var issueManage = new Vue({
 			});
 		},
 
+		openIssueEditModal : function(id) {
+			var that = this;
+			that.issueEditFlag = true;
+			that.selectedIssue = {};
+			that.issueInvalid = false;
+			that.$http.get('/issue/findLotterySituationById', {
+				params : {
+					id : id
+				}
+			}).then(function(res) {
+				that.selectedIssue = res.body.data;
+				that.issueInvalid = that.selectedIssue.state == '4';
+			});
+		},
+
+		updateIssue : function() {
+			var that = this;
+			that.$http.post('/issue/updateIssue', {
+				id : that.selectedIssue.id,
+				automaticLottery : that.selectedIssue.automaticLottery,
+				automaticSettlement : that.selectedIssue.automaticSettlement,
+				issueInvalid : that.issueInvalid
+			}, {
+				emulateJSON : true
+			}).then(function(res) {
+				layer.alert('操作成功!', {
+					icon : 1,
+					time : 3000,
+					shade : false
+				});
+				that.issueEditFlag = false;
+				that.refreshTable();
+			});
+		},
+
 		openManualLotteryModal : function(id) {
 			var that = this;
 			that.manualLotteryFlag = true;
 			that.autoSettlementFlag = true;
-			that.$http.get('/issue/findIssueById', {
+			that.selectedIssue = {};
+			that.$http.get('/issue/findLotterySituationById', {
 				params : {
 					id : id
 				}
@@ -156,7 +202,6 @@ var issueManage = new Vue({
 				});
 				return;
 			}
-
 			that.$http.post('/issue/manualLottery', {
 				id : selectedIssue.id,
 				lotteryNum : selectedIssue.lotteryNum,

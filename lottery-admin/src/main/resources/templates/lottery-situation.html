@@ -15,6 +15,10 @@
 <script src="https://cdn.bootcss.com/dayjs/1.7.8/dayjs.min.js"></script>
 <link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <style type="text/css">
+.lottery-situation-table .lottery-situation-issue-num {
+	color: #2765a1;
+	cursor: pointer;
+}
 </style>
 </head>
 
@@ -44,7 +48,55 @@
 		</form>
 		<table class="common-table lottery-situation-table"></table>
 
-		<div v-show="manualLotteryFlag">
+		<div v-if="issueEditFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog edit-issue-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">期号编辑</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="issueEditFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<form>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>游戏:</label> <input type="text" class="form-control" v-model="selectedIssue.gameName" disabled>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>期数:</label> <input type="text" class="form-control" v-model="selectedIssue.issueNum" disabled>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<div class="custom-control custom-checkbox mb-3 custom-control-inline">
+												<input type="checkbox" class="custom-control-input" id="automaticLottery" v-model="selectedIssue.automaticLottery"> <label class="custom-control-label" for="automaticLottery">自动开奖</label>
+											</div>
+											<div class="custom-control custom-checkbox mb-3 custom-control-inline">
+												<input type="checkbox" class="custom-control-input" id="automaticSettlement" v-model="selectedIssue.automaticSettlement"> <label class="custom-control-label" for="automaticSettlement">自动结算</label>
+											</div>
+											<div class="custom-control custom-checkbox mb-3 custom-control-inline">
+												<input type="checkbox" class="custom-control-input" id="issueInvalid" v-model="issueInvalid"> <label class="custom-control-label" for="issueInvalid">已作废</label>
+											</div>
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="updateIssue">保存</button>
+								<button type="button" class="btn btn-sm" v-on:click="issueEditFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div v-if="manualLotteryFlag">
 			<div class="modal-mask">
 				<div class="modal-wrapper">
 					<div class="modal-dialog manual-lottery-dialog">

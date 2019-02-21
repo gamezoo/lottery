@@ -35,7 +35,7 @@ public class Issue {
 	@Id
 	@Column(name = "id", length = 32)
 	private String id;
-	
+
 	/**
 	 * 所属游戏代码
 	 */
@@ -75,16 +75,26 @@ public class Issue {
 	 * 同步时间
 	 */
 	private Date syncTime;
-	
+
 	/**
 	 * 结算时间
 	 */
 	private Date settlementTime;
-	
+
 	/**
 	 * 状态
 	 */
 	private String state;
+
+	/**
+	 * 自动开奖
+	 */
+	private Boolean automaticLottery;
+
+	/**
+	 * 自动结算
+	 */
+	private Boolean automaticSettlement;
 
 	/**
 	 * 乐观锁版本号
@@ -100,13 +110,19 @@ public class Issue {
 		this.setSyncTime(new Date());
 		this.setState(Constant.期号状态_已开奖);
 	}
-	
+
 	/**
 	 * 结算
 	 */
 	public void settlement() {
 		this.setSettlementTime(new Date());
 		this.setState(Constant.期号状态_已结算);
+	}
+
+	public void updateIssue(String state, Boolean automaticLottery, Boolean automaticSettlement) {
+		this.setState(state);
+		this.setAutomaticLottery(automaticLottery);
+		this.setAutomaticSettlement(automaticSettlement);
 	}
 
 }

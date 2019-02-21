@@ -43,5 +43,10 @@ public class PageController {
 	public String bettingRecord() {
 		return "betting-record";
 	}
+	
+	@GetMapping("/datav")
+	public String datav() {
+		return "datav";
+	}
 
 }

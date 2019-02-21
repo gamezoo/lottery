@@ -80,6 +80,16 @@ public class LotterySituationVO {
 	private String state;
 
 	private String stateName;
+	
+	/**
+	 * 自动开奖
+	 */
+	private Boolean automaticLottery;
+	
+	/**
+	 * 自动结算
+	 */
+	private Boolean automaticSettlement;
 
 	/**
 	 * 总投注金额
