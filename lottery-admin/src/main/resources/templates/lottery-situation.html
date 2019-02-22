@@ -124,9 +124,12 @@
 											<label>开奖号码:</label> <input type="text" class="form-control" v-model="selectedIssue.lotteryNum">
 										</div>
 									</div>
-									<div class="form-check">
-										<label class="form-check-label"> <input class="form-check-input" type="checkbox" v-model="autoSettlementFlag">开奖并结算
-										</label>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<div class="custom-control custom-checkbox mb-3 custom-control-inline">
+												<input type="checkbox" class="custom-control-input" id="autoSettlementFlag" v-model="autoSettlementFlag"> <label class="custom-control-label" for="autoSettlementFlag">开奖并结算</label>
+											</div>
+										</div>
 									</div>
 								</form>
 							</div>

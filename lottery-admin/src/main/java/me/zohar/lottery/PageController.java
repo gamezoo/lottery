@@ -44,9 +44,13 @@ public class PageController {
 		return "betting-record";
 	}
 	
-	@GetMapping("/datav")
-	public String datav() {
-		return "datav";
+	/**
+	 * 账号管理
+	 * @return
+	 */
+	@GetMapping("/account-manage")
+	public String accountManage() {
+		return "account-manage";
 	}
 
 }

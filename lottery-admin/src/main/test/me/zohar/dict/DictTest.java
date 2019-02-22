@@ -35,6 +35,23 @@ public class DictTest {
 	}
 	
 	/**
+	 * 初始化用户账号状态字典
+	 */
+	@Test
+	@Transactional(readOnly = false)
+	@Rollback(false)
+	public void initAccountStateDict() {
+		DictType dictType = new DictType();
+		dictType.setId(IdUtils.getId());
+		dictType.setDictTypeCode("userAccountState");
+		dictType.setDictTypeName("用户账号状态");
+		dictTypeRepo.save(dictType);
+
+		dictItemRepo.save(buildDictItem("1", "启用", 1d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("0", "禁用", 2d, dictType.getId()));
+	}
+	
+	/**
 	 * 初始化期号状态字典
 	 */
 	@Test

@@ -62,6 +62,11 @@ public class UserAccount {
 	private Double balance;
 
 	/**
+	 * 状态
+	 */
+	private String state;
+
+	/**
 	 * 注册时间
 	 */
 	private Date registeredTime;

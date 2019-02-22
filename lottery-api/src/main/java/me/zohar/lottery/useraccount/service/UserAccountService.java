@@ -8,6 +8,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.validation.constraints.NotBlank;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +32,15 @@ import me.zohar.lottery.useraccount.param.AccountChangeLogQueryCondParam;
 import me.zohar.lottery.useraccount.param.BindBankInfoParam;
 import me.zohar.lottery.useraccount.param.ModifyLoginPwdParam;
 import me.zohar.lottery.useraccount.param.ModifyMoneyPwdParam;
+import me.zohar.lottery.useraccount.param.UserAccountEditParam;
+import me.zohar.lottery.useraccount.param.UserAccountQueryCondParam;
 import me.zohar.lottery.useraccount.param.UserAccountRegisterParam;
 import me.zohar.lottery.useraccount.repo.AccountChangeLogRepo;
 import me.zohar.lottery.useraccount.repo.UserAccountRepo;
 import me.zohar.lottery.useraccount.vo.AccountChangeLogVO;
 import me.zohar.lottery.useraccount.vo.BankInfoVO;
 import me.zohar.lottery.useraccount.vo.LoginAccountInfoVO;
+import me.zohar.lottery.useraccount.vo.UserAccountDetailsInfoVO;
 import me.zohar.lottery.useraccount.vo.UserAccountInfoVO;
 
 @Service
@@ -48,8 +52,64 @@ public class UserAccountService {
 	@Autowired
 	private AccountChangeLogRepo accountChangeLogRepo;
 
+	/**
+	 * 更新最近登录时间
+	 */
+	@Transactional
+	public void updateLatelyLoginTime(String userAccountId) {
+		UserAccount userAccount = userAccountRepo.getOne(userAccountId);
+		userAccount.setLatelyLoginTime(new Date());
+		userAccountRepo.save(userAccount);
+	}
+
 	@ParamValid
-	@Transactional(readOnly = false)
+	@Transactional
+	public void updateUserAccount(UserAccountEditParam param) {
+		UserAccount existUserAccount = userAccountRepo.findByUserName(param.getUserName());
+		if (existUserAccount != null && !existUserAccount.getId().equals(param.getUserAccountId())) {
+			throw new BizException(BizErrorCode.用户名已存在.getCode(), BizErrorCode.用户名已存在.getMsg());
+		}
+		
+		UserAccount userAccount = userAccountRepo.getOne(param.getUserAccountId());
+		BeanUtils.copyProperties(param, userAccount);
+		userAccountRepo.save(userAccount);
+	}
+
+	@Transactional(readOnly = true)
+	public UserAccountDetailsInfoVO findUserAccountDetailsInfoById(String userAccountId) {
+		UserAccount userAccount = userAccountRepo.getOne(userAccountId);
+		return UserAccountDetailsInfoVO.convertFor(userAccount);
+	}
+
+	@Transactional(readOnly = true)
+	public PageResult<UserAccountDetailsInfoVO> findUserAccountDetailsInfoByPage(UserAccountQueryCondParam param) {
+		Specification<UserAccount> spec = new Specification<UserAccount>() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			public Predicate toPredicate(Root<UserAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+				List<Predicate> predicates = new ArrayList<Predicate>();
+				if (StrUtil.isNotEmpty(param.getUserName())) {
+					predicates.add(builder.like(root.get("userName"), "%" + param.getUserName() + "%"));
+				}
+				if (StrUtil.isNotEmpty(param.getRealName())) {
+					predicates.add(builder.like(root.get("realName"), "%" + param.getRealName() + "%"));
+				}
+				return predicates.size() > 0 ? builder.and(predicates.toArray(new Predicate[predicates.size()])) : null;
+			}
+		};
+		Page<UserAccount> result = userAccountRepo.findAll(spec, PageRequest.of(param.getPageNum() - 1,
+				param.getPageSize(), Sort.by(Sort.Order.desc("registeredTime"))));
+		PageResult<UserAccountDetailsInfoVO> pageResult = new PageResult<>(
+				UserAccountDetailsInfoVO.convertFor(result.getContent()), param.getPageNum(), param.getPageSize(),
+				result.getTotalElements());
+		return pageResult;
+	}
+
+	@ParamValid
+	@Transactional
 	public void bindBankInfo(BindBankInfoParam param) {
 		UserAccount userAccount = userAccountRepo.getOne(param.getUserAccountId());
 		BeanUtils.copyProperties(param, userAccount);
@@ -58,20 +118,26 @@ public class UserAccountService {
 	}
 
 	@ParamValid
-	@Transactional(readOnly = false)
+	@Transactional
 	public void modifyLoginPwd(ModifyLoginPwdParam param) {
 		UserAccount userAccount = userAccountRepo.getOne(param.getUserAccountId());
 		BCryptPasswordEncoder pwdEncoder = new BCryptPasswordEncoder();
 		if (!pwdEncoder.matches(param.getOldLoginPwd(), userAccount.getLoginPwd())) {
 			throw new BizException(BizErrorCode.旧的登录密码不正确.getCode(), BizErrorCode.旧的登录密码不正确.getMsg());
 		}
-		String newLoginPwd = pwdEncoder.encode(param.getNewLoginPwd());
-		userAccount.setLoginPwd(newLoginPwd);
+		modifyLoginPwd(param.getUserAccountId(), param.getNewLoginPwd());
+	}
+
+	@ParamValid
+	@Transactional
+	public void modifyLoginPwd(@NotBlank String userAccountId, @NotBlank String newLoginPwd) {
+		UserAccount userAccount = userAccountRepo.getOne(userAccountId);
+		userAccount.setLoginPwd(new BCryptPasswordEncoder().encode(newLoginPwd));
 		userAccountRepo.save(userAccount);
 	}
 
 	@ParamValid
-	@Transactional(readOnly = false)
+	@Transactional
 	public void modifyMoneyPwd(ModifyMoneyPwdParam param) {
 		UserAccount userAccount = userAccountRepo.getOne(param.getUserAccountId());
 		BCryptPasswordEncoder pwdEncoder = new BCryptPasswordEncoder();
@@ -82,7 +148,15 @@ public class UserAccountService {
 		userAccount.setMoneyPwd(newMoneyPwd);
 		userAccountRepo.save(userAccount);
 	}
-	
+
+	@ParamValid
+	@Transactional
+	public void modifyMoneyPwd(@NotBlank String userAccountId, @NotBlank String newMoneyPwd) {
+		UserAccount userAccount = userAccountRepo.getOne(userAccountId);
+		userAccount.setMoneyPwd(new BCryptPasswordEncoder().encode(newMoneyPwd));
+		userAccountRepo.save(userAccount);
+	}
+
 	@Transactional(readOnly = true)
 	public LoginAccountInfoVO getLoginAccountInfo(String userName) {
 		return LoginAccountInfoVO.convertFor(userAccountRepo.findByUserName(userName));

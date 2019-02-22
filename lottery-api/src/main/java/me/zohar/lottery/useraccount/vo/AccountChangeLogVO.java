@@ -9,15 +9,11 @@ import org.springframework.beans.BeanUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import cn.hutool.core.collection.CollectionUtil;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import me.zohar.lottery.dictconfig.DictHolder;
 import me.zohar.lottery.useraccount.domain.AccountChangeLog;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class AccountChangeLogVO {
 
 	/**

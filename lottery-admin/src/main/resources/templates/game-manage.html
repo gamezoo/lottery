@@ -14,12 +14,16 @@
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/locale/bootstrap-table-zh-CN.min.js"></script>
-<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
 <script src="https://cdn.bootcss.com/zTree.v3/3.5.40/js/jquery.ztree.all.min.js"></script>
 <link href="https://cdn.bootcss.com/zTree.v3/3.5.40/css/zTreeStyle/zTreeStyle.css" rel="stylesheet">
 
 <link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <style type="text/css">
+.issue-setting-modal-dialog {
+	max-width: 100%;
+	width: 45%;
+}
+
 .add-or-update-game-dialog {
 	max-width: 100%;
 	width: 45%;
@@ -76,10 +80,10 @@
 						<td>{{game.stateName}}</td>
 						<td>{{game.orderNo}}</td>
 						<td>
-							<button type="button" class="btn btn-default btn-sm" v-on:click="toGamePlaySetting(game)">玩法设置</button>
-							<button type="button" class="btn btn-secondary btn-sm" v-on:click="openIssueSettingModal(game)">期号规则</button>
-							<button type="button" class="btn btn-success btn-sm" v-on:click="openEditGameModal(game)">编辑</button>
-							<button type="button" class="btn btn-danger btn-sm" v-on:click="delGame(game)">删除</button>
+							<button type="button" class="btn btn-outline-primary btn-sm" v-on:click="toGamePlaySetting(game)">玩法设置</button>
+							<button type="button" class="btn btn-outline-secondary btn-sm" v-on:click="openIssueSettingModal(game)">期号规则</button>
+							<button type="button" class="btn btn-outline-success btn-sm" v-on:click="openEditGameModal(game)">编辑</button>
+							<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="delGame(game)">删除</button>
 						</td>
 					</tr>
 				</tbody>
@@ -209,9 +213,9 @@
 										</thead>
 										<tbody>
 											<tr v-for="(issueGenerateRule, index) in issueSettingDetails.issueGenerateRules">
-												<td><input type="time" class="form-control" v-model="issueGenerateRule.startTime"></td>
-												<td><input type="text" class="form-control" v-model="issueGenerateRule.timeInterval"></td>
-												<td><input type="text" class="form-control" v-model="issueGenerateRule.issueCount"></td>
+												<td><input type="time" class="form-control-sm" v-model="issueGenerateRule.startTime"></td>
+												<td><input type="text" class="form-control-sm" v-model="issueGenerateRule.timeInterval"></td>
+												<td><input type="text" class="form-control-sm" v-model="issueGenerateRule.issueCount"></td>
 												<td>
 													<button type="button" class="btn btn-danger btn-sm" v-on:click="delIssueGenerateRule(index)">删除</button>
 												</td>
@@ -260,8 +264,16 @@
 									<div class="form-group row">
 										<div class="col-sm-6">
 											<label>状态:</label>
-											<div class="radio">
-												<label class="radio-inline"><input type="radio" name="gameStateRadio" v-model="editGame.state" value="1">启用</label> <label class="radio-inline"><input type="radio" name="gameStateRadio" v-model="editGame.state" value="2">禁用</label> <label class="radio-inline"><input type="radio" name="gameStateRadio" v-model="editGame.state" value="3">维护中</label>
+											<div>
+												<div class="custom-control custom-radio custom-control-inline">
+													<input type="radio" class="custom-control-input" id="editGameState1" v-model="editGame.state" value="1"> <label class="custom-control-label" for="editGameState1">启用</label>
+												</div>
+												<div class="custom-control custom-radio custom-control-inline">
+													<input type="radio" class="custom-control-input" id="editGameState2" v-model="editGame.state" value="2"> <label class="custom-control-label" for="editGameState2">禁用</label>
+												</div>
+												<div class="custom-control custom-radio custom-control-inline">
+													<input type="radio" class="custom-control-input" id="editGameState3" v-model="editGame.state" value="3"> <label class="custom-control-label" for="editGameState3">维护中</label>
+												</div>
 											</div>
 										</div>
 										<div class="col-sm-6">
@@ -322,8 +334,13 @@
 										</div>
 										<div class="col-sm-6">
 											<label>状态:</label>
-											<div class="radio">
-												<label class="radio-inline"><input type="radio" name="gamePlayStateRadio" v-model="editGamePlay.state" value="1">启用</label> <label class="radio-inline"><input type="radio" name="gamePlayStateRadio" v-model="editGamePlay.state" value="0">禁用</label>
+											<div>
+												<div class="custom-control custom-radio custom-control-inline">
+													<input type="radio" class="custom-control-input" id="editGamePlayState1" v-model="editGamePlay.state" value="1"> <label class="custom-control-label" for="editGamePlayState1">启用</label>
+												</div>
+												<div class="custom-control custom-radio custom-control-inline">
+													<input type="radio" class="custom-control-input" id="editGamePlayState0" v-model="editGamePlay.state" value="0"> <label class="custom-control-label" for="editGamePlayState0">禁用</label>
+												</div>
 											</div>
 										</div>
 									</div>
@@ -355,10 +372,10 @@
 									</thead>
 									<tbody>
 										<tr v-for="(numLocate, index) in editGamePlay.numLocates">
-											<td><input type="text" class="form-control" v-model="numLocate.numLocateName"></td>
-											<td><input type="text" class="form-control" v-model="numLocate.nums"></td>
-											<td><input type="text" class="form-control" v-model="numLocate.maxSelected"></td>
-											<td><select class="form-control" v-model="numLocate.hasFilterBtnFlag">
+											<td><input type="text" class="form-control-sm" v-model="numLocate.numLocateName"></td>
+											<td><input type="text" class="form-control-sm" v-model="numLocate.nums"></td>
+											<td><input type="text" class="form-control-sm" v-model="numLocate.maxSelected"></td>
+											<td><select class="form-control-sm" v-model="numLocate.hasFilterBtnFlag">
 													<option value="true">显示</option>
 													<option value="false">不显示</option>
 											</select></td>

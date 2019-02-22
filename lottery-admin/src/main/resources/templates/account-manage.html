@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>账号管理</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.bootcss.com/dayjs/1.7.8/dayjs.min.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/locale/bootstrap-table-zh-CN.min.js"></script>
+<link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<script src="https://unpkg.com/art-template@4.13.2/lib/template-web.js"></script>
+<script id="bank-card-info" type="text/html">
+	<div class="bank-card-info">
+		<div class="row">
+			<div class="col-sm-6 offset-sm-3 bank-card-info-item">
+				<label class="bank-card-info-item-title">开户银行:</label> <label class="bank-card-info-item-value">{{accountInfo.openAccountBank }}</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6 offset-sm-3 bank-card-info-item">
+				<label class="bank-card-info-item-title">开户人姓名:</label> <label class="bank-card-info-item-value">{{accountInfo.accountHolder }}</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6 offset-sm-3 bank-card-info-item">
+				<label class="bank-card-info-item-title">银行卡账号:</label> <label class="bank-card-info-item-value">{{accountInfo.bankCardAccount }}</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6 offset-sm-3 bank-card-info-item">
+				<label class="bank-card-info-item-title">最近操作时间:</label> <label class="bank-card-info-item-value">{{accountInfo.bankInfoLatelyModifyTime }}</label>
+			</div>
+		</div>
+		{{if accountInfo.bankInfoLatelyModifyTime == null}}
+		<div class="row">
+			<div class="col-sm-6 offset-sm-3 bank-card-info-item">
+				<label class="bank-card-info-item-title" style="color: red; text-align: center;">未绑定银行卡</label>
+			</div>
+		</div>
+		{{/if}}
+		<div class="row">
+			<div class="col-sm-6 offset-sm-3">
+				<button type="button" class="btn btn-outline-success btn-sm" onclick="accountManageVM.showBindBankInfoModal({{accountInfo }})">绑定银行卡</button>
+				<button type="button" class="btn btn-outline-info btn-sm" onclick="accountManageVM.showModifyMoneyPwdModal({{accountInfo }})">修改资金密码</button>
+			</div>
+		</div>
+	</div>
+</script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+.bank-card-info {
+	width: 97%;
+}
+
+.bank-card-info .row {
+	padding-bottom: 10px;
+}
+
+.bank-card-info-item .bank-card-info-item-title {
+	padding-right: 20px;
+	min-width: 30%;
+	color: #666;
+	text-align: end;
+}
+
+.bank-card-info-item .bank-card-info-item-value {
+	min-width: 30%;
+	color: #666;
+	text-align: start;
+}
+
+.edit-bank-info-form button {
+	margin-right: 20px;
+}
+</style>
+</head>
+
+<body>
+	<div th:replace="common/header::html"></div>
+	<div id="account-manage" v-cloak>
+		<form class="form-inline common-query-cond-form" action="#">
+			<div class="form-group common-query-cond">
+				<label>用户名:</label><input type="text" class="form-control" v-model="userName">
+			</div>
+			<div class="form-group common-query-cond">
+				<label>真实姓名:</label><input type="text" class="form-control" v-model="realName">
+			</div>
+			<button type="button" class="btn btn-danger" v-on:click="refreshTable">搜索</button>
+		</form>
+		<table class="common-table account-manage-table"></table>
+		<div v-if="accountEditFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog account-edit-modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">账号编辑</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="accountEditFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<form>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>用户名:</label> <input type="text" class="form-control" v-model="selectedAccount.userName">
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>真实姓名:</label> <input type="text" class="form-control" v-model="selectedAccount.realName">
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>状态:</label>
+											<div>
+												<div class="custom-control custom-radio custom-control-inline">
+													<input type="radio" class="custom-control-input" id="userAccountState1" v-model="selectedAccount.state" value="1"> <label class="custom-control-label" for="userAccountState1">启用</label>
+												</div>
+												<div class="custom-control custom-radio custom-control-inline">
+													<input type="radio" class="custom-control-input" id="userAccountState0" v-model="selectedAccount.state" value="0"> <label class="custom-control-label" for="userAccountState0">禁用</label>
+												</div>
+											</div>
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="updateUserAccount">保存</button>
+								<button type="button" class="btn btn-sm" v-on:click="accountEditFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div v-if="modifyLoginPwdFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog modify-login-pwd-modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">修改登录密码</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="modifyLoginPwdFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<form>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>用户名:</label> <input type="text" class="form-control" v-model="selectedAccount.userName" disabled>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>真实姓名:</label> <input type="text" class="form-control" v-model="selectedAccount.realName" disabled>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>登录密码:</label> <input type="text" class="form-control" v-model="newLoginPwd" placeholder="请输入要修改的密码">
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="modifyLoginPwd">保存</button>
+								<button type="button" class="btn btn-sm" v-on:click="modifyLoginPwdFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div v-if="modifyMoneyPwdFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog modify-money-pwd-modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">修改资金密码</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="modifyMoneyPwdFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<form>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>用户名:</label> <input type="text" class="form-control" v-model="selectedAccount.userName" disabled>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>真实姓名:</label> <input type="text" class="form-control" v-model="selectedAccount.realName" disabled>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>资金密码:</label> <input type="text" class="form-control" v-model="newMoneyPwd" placeholder="请输入要修改的密码">
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="modifyMoneyPwd">保存</button>
+								<button type="button" class="btn btn-sm" v-on:click="modifyMoneyPwdFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div v-if="bindBankInfoFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog bind-bank-info-modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">绑定银行卡</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="bindBankInfoFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<form>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>用户名:</label> <input type="text" class="form-control" v-model="selectedAccount.userName" disabled>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>真实姓名:</label> <input type="text" class="form-control" v-model="selectedAccount.realName" disabled>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>开户银行:</label> <input type="text" class="form-control" v-model="bankInfo.openAccountBank">
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>开户人姓名:</label> <input type="text" class="form-control" v-model="bankInfo.accountHolder">
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>银行卡账号:</label> <input type="text" class="form-control" v-model="bankInfo.bankCardAccount">
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="bindBankInfo">绑定</button>
+								<button type="button" class="btn btn-sm" v-on:click="bindBankInfoFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="/js/account-manage.js"></script>
+</body>
+</html>

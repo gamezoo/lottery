@@ -2,10 +2,7 @@ package me.zohar.lottery.useraccount.vo;
 
 import org.springframework.beans.BeanUtils;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import me.zohar.lottery.useraccount.domain.UserAccount;
 
 /**
@@ -16,9 +13,6 @@ import me.zohar.lottery.useraccount.domain.UserAccount;
  *
  */
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class UserAccountInfoVO {
 
 	/**
