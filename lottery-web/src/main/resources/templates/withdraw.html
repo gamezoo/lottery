@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>提现</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<style type="text/css">
+.withdraw-form {
+	padding-top: 50px;
+}
+
+.withdraw-form-item {
+	padding-bottom: 12px;
+}
+
+.withdraw-form-item label {
+	padding-right: 20px;
+	min-width: 13%;
+	text-align: end;
+	color: #9a9898;
+}
+
+.withdraw-form-highlight-item {
+	color: #e4393c;
+}
+
+.withdraw-amount-input-item {
+	margin-right: 6px;
+}
+</style>
+</head>
+
+<body>
+	<div class="container">
+		<div th:replace="common/header::html"></div>
+		<div th:replace="common/personal-navbar::html"></div>
+		<div id="withdraw" v-cloak>
+			<div class="withdraw-form">
+				<div class="row">
+					<div class="col-sm-9 offset-sm-3 withdraw-form-item">
+						<label>开户银行</label> <span>{{bankInfo.openAccountBank}}</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-9 offset-sm-3 withdraw-form-item withdraw-form-highlight-item">
+						<label>开户人姓名</label> <span>{{bankInfo.accountHolder}}</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-9 offset-sm-3 withdraw-form-item withdraw-form-highlight-item">
+						<label>银行卡账号</label> <span>{{bankInfo.bankCardAccount}}</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-9 offset-sm-3 withdraw-form-item withdraw-form-highlight-item">
+						<label>可用余额</label> <span>{{header.balance}}</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-9 offset-sm-3 withdraw-form-item">
+						<label>提现金额</label> <span> <input type="text" class="withdraw-amount-input-item" v-model="withdrawAmount">
+						</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-9 offset-sm-3 withdraw-form-item">
+						<label>资金密码</label> <span> <input type="password" class="withdraw-amount-input-item" v-model="moneyPwd">
+						</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-9 offset-sm-3">
+						<div class="alert alert-light" style="font-size: 14px; padding-top: 0;">提款下限，10元/次;单笔上限999999999999999元，单日限额1000000元，单日提现次数限制5次</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-8 offset-sm-4">
+						<button type="button" class="btn btn-success" v-on:click="confirmWithdraw">确认提现</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var withdrawVM = new Vue({
+			el : '#withdraw',
+			data : {
+				bankInfo : '',
+				withdrawAmount : '',
+				moneyPwd : ''
+			},
+			computed : {},
+			created : function() {
+				this.loadBankInfo();
+			},
+			mounted : function() {
+			},
+			methods : {
+				loadBankInfo : function() {
+					var that = this;
+					that.$http.get('/userAccount/getBankInfo').then(function(res) {
+						that.bankInfo = res.body.data;
+					});
+				},
+
+				confirmWithdraw : function() {
+					var that = this;
+					if (that.withdrawAmount == null || that.withdrawAmount == '') {
+						layer.alert('请输入提现金额');
+						return;
+					}
+					if (that.moneyPwd == null || that.moneyPwd == '') {
+						layer.alert('请输入资金密码');
+						return;
+					}
+					that.$http.post('/withdraw/startWithdraw', {
+						withdrawAmount : that.withdrawAmount,
+						moneyPwd : that.moneyPwd
+					}, {
+						emulateJSON : true
+					}).then(function(res) {
+						layer.open({
+							title : '提示',
+							icon : '1',
+							closeBtn : 0,
+							btn : [],
+							content : '已发起提现请求,系统审核通过后会马上为您出款!',
+							time : 2000,
+							end : function() {
+								window.location.reload();
+							}
+						});
+					});
+				}
+			}
+		});
+	</script>
+</body>
+</html>

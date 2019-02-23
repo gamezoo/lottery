@@ -23,6 +23,7 @@ import me.zohar.lottery.betting.domain.BettingOrder;
 import me.zohar.lottery.common.utils.IdUtils;
 import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.rechargewithdraw.domain.RechargeOrder;
+import me.zohar.lottery.rechargewithdraw.domain.WithdrawRecord;
 
 /**
  * 账变日志
@@ -111,7 +112,7 @@ public class AccountChangeLog {
 		AccountChangeLog log = new AccountChangeLog();
 		log.setId(IdUtils.getId());
 		log.setOrderNo(rechargeOrder.getOrderNo());
-		log.setAccountChangeTime(new Date());
+		log.setAccountChangeTime(rechargeOrder.getSettlementTime());
 		log.setAccountChangeTypeCode(Constant.账变日志类型_账号充值);
 		log.setAccountChangeAmount(NumberUtil.round(rechargeOrder.getRechargeAmount(), 4).doubleValue());
 		log.setBalance(userAccount.getBalance());
@@ -156,6 +157,25 @@ public class AccountChangeLog {
 		log.setAccountChangeTime(bettingOrder.getBettingTime());
 		log.setAccountChangeTypeCode(Constant.账变日志类型_投注扣款);
 		log.setAccountChangeAmount(-bettingOrder.getTotalBettingAmount());
+		log.setBalance(userAccount.getBalance());
+		log.setUserAccountId(userAccount.getId());
+		return log;
+	}
+
+	/**
+	 * 构建发起提现账变日志
+	 * 
+	 * @param userAccount
+	 * @param bettingOrder
+	 * @return
+	 */
+	public static AccountChangeLog buildWithStartWithdraw(UserAccount userAccount, WithdrawRecord withdrawRecord) {
+		AccountChangeLog log = new AccountChangeLog();
+		log.setId(IdUtils.getId());
+		log.setOrderNo(withdrawRecord.getOrderNo());
+		log.setAccountChangeTime(withdrawRecord.getSubmitTime());
+		log.setAccountChangeTypeCode(Constant.账变日志类型_账号提现);
+		log.setAccountChangeAmount(NumberUtil.round(withdrawRecord.getWithdrawAmount(), 4).doubleValue());
 		log.setBalance(userAccount.getBalance());
 		log.setUserAccountId(userAccount.getId());
 		return log;

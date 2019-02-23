@@ -69,7 +69,7 @@ public class BettingService {
 	public BettingOrderDetailsVO findMyBettingOrderDetails(String id, String userAccountId) {
 		BettingOrderDetailsVO vo = findBettingOrderDetails(id);
 		if (!userAccountId.equals(vo.getUserAccountId())) {
-			throw new BizException(BizError.无权查看投注记录.getCode(), BizError.无权查看投注记录.getMsg());
+			throw new BizException(BizError.无权查看投注记录);
 		}
 		return vo;
 	}
@@ -89,7 +89,7 @@ public class BettingService {
 	@Transactional(readOnly = true)
 	public PageResult<BettingOrderInfoVO> findMyBettingOrderInfoByPage(BettingOrderQueryCondParam param) {
 		if (StrUtil.isBlank(param.getUserAccountId())) {
-			throw new BizException(BizError.无权查看投注记录.getCode(), BizError.无权查看投注记录.getMsg());
+			throw new BizException(BizError.无权查看投注记录);
 		}
 		return findBettingOrderInfoByPage(param);
 	}
@@ -157,17 +157,17 @@ public class BettingService {
 	public void placeOrder(PlaceOrderParam placeOrderParam, String userAccountId) {
 		String gameState = template.opsForValue().get(placeOrderParam.getGameCode() + Constant.游戏当期状态);
 		if (Constant.游戏当期状态_休市中.equals(gameState)) {
-			throw new BizException(BizError.休市中.getCode(), BizError.休市中.getMsg());
+			throw new BizException(BizError.休市中);
 		}
 		if (Constant.游戏当期状态_已截止投注.equals(gameState)) {
-			throw new BizException(BizError.已截止投注.getCode(), BizError.已截止投注.getMsg());
+			throw new BizException(BizError.已截止投注);
 		}
 		String gameCurrentIssueNum = template.opsForValue().get(placeOrderParam.getGameCode() + Constant.游戏当前期号);
 		if (StrUtil.isEmpty(gameCurrentIssueNum)) {
-			throw new BizException(BizError.休市中.getCode(), BizError.休市中.getMsg());
+			throw new BizException(BizError.休市中);
 		}
 		if (Long.parseLong(gameCurrentIssueNum) != placeOrderParam.getIssueNum()) {
-			throw new BizException(BizError.投注期号不对.getCode(), BizError.投注期号不对.getMsg());
+			throw new BizException(BizError.投注期号不对);
 		}
 
 		long totalBettingCount = 0;
@@ -177,14 +177,14 @@ public class BettingService {
 			GamePlay gamePlay = gamePlayRepo.findByGameCodeAndGamePlayCode(placeOrderParam.getGameCode(),
 					bettingRecordParam.getGamePlayCode());
 			if (gamePlay == null) {
-				throw new BizException(BizError.游戏玩法不存在.getCode(), BizError.游戏玩法不存在.getMsg());
+				throw new BizException(BizError.游戏玩法不存在);
 			}
 			if (Constant.游戏玩法状态_禁用.equals(gamePlay.getState())) {
-				throw new BizException(BizError.游戏玩法被禁用.getCode(), BizError.游戏玩法被禁用.getMsg());
+				throw new BizException(BizError.游戏玩法被禁用);
 			}
 			Double odds = gamePlay.getOdds();
 			if (odds == null || odds <= 0) {
-				throw new BizException(BizError.玩法赔率异常.getCode(), BizError.玩法赔率异常.getMsg());
+				throw new BizException(BizError.玩法赔率异常);
 			}
 			double bettingAmount = NumberUtil.round(bettingRecordParam.getBettingCount()
 					* placeOrderParam.getBaseAmount() * placeOrderParam.getMultiple(), 4).doubleValue();
@@ -195,7 +195,7 @@ public class BettingService {
 		UserAccount userAccount = userAccountRepo.getOne(userAccountId);
 		double balance = NumberUtil.round(userAccount.getBalance() - totalBettingAmount, 4).doubleValue();
 		if (userAccount.getBalance() <= 0 || balance < 0) {
-			throw new BizException(BizError.余额不足.getCode(), BizError.余额不足.getMsg());
+			throw new BizException(BizError.余额不足);
 		}
 
 		BettingOrder bettingOrder = placeOrderParam.convertToPo(totalBettingCount, totalBettingAmount, userAccountId);
@@ -220,11 +220,11 @@ public class BettingService {
 			GamePlay gamePlay = gamePlayRepo.findByGameCodeAndGamePlayCode(bettingOrder.getGameCode(),
 					param.getGamePlayCode());
 			if (gamePlay == null) {
-				throw new BizException(BizError.游戏玩法不存在.getCode(), BizError.游戏玩法不存在.getMsg());
+				throw new BizException(BizError.游戏玩法不存在);
 			}
 			Double odds = gamePlay.getOdds();
 			if (odds == null || odds <= 0) {
-				throw new BizException(BizError.玩法赔率异常.getCode(), BizError.玩法赔率异常.getMsg());
+				throw new BizException(BizError.玩法赔率异常);
 			}
 
 			BettingRecord bettingRecord = bettingRecordRepo.getOne(param.getBettingRecordId());

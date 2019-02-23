@@ -209,6 +209,7 @@ public class DictTest {
 		dictItemRepo.save(buildDictItem("2", "充值优惠", 2d, dictType.getId()));
 		dictItemRepo.save(buildDictItem("3", "投注扣款", 3d, dictType.getId()));
 		dictItemRepo.save(buildDictItem("4", "投注返奖", 4d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("5", "账号提现", 5d, dictType.getId()));
 
 	}
 

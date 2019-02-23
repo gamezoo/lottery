@@ -39,7 +39,7 @@ public class IssueSettingService {
 		if (StrUtil.isBlank(issueSettingParam.getId())) {
 			IssueSetting existIssueSetting = issueSettingRepo.findByGameCode(issueSettingParam.getGameCode());
 			if (existIssueSetting != null) {
-				throw new BizException(BizError.期号设置已存在.getCode(), BizError.期号设置已存在.getMsg());
+				throw new BizException(BizError.期号设置已存在);
 			}
 
 			IssueSetting issueSetting = issueSettingParam.convertToPo();

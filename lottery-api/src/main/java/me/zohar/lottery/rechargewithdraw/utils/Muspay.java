@@ -82,11 +82,11 @@ public class Muspay {
 		String result = HttpUtil.post(ConfigHolder.getConfigValue("muspay", "payUrl"), params);
 		System.err.println(result);
 		if (StrUtil.isEmpty(result)) {
-			throw new BizException(BizError.发起支付异常.getCode(), BizError.发起支付异常.getMsg());
+			throw new BizException(BizError.发起支付异常);
 		}
 		JSONObject resultJsonObject = JSON.parseObject(result);
 		if (!发起支付成功状态.equals(resultJsonObject.getString("status"))) {
-			throw new BizException(BizError.发起支付异常.getCode(), BizError.发起支付异常.getMsg());
+			throw new BizException(BizError.发起支付异常);
 		}
 		return resultJsonObject.getString("payurl");
 	}

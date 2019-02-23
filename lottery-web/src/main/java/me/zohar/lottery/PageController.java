@@ -5,9 +5,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class PageController {
-	
+
 	/**
-	 * 登录页面
+	 * 首页
 	 * 
 	 * @return
 	 */
@@ -17,7 +17,7 @@ public class PageController {
 	}
 
 	/**
-	 * 登录页面
+	 * 登录
 	 * 
 	 * @return
 	 */
@@ -27,7 +27,7 @@ public class PageController {
 	}
 
 	/**
-	 * 注册页面
+	 * 注册
 	 * 
 	 * @return
 	 */
@@ -45,7 +45,7 @@ public class PageController {
 	public String cqssc() {
 		return "cqssc";
 	}
-	
+
 	/**
 	 * 新疆时时彩
 	 * 
@@ -57,7 +57,7 @@ public class PageController {
 	}
 
 	/**
-	 * 个人中心页面
+	 * 个人中心
 	 * 
 	 * @return
 	 */
@@ -67,7 +67,7 @@ public class PageController {
 	}
 
 	/**
-	 * 投注记录页面
+	 * 投注记录
 	 * 
 	 * @return
 	 */
@@ -77,7 +77,7 @@ public class PageController {
 	}
 
 	/**
-	 * 充值页面
+	 * 充值
 	 * 
 	 * @return
 	 */
@@ -87,13 +87,23 @@ public class PageController {
 	}
 
 	/**
-	 * 支付成功页面
+	 * 支付成功
 	 * 
 	 * @return
 	 */
 	@GetMapping("/pay-success")
 	public String paySuccess() {
 		return "pay-success";
+	}
+
+	/**
+	 * 提现
+	 * 
+	 * @return
+	 */
+	@GetMapping("/withdraw")
+	public String withdraw() {
+		return "withdraw";
 	}
 
 }

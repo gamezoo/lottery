@@ -67,7 +67,7 @@ public class UserAccountService {
 	public void updateUserAccount(UserAccountEditParam param) {
 		UserAccount existUserAccount = userAccountRepo.findByUserName(param.getUserName());
 		if (existUserAccount != null && !existUserAccount.getId().equals(param.getUserAccountId())) {
-			throw new BizException(BizError.用户名已存在.getCode(), BizError.用户名已存在.getMsg());
+			throw new BizException(BizError.用户名已存在);
 		}
 
 		UserAccount userAccount = userAccountRepo.getOne(param.getUserAccountId());
@@ -123,7 +123,7 @@ public class UserAccountService {
 		UserAccount userAccount = userAccountRepo.getOne(param.getUserAccountId());
 		BCryptPasswordEncoder pwdEncoder = new BCryptPasswordEncoder();
 		if (!pwdEncoder.matches(param.getOldLoginPwd(), userAccount.getLoginPwd())) {
-			throw new BizException(BizError.旧的登录密码不正确.getCode(), BizError.旧的登录密码不正确.getMsg());
+			throw new BizException(BizError.旧的登录密码不正确);
 		}
 		modifyLoginPwd(param.getUserAccountId(), param.getNewLoginPwd());
 	}
@@ -142,7 +142,7 @@ public class UserAccountService {
 		UserAccount userAccount = userAccountRepo.getOne(param.getUserAccountId());
 		BCryptPasswordEncoder pwdEncoder = new BCryptPasswordEncoder();
 		if (!pwdEncoder.matches(param.getOldMoneyPwd(), userAccount.getMoneyPwd())) {
-			throw new BizException(BizError.旧的资金密码不正确.getCode(), BizError.旧的资金密码不正确.getMsg());
+			throw new BizException(BizError.旧的资金密码不正确);
 		}
 		String newMoneyPwd = pwdEncoder.encode(param.getNewMoneyPwd());
 		userAccount.setMoneyPwd(newMoneyPwd);
@@ -176,7 +176,7 @@ public class UserAccountService {
 	public UserAccountInfoVO userAccountRegister(UserAccountRegisterParam param) {
 		UserAccount userAccount = userAccountRepo.findByUserName(param.getUserName());
 		if (userAccount != null) {
-			throw new BizException(BizError.用户名已存在.getCode(), BizError.用户名已存在.getMsg());
+			throw new BizException(BizError.用户名已存在);
 		}
 		String encodePwd = new BCryptPasswordEncoder().encode(param.getLoginPwd());
 		param.setLoginPwd(encodePwd);

@@ -125,7 +125,7 @@ public class GameService {
 		if (StrUtil.isBlank(gameParam.getId())) {
 			Game existGame = gameRepo.findByGameCode(gameParam.getGameCode());
 			if (existGame != null) {
-				throw new BizException(BizError.游戏代码已存在.getCode(), BizError.游戏代码已存在.getMsg());
+				throw new BizException(BizError.游戏代码已存在);
 			}
 			Game game = gameParam.convertToPo();
 			gameRepo.save(game);
@@ -135,7 +135,7 @@ public class GameService {
 		else {
 			Game existGame = gameRepo.findByGameCode(gameParam.getGameCode());
 			if (existGame != null && !existGame.getId().equals(gameParam.getId())) {
-				throw new BizException(BizError.游戏代码已存在.getCode(), BizError.游戏代码已存在.getMsg());
+				throw new BizException(BizError.游戏代码已存在);
 			}
 			Game game = gameRepo.getOne(gameParam.getId());
 			BeanUtils.copyProperties(gameParam, game);
@@ -182,7 +182,7 @@ public class GameService {
 			GamePlay existGamePlay = gamePlayRepo.findByGameCodeAndGamePlayCode(gamePlayParam.getGameCode(),
 					gamePlayParam.getGamePlayCode());
 			if (existGamePlay != null) {
-				throw new BizException(BizError.游戏玩法代码已存在.getCode(), BizError.游戏玩法代码已存在.getMsg());
+				throw new BizException(BizError.游戏玩法代码已存在);
 			}
 			GamePlay gamePlay = gamePlayParam.convertToPo();
 			gamePlayRepo.save(gamePlay);
@@ -200,7 +200,7 @@ public class GameService {
 			GamePlay existGamePlay = gamePlayRepo.findByGameCodeAndGamePlayCode(gamePlayParam.getGameCode(),
 					gamePlayParam.getGamePlayCode());
 			if (existGamePlay != null && !existGamePlay.getId().equals(gamePlayParam.getId())) {
-				throw new BizException(BizError.游戏玩法代码已存在.getCode(), BizError.游戏玩法代码已存在.getMsg());
+				throw new BizException(BizError.游戏玩法代码已存在);
 			}
 			List<NumLocate> numLocates = numLocateRepo.findByGamePlayId(gamePlayParam.getId());
 			numLocateRepo.deleteAll(numLocates);

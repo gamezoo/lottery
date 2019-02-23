@@ -62,7 +62,7 @@ public class RechargeService {
 		}
 		String signature = Muspay.generateCallbackSign(param.getFxstatus(), param.getFxddh(), param.getFxfee());
 		if (!signature.equals(param.getFxsign())) {
-			throw new BizException(BizError.签名不正确.getCode(), BizError.签名不正确.getMsg());
+			throw new BizException(BizError.签名不正确);
 		}
 		long payTimestamp = param.getFxtime() * 1000;
 		checkOrder(param.getFxddh(), param.getFxfee(), new Date(payTimestamp));
@@ -75,13 +75,13 @@ public class RechargeService {
 	public void checkOrder(String orderNo, Double rechargeAmount, Date payTime) {
 		RechargeOrder order = rechargeOrderRepo.findByOrderNo(orderNo);
 		if (order == null) {
-			throw new BizException(BizError.充值订单不存在.getCode(), BizError.充值订单不存在.getMsg());
+			throw new BizException(BizError.充值订单不存在);
 		}
 		if (Constant.充值订单状态_已支付.equals(order.getOrderState())) {
 			return;
 		}
 		if (order.getRechargeAmount().compareTo(rechargeAmount) != 0) {
-			throw new BizException(BizError.充值金额对不上.getCode(), BizError.充值金额对不上.getMsg());
+			throw new BizException(BizError.充值金额对不上);
 		}
 		order.setPayTime(payTime);
 		order.setDealTime(new Date());
@@ -96,10 +96,9 @@ public class RechargeService {
 	@KafkaListener(topics = Constant.充值订单_已支付订单单号)
 	@Transactional
 	public void rechargeOrderSettlement(String orderNo) {
-		System.err.println("rechargeOrderSettlement...");
 		RechargeOrder rechargeOrder = rechargeOrderRepo.findByOrderNo(orderNo);
 		if (rechargeOrder == null) {
-			throw new BizException(BizError.充值订单不存在.getCode(), BizError.充值订单不存在.getMsg());
+			throw new BizException(BizError.充值订单不存在);
 		}
 		if (!Constant.充值订单状态_已支付.equals(rechargeOrder.getOrderState())) {
 			return;
