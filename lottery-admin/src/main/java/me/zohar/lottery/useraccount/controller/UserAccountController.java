@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import me.zohar.lottery.common.vo.Result;
+import me.zohar.lottery.useraccount.param.AccountChangeLogQueryCondParam;
 import me.zohar.lottery.useraccount.param.BindBankInfoParam;
 import me.zohar.lottery.useraccount.param.UserAccountEditParam;
 import me.zohar.lottery.useraccount.param.UserAccountQueryCondParam;
@@ -19,6 +20,12 @@ public class UserAccountController {
 
 	@Autowired
 	private UserAccountService userAccountService;
+	
+	@GetMapping("/findAccountChangeLogByPage")
+	@ResponseBody
+	public Result findAccountChangeLogByPage(AccountChangeLogQueryCondParam param) {
+		return Result.success().setData(userAccountService.findAccountChangeLogByPage(param));
+	}
 	
 	@GetMapping("/findUserAccountDetailsInfoById")
 	@ResponseBody

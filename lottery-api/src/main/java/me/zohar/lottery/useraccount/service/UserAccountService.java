@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
-import me.zohar.lottery.common.exception.BizErrorCode;
+import me.zohar.lottery.common.exception.BizError;
 import me.zohar.lottery.common.exception.BizException;
 import me.zohar.lottery.common.valid.ParamValid;
 import me.zohar.lottery.common.vo.PageResult;
@@ -67,9 +67,9 @@ public class UserAccountService {
 	public void updateUserAccount(UserAccountEditParam param) {
 		UserAccount existUserAccount = userAccountRepo.findByUserName(param.getUserName());
 		if (existUserAccount != null && !existUserAccount.getId().equals(param.getUserAccountId())) {
-			throw new BizException(BizErrorCode.用户名已存在.getCode(), BizErrorCode.用户名已存在.getMsg());
+			throw new BizException(BizError.用户名已存在.getCode(), BizError.用户名已存在.getMsg());
 		}
-		
+
 		UserAccount userAccount = userAccountRepo.getOne(param.getUserAccountId());
 		BeanUtils.copyProperties(param, userAccount);
 		userAccountRepo.save(userAccount);
@@ -123,7 +123,7 @@ public class UserAccountService {
 		UserAccount userAccount = userAccountRepo.getOne(param.getUserAccountId());
 		BCryptPasswordEncoder pwdEncoder = new BCryptPasswordEncoder();
 		if (!pwdEncoder.matches(param.getOldLoginPwd(), userAccount.getLoginPwd())) {
-			throw new BizException(BizErrorCode.旧的登录密码不正确.getCode(), BizErrorCode.旧的登录密码不正确.getMsg());
+			throw new BizException(BizError.旧的登录密码不正确.getCode(), BizError.旧的登录密码不正确.getMsg());
 		}
 		modifyLoginPwd(param.getUserAccountId(), param.getNewLoginPwd());
 	}
@@ -142,7 +142,7 @@ public class UserAccountService {
 		UserAccount userAccount = userAccountRepo.getOne(param.getUserAccountId());
 		BCryptPasswordEncoder pwdEncoder = new BCryptPasswordEncoder();
 		if (!pwdEncoder.matches(param.getOldMoneyPwd(), userAccount.getMoneyPwd())) {
-			throw new BizException(BizErrorCode.旧的资金密码不正确.getCode(), BizErrorCode.旧的资金密码不正确.getMsg());
+			throw new BizException(BizError.旧的资金密码不正确.getCode(), BizError.旧的资金密码不正确.getMsg());
 		}
 		String newMoneyPwd = pwdEncoder.encode(param.getNewMoneyPwd());
 		userAccount.setMoneyPwd(newMoneyPwd);
@@ -176,7 +176,7 @@ public class UserAccountService {
 	public UserAccountInfoVO userAccountRegister(UserAccountRegisterParam param) {
 		UserAccount userAccount = userAccountRepo.findByUserName(param.getUserName());
 		if (userAccount != null) {
-			throw new BizException(BizErrorCode.用户名已存在.getCode(), BizErrorCode.用户名已存在.getMsg());
+			throw new BizException(BizError.用户名已存在.getCode(), BizError.用户名已存在.getMsg());
 		}
 		String encodePwd = new BCryptPasswordEncoder().encode(param.getLoginPwd());
 		param.setLoginPwd(encodePwd);
@@ -187,7 +187,7 @@ public class UserAccountService {
 	}
 
 	@Transactional(readOnly = true)
-	public PageResult<AccountChangeLogVO> findMyAccountChangeLogByPage(AccountChangeLogQueryCondParam param) {
+	public PageResult<AccountChangeLogVO> findAccountChangeLogByPage(AccountChangeLogQueryCondParam param) {
 		Specification<AccountChangeLog> spec = new Specification<AccountChangeLog>() {
 			/**
 			 * 

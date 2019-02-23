@@ -1,11 +1,14 @@
 package me.zohar.lottery.rechargewithdraw.vo;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import cn.hutool.core.collection.CollectionUtil;
 import lombok.Data;
 import me.zohar.lottery.dictconfig.DictHolder;
 import me.zohar.lottery.rechargewithdraw.domain.RechargeOrder;
@@ -27,6 +30,11 @@ public class RechargeOrderVO {
 	 * 充值方式代码
 	 */
 	private String rechargeWayCode;
+	
+	/**
+	 * 充值方式
+	 */
+	private String rechargeWayName;
 
 	/**
 	 * 充值金额
@@ -85,6 +93,22 @@ public class RechargeOrderVO {
 	 */
 	private String userAccountId;
 
+	/**
+	 * 用户名
+	 */
+	private String userName;
+
+	public static List<RechargeOrderVO> convertFor(List<RechargeOrder> rechargeOrders) {
+		if (CollectionUtil.isEmpty(rechargeOrders)) {
+			return new ArrayList<>();
+		}
+		List<RechargeOrderVO> vos = new ArrayList<>();
+		for (RechargeOrder rechargeOrder : rechargeOrders) {
+			vos.add(convertFor(rechargeOrder));
+		}
+		return vos;
+	}
+
 	public static RechargeOrderVO convertFor(RechargeOrder rechargeOrder) {
 		if (rechargeOrder == null) {
 			return null;
@@ -92,6 +116,10 @@ public class RechargeOrderVO {
 		RechargeOrderVO vo = new RechargeOrderVO();
 		BeanUtils.copyProperties(rechargeOrder, vo);
 		vo.setOrderStateName(DictHolder.getDictItemName("rechargeOrderState", vo.getOrderState()));
+		vo.setRechargeWayName(DictHolder.getDictItemName("rechargeWay", vo.getRechargeWayCode()));
+		if (rechargeOrder.getUserAccount() != null) {
+			vo.setUserName(rechargeOrder.getUserAccount().getUserName());
+		}
 		return vo;
 	}
 

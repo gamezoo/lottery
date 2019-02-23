@@ -12,9 +12,9 @@ import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
 import lombok.Data;
 import me.zohar.lottery.common.utils.IdUtils;
+import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.dictconfig.ConfigHolder;
 import me.zohar.lottery.rechargewithdraw.domain.RechargeOrder;
-import me.zohar.lottery.rechargewithdraw.enums.RechargeOrderState;
 
 /**
  * 充值订单入参
@@ -53,7 +53,7 @@ public class RechargeOrderParam {
 		po.setUsefulTime(DateUtil.offset(po.getSubmitTime(), DateField.SECOND,
 				Integer.parseInt(ConfigHolder.getConfigValue("recharge", "effectiveDuration"))));
 		po.setOrderNo(po.getId());
-		po.setOrderState(RechargeOrderState.充值订单状态_待支付.getCode());
+		po.setOrderState(Constant.充值订单状态_待支付);
 		return po;
 	}
 

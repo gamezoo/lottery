@@ -25,32 +25,55 @@ public class PageController {
 	public String gameManage() {
 		return "game-manage";
 	}
-	
+
 	/**
 	 * 开奖情况
+	 * 
 	 * @return
 	 */
 	@GetMapping("/lottery-situation")
 	public String lotterySituation() {
 		return "lottery-situation";
 	}
-	
+
 	/**
 	 * 投注记录
+	 * 
 	 * @return
 	 */
 	@GetMapping("/betting-record")
 	public String bettingRecord() {
 		return "betting-record";
 	}
-	
+
 	/**
 	 * 账号管理
+	 * 
 	 * @return
 	 */
 	@GetMapping("/account-manage")
 	public String accountManage() {
 		return "account-manage";
+	}
+
+	/**
+	 * 帐变日志
+	 * 
+	 * @return
+	 */
+	@GetMapping("/account-change-log")
+	public String accountChangeLog() {
+		return "account-change-log";
+	}
+
+	/**
+	 * 充值订单
+	 * 
+	 * @return
+	 */
+	@GetMapping("/recharge-order")
+	public String rechargeOrder() {
+		return "recharge-order";
 	}
 
 }

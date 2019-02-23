@@ -61,11 +61,6 @@ public class RechargeWithdrawLog {
 	private String note;
 
 	/**
-	 * 处理时间
-	 */
-	private Date dealTime;
-
-	/**
 	 * 用户账号id
 	 */
 	@Column(name = "user_account_id", length = 32)

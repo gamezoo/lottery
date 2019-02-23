@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cn.hutool.core.util.StrUtil;
-import me.zohar.lottery.common.exception.BizErrorCode;
+import me.zohar.lottery.common.exception.BizError;
 import me.zohar.lottery.common.exception.BizException;
 import me.zohar.lottery.common.valid.ParamValid;
 import me.zohar.lottery.issue.domain.IssueGenerateRule;
@@ -39,7 +39,7 @@ public class IssueSettingService {
 		if (StrUtil.isBlank(issueSettingParam.getId())) {
 			IssueSetting existIssueSetting = issueSettingRepo.findByGameCode(issueSettingParam.getGameCode());
 			if (existIssueSetting != null) {
-				throw new BizException(BizErrorCode.期号设置已存在.getCode(), BizErrorCode.期号设置已存在.getMsg());
+				throw new BizException(BizError.期号设置已存在.getCode(), BizError.期号设置已存在.getMsg());
 			}
 
 			IssueSetting issueSetting = issueSettingParam.convertToPo();

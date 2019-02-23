@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
-import me.zohar.lottery.common.exception.BizErrorCode;
+import me.zohar.lottery.common.exception.BizError;
 import me.zohar.lottery.common.exception.BizException;
 import me.zohar.lottery.common.utils.IdUtils;
 import me.zohar.lottery.common.valid.ParamValid;
@@ -125,7 +125,7 @@ public class GameService {
 		if (StrUtil.isBlank(gameParam.getId())) {
 			Game existGame = gameRepo.findByGameCode(gameParam.getGameCode());
 			if (existGame != null) {
-				throw new BizException(BizErrorCode.游戏代码已存在.getCode(), BizErrorCode.游戏代码已存在.getMsg());
+				throw new BizException(BizError.游戏代码已存在.getCode(), BizError.游戏代码已存在.getMsg());
 			}
 			Game game = gameParam.convertToPo();
 			gameRepo.save(game);
@@ -135,7 +135,7 @@ public class GameService {
 		else {
 			Game existGame = gameRepo.findByGameCode(gameParam.getGameCode());
 			if (existGame != null && !existGame.getId().equals(gameParam.getId())) {
-				throw new BizException(BizErrorCode.游戏代码已存在.getCode(), BizErrorCode.游戏代码已存在.getMsg());
+				throw new BizException(BizError.游戏代码已存在.getCode(), BizError.游戏代码已存在.getMsg());
 			}
 			Game game = gameRepo.getOne(gameParam.getId());
 			BeanUtils.copyProperties(gameParam, game);
@@ -182,7 +182,7 @@ public class GameService {
 			GamePlay existGamePlay = gamePlayRepo.findByGameCodeAndGamePlayCode(gamePlayParam.getGameCode(),
 					gamePlayParam.getGamePlayCode());
 			if (existGamePlay != null) {
-				throw new BizException(BizErrorCode.游戏玩法代码已存在.getCode(), BizErrorCode.游戏玩法代码已存在.getMsg());
+				throw new BizException(BizError.游戏玩法代码已存在.getCode(), BizError.游戏玩法代码已存在.getMsg());
 			}
 			GamePlay gamePlay = gamePlayParam.convertToPo();
 			gamePlayRepo.save(gamePlay);
@@ -200,7 +200,7 @@ public class GameService {
 			GamePlay existGamePlay = gamePlayRepo.findByGameCodeAndGamePlayCode(gamePlayParam.getGameCode(),
 					gamePlayParam.getGamePlayCode());
 			if (existGamePlay != null && !existGamePlay.getId().equals(gamePlayParam.getId())) {
-				throw new BizException(BizErrorCode.游戏玩法代码已存在.getCode(), BizErrorCode.游戏玩法代码已存在.getMsg());
+				throw new BizException(BizError.游戏玩法代码已存在.getCode(), BizError.游戏玩法代码已存在.getMsg());
 			}
 			List<NumLocate> numLocates = numLocateRepo.findByGamePlayId(gamePlayParam.getId());
 			numLocateRepo.deleteAll(numLocates);

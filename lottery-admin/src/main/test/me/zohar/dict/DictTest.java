@@ -33,7 +33,24 @@ public class DictTest {
 		dictItem.setDictTypeId(dictTypeId);
 		return dictItem;
 	}
-	
+
+	/**
+	 * 初始化充值方式字典
+	 */
+	@Test
+	@Transactional(readOnly = false)
+	@Rollback(false)
+	public void initRechargeWayDict() {
+		DictType dictType = new DictType();
+		dictType.setId(IdUtils.getId());
+		dictType.setDictTypeCode("rechargeWay");
+		dictType.setDictTypeName("充值方式");
+		dictTypeRepo.save(dictType);
+
+		dictItemRepo.save(buildDictItem("zfbsm", "支付宝扫码", 1d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("wxsm", "微信扫码", 2d, dictType.getId()));
+	}
+
 	/**
 	 * 初始化用户账号状态字典
 	 */
@@ -50,7 +67,7 @@ public class DictTest {
 		dictItemRepo.save(buildDictItem("1", "启用", 1d, dictType.getId()));
 		dictItemRepo.save(buildDictItem("0", "禁用", 2d, dictType.getId()));
 	}
-	
+
 	/**
 	 * 初始化期号状态字典
 	 */
@@ -69,7 +86,7 @@ public class DictTest {
 		dictItemRepo.save(buildDictItem("3", "已结算", 3d, dictType.getId()));
 		dictItemRepo.save(buildDictItem("4", "已作废", 4d, dictType.getId()));
 	}
-	
+
 	/**
 	 * 初始化游戏玩法状态字典
 	 */
@@ -136,8 +153,9 @@ public class DictTest {
 		dictTypeRepo.save(dictType);
 
 		dictItemRepo.save(buildDictItem("1", "待支付", 1d, dictType.getId()));
-		dictItemRepo.save(buildDictItem("2", "已支付", 1d, dictType.getId()));
-		dictItemRepo.save(buildDictItem("3", "超时取消", 1d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("2", "已支付", 2d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("3", "超时取消", 3d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("4", "人工取消", 4d, dictType.getId()));
 	}
 
 	/**

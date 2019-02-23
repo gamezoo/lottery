@@ -87,7 +87,7 @@ public class UserAccountController {
 		UserAccountDetails user = (UserAccountDetails) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		param.setUserAccountId(user.getUserAccountId());
-		return Result.success().setData(userAccountService.findMyAccountChangeLogByPage(param));
+		return Result.success().setData(userAccountService.findAccountChangeLogByPage(param));
 	}
 
 }

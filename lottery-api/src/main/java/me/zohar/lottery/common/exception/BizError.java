@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 错误代码枚举类
+ * 业务处理错误枚举类
  * 
  * @author zohar
  * @date 2019年1月7日
@@ -12,7 +12,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum BizErrorCode {
+public enum BizError {
 
 	参数异常("1000", "参数异常"),
 
@@ -41,6 +41,8 @@ public enum BizErrorCode {
 	签名不正确("1018", "签名不正确"),
 
 	充值订单不存在("1019", "充值订单不存在"),
+	
+	只有待支付状态的充值订单才能取消("1019", "只有待支付状态的充值订单才能取消"),
 
 	充值金额对不上("1020", "充值金额对不上"),
 

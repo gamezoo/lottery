@@ -13,7 +13,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import me.zohar.lottery.common.exception.BizErrorCode;
+import me.zohar.lottery.common.exception.BizError;
 import me.zohar.lottery.common.exception.ParamValidException;
 
 /**
@@ -42,7 +42,7 @@ public class ParamValidAspect {
 			Iterator<ConstraintViolation<Object>> iterator = violations.iterator();
 			// 参数校验不通过,直接抛出异常
 			if (iterator.hasNext()) {
-				throw new ParamValidException(BizErrorCode.参数异常.getCode(), iterator.next().getMessage());
+				throw new ParamValidException(BizError.参数异常.getCode(), iterator.next().getMessage());
 			}
 		}
 

@@ -95,7 +95,9 @@ public class AccountChangeLogVO {
 		AccountChangeLogVO vo = new AccountChangeLogVO();
 		BeanUtils.copyProperties(accountChangeLog, vo);
 		vo.setGameName(DictHolder.getDictItemName("game", vo.getGameCode()));
-		vo.setUserName(accountChangeLog.getUserAccount().getUserName());
+		if (accountChangeLog.getUserAccount() != null) {
+			vo.setUserName(accountChangeLog.getUserAccount().getUserName());
+		}
 		vo.setAccountChangeTypeName(DictHolder.getDictItemName("accountChangeType", vo.getAccountChangeTypeCode()));
 		return vo;
 	}

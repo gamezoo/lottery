@@ -24,7 +24,7 @@ import me.zohar.lottery.betting.domain.BettingRecord;
 import me.zohar.lottery.betting.enums.BettingOrderState;
 import me.zohar.lottery.betting.repo.BettingOrderRepo;
 import me.zohar.lottery.betting.repo.BettingRecordRepo;
-import me.zohar.lottery.common.exception.BizErrorCode;
+import me.zohar.lottery.common.exception.BizError;
 import me.zohar.lottery.common.exception.BizException;
 import me.zohar.lottery.common.utils.IdUtils;
 import me.zohar.lottery.common.valid.ParamValid;
@@ -285,7 +285,7 @@ public class IssueService {
 	public void manualLottery(ManualLotteryParam param) {
 		Issue issue = issueRepo.getOne(param.getId());
 		if (!Constant.期号状态_未开奖.equals(issue.getState())) {
-			throw new BizException(BizErrorCode.该期已开奖.getCode(), BizErrorCode.该期已开奖.getMsg());
+			throw new BizException(BizError.该期已开奖.getCode(), BizError.该期已开奖.getMsg());
 		}
 		issue.syncLotteryNum(param.getLotteryNum());
 		issueRepo.save(issue);
@@ -304,7 +304,7 @@ public class IssueService {
 	public void manualSettlement(String id) {
 		Issue issue = issueRepo.getOne(id);
 		if (!Constant.期号状态_已开奖.equals(issue.getState())) {
-			throw new BizException(BizErrorCode.开奖后才能结算.getCode(), BizErrorCode.开奖后才能结算.getMsg());
+			throw new BizException(BizError.开奖后才能结算.getCode(), BizError.开奖后才能结算.getMsg());
 		}
 		kafkaTemplate.send(Constant.当前开奖期号ID, id);
 	}
@@ -315,7 +315,7 @@ public class IssueService {
 		Issue issue = issueRepo.getOne(param.getId());
 		if (param.getIssueInvalid()
 				&& (Constant.期号状态_已开奖.equals(issue.getState()) || Constant.期号状态_已结算.equals(issue.getState()))) {
-			throw new BizException(BizErrorCode.期号作废失败.getCode(), BizErrorCode.期号作废失败.getMsg());
+			throw new BizException(BizError.期号作废失败.getCode(), BizError.期号作废失败.getMsg());
 		}
 		if ((Constant.期号状态_未开奖.equals(issue.getState()) || Constant.期号状态_已作废.equals(issue.getState()))) {
 			issue.setState(param.getIssueInvalid() ? Constant.期号状态_已作废 : Constant.期号状态_未开奖);
