@@ -97,6 +97,11 @@ public class UserAccount {
 	private Date bankInfoLatelyModifyTime;
 
 	/**
+	 * 邀请人id
+	 */
+	private String inviterId;
+
+	/**
 	 * 乐观锁版本号
 	 */
 	@Version

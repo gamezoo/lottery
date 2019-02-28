@@ -75,5 +75,15 @@ public class PageController {
 	public String rechargeOrder() {
 		return "recharge-order";
 	}
+	
+	/**
+	 * 提现记录
+	 * 
+	 * @return
+	 */
+	@GetMapping("/withdraw-record")
+	public String withdrawRecord() {
+		return "withdraw-record";
+	}
 
 }

@@ -48,7 +48,7 @@ public class StartWithdrawParam {
 		po.setId(IdUtils.getId());
 		po.setOrderNo(po.getId());
 		po.setSubmitTime(new Date());
-		po.setState(Constant.提现记录状态_待处理);
+		po.setState(Constant.提现记录状态_发起提现);
 		return po;
 	}
 

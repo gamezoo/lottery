@@ -21,7 +21,7 @@ public class RechargeOrderTimeoutDealTask {
 	@Autowired
 	private RechargeService rechargeService;
 
-//	@Scheduled(fixedRate = 10000)
+	@Scheduled(fixedRate = 10000)
 	public void execute() {
 		try {
 			log.info("充值订单超时处理定时任务start");

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>提现记录</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.bootcss.com/dayjs/1.7.8/dayjs.min.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/locale/bootstrap-table-zh-CN.min.js"></script>
+<link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<script src="https://unpkg.com/art-template@4.13.2/lib/template-web.js"></script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<script id="withdraw-record-detail" type="text/html">
+	<div class="table-detail">
+		<div class="row">
+				<div class="col-sm-5 table-detail-item-label">审核时间:</div>
+				<div class="col-sm-7 table-detail-item-value">{{withdrawRecord.approvalTime }}</div>
+		</div>		
+		<div class="row">
+				<div class="col-sm-5 table-detail-item-label">备注说明:</div>
+				<div class="col-sm-7 table-detail-item-value">{{withdrawRecord.note }}</div>
+		</div>	
+		<div class="row">
+				<div class="col-sm-5 table-detail-item-label">确认到帐时间:</div>
+				<div class="col-sm-7 table-detail-item-value">{{withdrawRecord.confirmCreditedTime }}</div>
+		</div>	
+	</div>
+</script>
+<style type="text/css">
+</style>
+</head>
+
+<body>
+	<div th:replace="common/header::html"></div>
+	<div id="withdraw-record" v-cloak>
+		<form class="form-inline common-query-cond-form" action="#">
+			<div class="form-group common-query-cond">
+				<label>订单号:</label><input type="text" class="form-control" v-model="orderNo">
+			</div>
+			<div class="form-group common-query-cond">
+				<label>状态:</label> <select class="form-control" v-model="state">
+					<option value="">全部</option>
+					<option v-for="dictItem in withdrawRecordStateDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
+				</select>
+			</div>
+			<div class="form-group common-query-cond">
+				<label>提交时间:</label><input type="date" class="form-control" v-model="submitStartTime"><span>到</span><input type="date" class="form-control" v-model="submitEndTime">
+			</div>
+			<button type="button" class="btn btn-danger" v-on:click="refreshTable">搜索</button>
+		</form>
+		<table class="common-table withdraw-record-table"></table>
+		<div v-if="withdrawApprovalFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog withdraw-approval-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">提现审核</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="withdrawApprovalFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<form>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>发起用户:</label> <input type="text" class="form-control" v-model="selectedWithdrawRecord.userName" disabled>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>提现金额:</label> <input type="text" class="form-control" v-model="selectedWithdrawRecord.withdrawAmount" disabled>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>备注说明:</label>
+											<textarea rows="3" class="form-control" v-model="note"></textarea>
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-show="!onlyShowNotApprovedBtnFlag" v-on:click="approved">审核通过</button>
+								<button type="button" class="btn btn-danger btn-sm" v-on:click="notApproved">审核不通过</button>
+								<button type="button" class="btn btn-secondary btn-sm" v-on:click="withdrawApprovalFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="/js/withdraw-record.js"></script>
+</body>
+</html>

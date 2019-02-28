@@ -8,6 +8,7 @@ import org.springframework.beans.BeanUtils;
 import lombok.Data;
 import me.zohar.lottery.dictconfig.DictHolder;
 import me.zohar.lottery.game.domain.GamePlay;
+import me.zohar.lottery.game.domain.NumLocate;
 
 @Data
 public class GamePlayVO {
@@ -33,6 +34,11 @@ public class GamePlayVO {
 	private Double odds;
 
 	/**
+	 * 是否固定赔率
+	 */
+	private Boolean hasFixedOddsFlag;
+
+	/**
 	 * 玩法描述
 	 */
 	private String gamePlayDesc;
@@ -51,7 +57,7 @@ public class GamePlayVO {
 	 * 状态,启用:1;禁用:0
 	 */
 	private String state;
-	
+
 	/**
 	 * 状态中文值
 	 */
@@ -79,6 +85,16 @@ public class GamePlayVO {
 		GamePlayVO vo = new GamePlayVO();
 		BeanUtils.copyProperties(gamePlay, vo);
 		vo.setStateName(DictHolder.getDictItemName("gamePlayState", vo.getState()));
+		return vo;
+	}
+
+	public static GamePlayVO buildGamePlayDetails(GamePlay gamePlay) {
+		GamePlayVO vo = convertFor(gamePlay);
+		for (NumLocate numLocate : gamePlay.getNumLocates()) {
+			NumLocateVO numLocateVO = NumLocateVO.convertFor(numLocate);
+			numLocateVO.setOptionalNums(OptionalNumVO.convertFor(numLocate.getOptionalNums()));
+			vo.getNumLocates().add(numLocateVO);
+		}
 		return vo;
 	}
 

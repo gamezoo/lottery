@@ -25,50 +25,44 @@
 	font-size: 14px;
 }
 
-.fixed-table-header {
-	background-color: #dedede;
+/*邀请码管理样式start*/
+#inviteCodeTab {
+	padding-top: 20px;
 }
 
-.common-query-cond-form {
-	padding-left: 25px;
-	padding-right: 25px;
-	padding-top: 8px;
+.none-invite-code {
+	padding-top: 30px;
 }
 
-.common-query-cond {
-	padding-right: 30px;
+.none-invite-code .row {
+	padding-bottom: 20px;
 }
 
-.common-query-cond label {
-	padding-right: 5px;
+.invite-code-info {
+	padding-top: 30px;
 }
 
-.common-query-cond span {
-	padding-left: 2px;
-	padding-right: 2px;
+.invite-code-info .row {
+	padding-bottom: 20px;
 }
 
-.common-table {
-	border-bottom: 0 !important;
+.invite-code-info-item label {
+	padding-right: 20px;
+	min-width: 30%;
+	text-align: end;
+	color: #9a9898;
+	font-size: 28px;
 }
 
-.common-table thead th {
-	border-top: 0;
-	border-bottom: 0;
-	text-align: center;
-	color: #666;
-	font-size: 14px;
-	font-weight: normal;
-	background-color: #dedede;
+.invite-code-info-item span {
+	font-size: 28px;
 }
 
-.common-table tr td {
-	text-align: center;
-	border-top: 0;
-	color: #666;
-	border-bottom: 1px dashed #a0a0a0;
-	border-left: 0;
+.edit-bank-info-form button {
+	margin-right: 20px;
 }
+
+/*邀请码管理样式end*/
 
 /*银行卡资料管理样式start*/
 #bankCardInfoTab {

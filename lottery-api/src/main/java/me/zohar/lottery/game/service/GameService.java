@@ -20,15 +20,16 @@ import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.game.domain.Game;
 import me.zohar.lottery.game.domain.GamePlay;
 import me.zohar.lottery.game.domain.NumLocate;
+import me.zohar.lottery.game.domain.OptionalNum;
 import me.zohar.lottery.game.param.GameParam;
 import me.zohar.lottery.game.param.GamePlayParam;
 import me.zohar.lottery.game.param.NumLocateParam;
 import me.zohar.lottery.game.repo.GamePlayRepo;
 import me.zohar.lottery.game.repo.GameRepo;
 import me.zohar.lottery.game.repo.NumLocateRepo;
+import me.zohar.lottery.game.repo.OptionalNumRepo;
 import me.zohar.lottery.game.vo.GamePlayVO;
 import me.zohar.lottery.game.vo.GameVO;
-import me.zohar.lottery.game.vo.NumLocateVO;
 
 @Service
 public class GameService {
@@ -41,6 +42,9 @@ public class GameService {
 
 	@Autowired
 	private NumLocateRepo numLocateRepo;
+
+	@Autowired
+	private OptionalNumRepo optionalNumRepo;
 
 	@Transactional(readOnly = true)
 	public List<GameVO> findAllGame() {
@@ -59,10 +63,8 @@ public class GameService {
 		Game game = gameRepo.getOne(id);
 		List<GamePlay> gamePlays = gamePlayRepo.findByGameCodeOrderByOrderNo(game.getGameCode());
 		for (GamePlay gamePlay : gamePlays) {
-			List<NumLocate> numLocates = numLocateRepo.findByGamePlayId(gamePlay.getId());
-			numLocateRepo.deleteAll(numLocates);
+			delGamePlayInner(gamePlay);
 		}
-		gamePlayRepo.deleteAll(gamePlays);
 		gameRepo.delete(game);
 	}
 
@@ -84,13 +86,11 @@ public class GameService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<GamePlayVO> findGamePlayAndNumLocateByGameCode(String gameCode) {
+	public List<GamePlayVO> findGamePlayDetailsByGameCode(String gameCode) {
 		List<GamePlayVO> vos = new ArrayList<>();
 		List<GamePlay> gamePlays = gamePlayRepo.findByGameCodeOrderByOrderNo(gameCode);
 		for (GamePlay gamePlay : gamePlays) {
-			GamePlayVO vo = GamePlayVO.convertFor(gamePlay);
-			vo.setNumLocates(NumLocateVO.convertFor(gamePlay.getNumLocates()));
-			vos.add(vo);
+			vos.add(GamePlayVO.buildGamePlayDetails(gamePlay));
 		}
 		return vos;
 	}
@@ -98,9 +98,7 @@ public class GameService {
 	@Transactional(readOnly = true)
 	public GamePlayVO findGamePlayDetailsById(String id) {
 		GamePlay gamePlay = gamePlayRepo.getOne(id);
-		GamePlayVO vo = GamePlayVO.convertFor(gamePlay);
-		vo.setNumLocates(NumLocateVO.convertFor(gamePlay.getNumLocates()));
-		return vo;
+		return GamePlayVO.buildGamePlayDetails(gamePlay);
 	}
 
 	@Transactional
@@ -112,9 +110,17 @@ public class GameService {
 
 	@Transactional
 	public void delGamePlayById(String id) {
-		List<NumLocate> numLocates = numLocateRepo.findByGamePlayId(id);
-		numLocateRepo.deleteAll(numLocates);
 		GamePlay gamePlay = gamePlayRepo.getOne(id);
+		delGamePlayInner(gamePlay);
+	}
+
+	@Transactional
+	public void delGamePlayInner(GamePlay gamePlay) {
+		Set<NumLocate> numLocates = gamePlay.getNumLocates();
+		for (NumLocate numLocate : numLocates) {
+			optionalNumRepo.deleteAll(numLocate.getOptionalNums());
+			numLocateRepo.delete(numLocate);
+		}
 		gamePlayRepo.delete(gamePlay);
 	}
 
@@ -170,6 +176,16 @@ public class GameService {
 				newNumLocate.setId(IdUtils.getId());
 				newNumLocate.setGamePlayId(newGamePlay.getId());
 				numLocateRepo.save(newNumLocate);
+
+				Set<OptionalNum> optionalNums = numLocate.getOptionalNums();
+				for (OptionalNum optionalNum : optionalNums) {
+					OptionalNum newOptionalNum = new OptionalNum();
+					BeanUtils.copyProperties(optionalNum, newOptionalNum);
+					newOptionalNum.setId(IdUtils.getId());
+					newOptionalNum.setNumLocateId(newNumLocate.getId());
+					optionalNumRepo.save(newOptionalNum);
+				}
+
 			}
 		}
 	}
@@ -203,14 +219,15 @@ public class GameService {
 				throw new BizException(BizError.游戏玩法代码已存在);
 			}
 			List<NumLocate> numLocates = numLocateRepo.findByGamePlayId(gamePlayParam.getId());
+			for (NumLocate numLocate : numLocates) {
+				optionalNumRepo.deleteAll(numLocate.getOptionalNums());
+			}
 			numLocateRepo.deleteAll(numLocates);
 
 			GamePlay gamePlay = gamePlayRepo.getOne(gamePlayParam.getId());
+			delGamePlayInner(gamePlay);
 			BeanUtils.copyProperties(gamePlayParam, gamePlay);
 			gamePlayRepo.save(gamePlay);
-			if (CollectionUtil.isEmpty(gamePlayParam.getNumLocates())) {
-				return;
-			}
 			for (NumLocateParam numLocateParam : gamePlayParam.getNumLocates()) {
 				NumLocate numLocate = numLocateParam.convertToPo();
 				numLocate.setGamePlayId(gamePlay.getId());

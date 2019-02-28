@@ -1,4 +1,4 @@
-package me.zohar.lottery.useraccount.param;
+package me.zohar.lottery.rechargewithdraw.param;
 
 import java.util.Date;
 
@@ -10,29 +10,24 @@ import me.zohar.lottery.common.param.PageParam;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class RechargeOrderQueryCondParam extends PageParam {
-
+public class WithdrawRecordQueryCondParam extends PageParam {
+	
 	/**
 	 * 订单号
 	 */
 	private String orderNo;
-
-	/**
-	 * 订单状态
-	 */
-	private String orderState;
 	
 	/**
-	 * 充值方式代码
+	 * 状态
 	 */
-	private String rechargeWayCode;
-
+	private String state;
+	
 	/**
 	 * 提交开始时间
 	 */
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date submitStartTime;
-
+	
 	/**
 	 * 提交结束时间
 	 */

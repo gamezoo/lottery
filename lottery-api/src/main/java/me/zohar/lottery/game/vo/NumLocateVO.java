@@ -42,6 +42,11 @@ public class NumLocateVO {
 	 * 对应游戏玩法id
 	 */
 	private String gamePlayId;
+	
+	/**
+	 * 候选号码集合
+	 */
+	private List<OptionalNumVO> optionalNums = new ArrayList<>();
 
 	public static List<NumLocateVO> convertFor(Collection<NumLocate> numLocates) {
 		if (CollectionUtil.isEmpty(numLocates)) {

@@ -21,12 +21,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import me.zohar.lottery.common.exception.BizError;
 import me.zohar.lottery.common.exception.BizException;
 import me.zohar.lottery.common.valid.ParamValid;
 import me.zohar.lottery.common.vo.PageResult;
 import me.zohar.lottery.useraccount.domain.AccountChangeLog;
+import me.zohar.lottery.useraccount.domain.InviteCode;
 import me.zohar.lottery.useraccount.domain.UserAccount;
 import me.zohar.lottery.useraccount.param.AccountChangeLogQueryCondParam;
 import me.zohar.lottery.useraccount.param.BindBankInfoParam;
@@ -36,9 +38,11 @@ import me.zohar.lottery.useraccount.param.UserAccountEditParam;
 import me.zohar.lottery.useraccount.param.UserAccountQueryCondParam;
 import me.zohar.lottery.useraccount.param.UserAccountRegisterParam;
 import me.zohar.lottery.useraccount.repo.AccountChangeLogRepo;
+import me.zohar.lottery.useraccount.repo.InviteCodeRepo;
 import me.zohar.lottery.useraccount.repo.UserAccountRepo;
 import me.zohar.lottery.useraccount.vo.AccountChangeLogVO;
 import me.zohar.lottery.useraccount.vo.BankInfoVO;
+import me.zohar.lottery.useraccount.vo.InviteDetailsInfoVO;
 import me.zohar.lottery.useraccount.vo.LoginAccountInfoVO;
 import me.zohar.lottery.useraccount.vo.UserAccountDetailsInfoVO;
 import me.zohar.lottery.useraccount.vo.UserAccountInfoVO;
@@ -51,6 +55,9 @@ public class UserAccountService {
 
 	@Autowired
 	private AccountChangeLogRepo accountChangeLogRepo;
+
+	@Autowired
+	private InviteCodeRepo inviteCodeRepo;
 
 	/**
 	 * 更新最近登录时间
@@ -182,6 +189,10 @@ public class UserAccountService {
 		param.setLoginPwd(encodePwd);
 		UserAccount newUserAccount = param.convertToPo();
 		newUserAccount.setBalance(100d);
+		InviteCode inviteCode = inviteCodeRepo.findTopByCodeAndPeriodOfValidityGreaterThanEqual(param.getInviteCode(), new Date());
+		if (inviteCode != null) {
+			newUserAccount.setInviterId(inviteCode.getUserAccountId());
+		}
 		userAccountRepo.save(newUserAccount);
 		return UserAccountInfoVO.convertFor(newUserAccount);
 	}
@@ -221,6 +232,38 @@ public class UserAccountService {
 		PageResult<AccountChangeLogVO> pageResult = new PageResult<>(AccountChangeLogVO.convertFor(result.getContent()),
 				param.getPageNum(), param.getPageSize(), result.getTotalElements());
 		return pageResult;
+	}
+
+	@Transactional(readOnly = true)
+	public InviteDetailsInfoVO getInviteDetailsInfo(String userAccountId) {
+		InviteCode inviteCode = inviteCodeRepo.findTopByUserAccountIdOrderByPeriodOfValidityDesc(userAccountId);
+		if (inviteCode == null) {
+			return null;
+		}
+
+		Long numberOfInvite = userAccountRepo.countByInviterId(userAccountId);
+		InviteDetailsInfoVO inviteDetailsInfo = InviteDetailsInfoVO.convertFor(inviteCode, numberOfInvite);
+		return inviteDetailsInfo;
+	}
+
+	/**
+	 * 生成邀请码
+	 * 
+	 * @param userAccountId
+	 */
+	@Transactional
+	public void generateInviteCode(String userAccountId) {
+		InviteCode inviteCode = inviteCodeRepo.findTopByUserAccountIdOrderByPeriodOfValidityDesc(userAccountId);
+		if (inviteCode != null && inviteCode.getPeriodOfValidity().getTime() > new Date().getTime()) {
+			return;
+		}
+
+		String code = IdUtil.fastSimpleUUID().substring(0, 6);
+		while (inviteCodeRepo.findTopByCodeAndPeriodOfValidityGreaterThanEqual(code, new Date()) != null) {
+			code = IdUtil.fastSimpleUUID().substring(0, 6);
+		}
+		InviteCode newInviteCode = InviteCode.generateInviteCode(code, userAccountId);
+		inviteCodeRepo.save(newInviteCode);
 	}
 
 }

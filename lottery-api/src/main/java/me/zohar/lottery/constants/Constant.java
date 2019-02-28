@@ -49,13 +49,19 @@ public class Constant {
 	public static final String 账变日志类型_投注扣款 = "3";
 
 	public static final String 账变日志类型_投注返奖 = "4";
-	
+
 	public static final String 账变日志类型_账号提现 = "5";
 
 	public static final String 充提日志订单类型_充值 = "1";
 
 	public static final String 充提日志订单类型_提现 = "2";
-	
-	public static final String 提现记录状态_待处理 = "1";
+
+	public static final String 提现记录状态_发起提现 = "1";
+
+	public static final String 提现记录状态_审核通过 = "2";
+
+	public static final String 提现记录状态_审核不通过 = "3";
+
+	public static final String 提现记录状态_已到账 = "4";
 
 }

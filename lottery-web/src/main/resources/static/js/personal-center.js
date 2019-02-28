@@ -5,6 +5,11 @@ var personalCenter = new Vue({
 		gameDictItems : [],
 
 		/**
+		 * 邀请码tab相关参数start
+		 */
+		inviteDetailsInfo : {},
+
+		/**
 		 * 银行卡资料管理tab相关参数start
 		 */
 		editBankInfoFlag : false,
@@ -51,11 +56,39 @@ var personalCenter = new Vue({
 		this.switchAccountChangeTab();
 	},
 	methods : {
+
+		/**
+		 * 邀请码tab相关方法start
+		 */
+		switchInviteCodeTab : function() {
+			this.currentTab = 'inviteCode';
+			this.loadInvoteCodeInfo();
+		},
+
+		loadInvoteCodeInfo : function() {
+			var that = this;
+			that.$http.get('/userAccount/getInviteDetailsInfo').then(function(res) {
+				if (res.body.data == null) {
+					that.inviteDetailsInfo = {};
+					return;
+				}
+				that.inviteDetailsInfo = res.body.data;
+			});
+		},
+
+		generateInviteCode : function() {
+			var that = this;
+			that.$http.get('/userAccount/generateInviteCode').then(function(res) {
+				that.loadInvoteCodeInfo();
+			});
+		},
+
 		/**
 		 * 银行卡资料管理tab相关方法start
 		 */
 		switchBankCardInfoTab : function() {
 			this.currentTab = 'bankCardInfo';
+			this.editBankInfoFlag = false;
 			this.loadBankInfo();
 		},
 
@@ -291,7 +324,7 @@ var personalCenter = new Vue({
 			$('.account-change-table').bootstrapTable('destroy');
 			$('.account-change-table').bootstrapTable({
 				classes : 'table table-hover',
-				height : 490,
+				height : 540,
 				url : '/userAccount/findMyAccountChangeLogByPage',
 				pagination : true,
 				sidePagination : 'server',
@@ -392,7 +425,7 @@ var personalCenter = new Vue({
 			$('.recharge-withdraw-table').bootstrapTable('destroy');
 			$('.recharge-withdraw-table').bootstrapTable({
 				classes : 'table table-hover',
-				height : 490,
+				height : 540,
 				url : '/rechargeWithdrawLog/findMyRechargeWithdrawLogByPage',
 				pagination : true,
 				sidePagination : 'server',

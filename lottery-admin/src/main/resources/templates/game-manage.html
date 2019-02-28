@@ -53,6 +53,10 @@
 .game-play-details-highlight {
 	color: #E37D23 !important;
 }
+
+.optional-num-label {
+	margin-bottom: 0;
+}
 </style>
 </head>
 
@@ -128,7 +132,7 @@
 							</div>
 							<div class="row">
 								<div class="col-sm-6 game-play-details-item">
-									<label>赔率:</label> <span>{{selectedGamePlay.odds}}</span>
+									<label>赔率:</label> <span>{{selectedGamePlay.hasFixedOddsFlag ? selectedGamePlay.odds : '不固定赔率'}}</span>
 								</div>
 								<div class="col-sm-6 game-play-details-item">
 									<label>状态:</label> <span class="game-play-details-highlight">{{selectedGamePlay.stateName}}</span>
@@ -154,18 +158,32 @@
 								<thead>
 									<tr>
 										<th>号位</th>
-										<th>可选号球</th>
+										<th>可选号码</th>
 										<th>最大可选数量</th>
 										<th>快捷按钮</th>
 									</tr>
 								</thead>
 								<tbody>
-									<tr v-for="numLocate in selectedGamePlay.numLocates">
+									<template v-for="numLocate in selectedGamePlay.numLocates">
+									<tr>
 										<td>{{numLocate.numLocateName}}</td>
 										<td>{{numLocate.nums}}</td>
 										<td>{{numLocate.maxSelected}}</td>
 										<td>{{numLocate.hasFilterBtnFlag ? '显示': '不显示'}}</td>
 									</tr>
+									<tr v-for="optionalNum in numLocate.optionalNums" v-if="!selectedGamePlay.hasFixedOddsFlag">
+										<td colspan="4">
+											<div class="row">
+												<div class="offset-md-2 col-sm-4">
+													<label class="optional-num-label">号码:</label> <span>{{optionalNum.num}}</span>
+												</div>
+												<div class="col-sm-4">
+													<label class="optional-num-label">赔率:</label> <span>{{optionalNum.odds}}</span>
+												</div>
+											</div>
+										</td>
+									</tr>
+									</template>
 								</tbody>
 							</table>
 							<div style="text-align: center;" v-show="selectedGamePlay.id != null">
@@ -192,7 +210,7 @@
 							</div>
 							<div class="modal-body">
 								<form>
-									<div class="input-group mb-3">
+									<div class="input-group">
 										<div class="input-group-prepend">
 											<span class="input-group-text">期号显示格式</span>
 										</div>
@@ -330,7 +348,16 @@
 									</div>
 									<div class="form-group row">
 										<div class="col-sm-6">
-											<label>赔率:</label> <input type="text" class="form-control" v-model="editGamePlay.odds">
+											<label>赔率:</label>
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<select class="form-control" v-model="editGamePlay.hasFixedOddsFlag">
+														<option value="true">固定赔率</option>
+														<option value="false">不固定赔率</option>
+													</select>
+												</div>
+												<input type="text" class="form-control" v-model="editGamePlay.odds">
+											</div>
 										</div>
 										<div class="col-sm-6">
 											<label>状态:</label>
@@ -364,16 +391,27 @@
 									<thead>
 										<tr>
 											<th>号位</th>
-											<th>可选号球</th>
+											<th>可选号码</th>
 											<th>最大可选数量</th>
 											<th>快捷按钮</th>
 											<th>操作</th>
 										</tr>
 									</thead>
 									<tbody>
-										<tr v-for="(numLocate, index) in editGamePlay.numLocates">
+										<template v-for="(numLocate, index) in editGamePlay.numLocates">
+										<tr>
 											<td><input type="text" class="form-control-sm" v-model="numLocate.numLocateName"></td>
-											<td><input type="text" class="form-control-sm" v-model="numLocate.nums"></td>
+											<td>
+												<div class="input-group">
+													<input type="text" class="form-control-sm" v-model="numLocate.nums">
+													<div class="input-group-append">
+														<button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown"></button>
+														<div class="dropdown-menu">
+															<a class="dropdown-item" href="javascript:;">重新生成号码</a> <a class="dropdown-item" href="javascript:;" v-on:click="numLocate.showDetails = !numLocate.showDetails">{{!numLocate.showDetails ? '显示明细' : '隐藏明细'}}</a>
+														</div>
+													</div>
+												</div>
+											</td>
 											<td><input type="text" class="form-control-sm" v-model="numLocate.maxSelected"></td>
 											<td><select class="form-control-sm" v-model="numLocate.hasFilterBtnFlag">
 													<option value="true">显示</option>
@@ -383,6 +421,19 @@
 												<button type="button" class="btn btn-danger btn-sm" v-on:click="delNumLocate(index)">删除</button>
 											</td>
 										</tr>
+										<tr v-for="optionalNum in numLocate.optionalNums" v-show="numLocate.showDetails">
+											<td colspan="5">
+												<div class="row">
+													<div class="offset-md-2 col-sm-4">
+														<label class="optional-num-label">号码:</label> <span><input type="text" class="form-control-sm" v-model="optionalNum.num" disabled="disabled"></span>
+													</div>
+													<div class="col-sm-4">
+														<label class="optional-num-label">赔率:</label> <span><input type="text" class="form-control-sm" v-model="optionalNum.odds"></span>
+													</div>
+												</div>
+											</td>
+										</tr>
+										</template>
 									</tbody>
 								</table>
 							</div>

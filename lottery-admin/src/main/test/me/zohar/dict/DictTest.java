@@ -33,6 +33,25 @@ public class DictTest {
 		dictItem.setDictTypeId(dictTypeId);
 		return dictItem;
 	}
+	
+	/**
+	 * 初始化提现记录状态字典
+	 */
+	@Test
+	@Transactional(readOnly = false)
+	@Rollback(false)
+	public void initWithdrawRecordStateDict() {
+		DictType dictType = new DictType();
+		dictType.setId(IdUtils.getId());
+		dictType.setDictTypeCode("withdrawRecordState");
+		dictType.setDictTypeName("提现记录状态");
+		dictTypeRepo.save(dictType);
+
+		dictItemRepo.save(buildDictItem("1", "发起提现", 1d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("2", "审核通过", 2d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("3", "审核不通过", 2d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("4", "已到帐", 2d, dictType.getId()));
+	}
 
 	/**
 	 * 初始化充值方式字典

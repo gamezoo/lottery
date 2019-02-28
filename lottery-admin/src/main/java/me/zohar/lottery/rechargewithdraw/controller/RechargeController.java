@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import me.zohar.lottery.common.vo.Result;
+import me.zohar.lottery.rechargewithdraw.param.RechargeOrderQueryCondParam;
 import me.zohar.lottery.rechargewithdraw.service.RechargeService;
-import me.zohar.lottery.useraccount.param.RechargeOrderQueryCondParam;
 
 /**
  * 

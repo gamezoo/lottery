@@ -78,7 +78,7 @@ var rechargeOrderVM = new Vue({
 				},
 				detailView : true,
 				detailFormatter : function(index, row, element) {
-					var html = template('recharge-order-info', {
+					var html = template('recharge-order-detail', {
 						rechargeOrderInfo : row
 					});
 					return html;

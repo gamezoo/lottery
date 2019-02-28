@@ -56,10 +56,16 @@ public class GamePlay {
 	 * 赔率
 	 */
 	private Double odds;
+	
+	/**
+	 * 是否固定赔率
+	 */
+	private Boolean hasFixedOddsFlag;
 
 	/**
 	 * 玩法描述
 	 */
+	@Column(length = 1024)
 	private String gamePlayDesc;
 
 	/**
@@ -82,18 +88,17 @@ public class GamePlay {
 	 */
 	private String gamePlayCategoryName;
 
-
 	/**
 	 * 所属游戏子玩法类别名称
 	 */
 	private String subGamePlayCategoryName;
-	
+
 	/**
 	 * 乐观锁版本号
 	 */
 	@Version
 	private Long version;
-	
+
 	/**
 	 * 号位集合
 	 */
@@ -101,6 +106,5 @@ public class GamePlay {
 	@JoinColumn(name = "game_play_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@OrderBy("orderNo ASC")
 	private Set<NumLocate> numLocates;
-	
 
 }

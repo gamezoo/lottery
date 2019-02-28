@@ -25,7 +25,7 @@ public class GameController {
 	@GetMapping("/findGamePlayAndNumLocateByGameCode")
 	@ResponseBody
 	public Result findGamePlayAndNumLocateByGameCode(String gameCode) {
-		return Result.success().setData(gameService.findGamePlayAndNumLocateByGameCode(gameCode));
+		return Result.success().setData(gameService.findGamePlayDetailsByGameCode(gameCode));
 	}
 
 }

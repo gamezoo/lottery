@@ -46,7 +46,14 @@ public class ConfigTest {
 	@Transactional(readOnly = false)
 	@Rollback(false)
 	public void initRechargeConfig() {
-		configItemRepo.save(buildConfigItem("recharge", "充值", "orderPeriodOfValidity", "订单有效期", "300"));
+		configItemRepo.save(buildConfigItem("recharge", "充值", "effectiveDuration", "订单有效时长", "300"));
+	}
+	
+	@Test
+	@Transactional(readOnly = false)
+	@Rollback(false)
+	public void initInviteCodeConfig() {
+		configItemRepo.save(buildConfigItem("inviteCode", "邀请码", "effectiveDuration", "邀请码有效时长", "2592000"));
 	}
 
 }

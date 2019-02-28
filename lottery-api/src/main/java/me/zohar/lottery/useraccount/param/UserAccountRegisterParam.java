@@ -2,6 +2,8 @@ package me.zohar.lottery.useraccount.param;
 
 import java.util.Date;
 
+import javax.validation.constraints.NotBlank;
+
 import org.springframework.beans.BeanUtils;
 
 import lombok.Data;
@@ -11,10 +13,27 @@ import me.zohar.lottery.useraccount.domain.UserAccount;
 @Data
 public class UserAccountRegisterParam {
 
+	/**
+	 * 邀请码
+	 */
+	private String inviteCode;
+
+	/**
+	 * 用户名
+	 */
+	@NotBlank
 	private String userName;
 
+	/**
+	 * 真实姓名
+	 */
+	@NotBlank
 	private String realName;
 
+	/**
+	 * 登录密码
+	 */
+	@NotBlank
 	private String loginPwd;
 
 	public UserAccount convertToPo() {

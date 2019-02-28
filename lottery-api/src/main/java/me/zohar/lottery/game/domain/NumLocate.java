@@ -1,8 +1,16 @@
 package me.zohar.lottery.game.domain;
 
+import java.util.Set;
+
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -40,7 +48,7 @@ public class NumLocate {
 	private String numLocateName;
 
 	/**
-	 * 候选的号码集合,以逗号分隔
+	 * 可选号码集合,以逗号分隔
 	 */
 	private String nums;
 
@@ -70,5 +78,13 @@ public class NumLocate {
 	 */
 	@Column(name = "game_play_id", length = 32)
 	private String gamePlayId;
+	
+	/**
+	 * 可选的号码集合
+	 */
+	@OneToMany(fetch = FetchType.LAZY)
+	@JoinColumn(name = "num_locate_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@OrderBy("orderNo ASC")
+	private Set<OptionalNum> optionalNums;
 
 }

@@ -385,7 +385,11 @@ var gameManage = new Vue({
 					id : that.selectedGamePlay.id
 				}
 			}).then(function(res) {
-				that.editGamePlay = res.body.data;
+				var editGamePlay = res.body.data;
+				for (var i = 0; i < editGamePlay.numLocates.length; i++) {
+					editGamePlay.numLocates[i].showDetails = false;
+				}
+				that.editGamePlay = editGamePlay;
 			});
 		},
 

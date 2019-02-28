@@ -112,31 +112,29 @@
 						</div>
 					</div>
 				</div>
-				<div class="row pre-betting-area">
-					<div class="col-sm-12">
-						<div class="card">
-							<div class="card-body">
-								<table class="table table-sm pre-betting-table">
-									<thead>
-										<tr>
-											<th>玩法</th>
-											<th>号码</th>
-											<th>注数</th>
-											<th>倍/元</th>
-											<th></th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr v-for="(preBettingRecord, index) in preBettingRecords">
-											<td>{{preBettingRecord.gamePlayName}}</td>
-											<td class="pre-betting-selected-no">{{preBettingRecord.selectedNo}}</td>
-											<td>{{preBettingRecord.bettingCount}}注</td>
-											<td class="pre-betting-amount">￥{{baseAmount * multiple * preBettingRecord.bettingCount}}</td>
-											<td class="del-pre-betting-record" v-on:click="delPreBettingOrder(index)"><span>X</span></td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
+				<div class="pre-betting-area">
+					<div class="card">
+						<div class="card-body">
+							<table class="table table-sm pre-betting-table">
+								<thead>
+									<tr>
+										<th>玩法</th>
+										<th>号码</th>
+										<th>注数</th>
+										<th>倍/元</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr v-for="(preBettingRecord, index) in preBettingRecords">
+										<td>{{preBettingRecord.gamePlayName}}</td>
+										<td class="pre-betting-selected-no">{{preBettingRecord.selectedNo}}</td>
+										<td>{{preBettingRecord.bettingCount}}注</td>
+										<td class="pre-betting-amount">￥{{baseAmount * multiple * preBettingRecord.bettingCount}}</td>
+										<td class="del-pre-betting-record" v-on:click="delPreBettingOrder(index)"><span>X</span></td>
+									</tr>
+								</tbody>
+							</table>
 						</div>
 					</div>
 				</div>

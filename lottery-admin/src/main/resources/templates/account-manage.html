@@ -15,69 +15,39 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/locale/bootstrap-table-zh-CN.min.js"></script>
 <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 <script src="https://unpkg.com/art-template@4.13.2/lib/template-web.js"></script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <script id="bank-card-info" type="text/html">
-	<div class="bank-card-info">
+	<div class="table-detail">
 		<div class="row">
-			<div class="col-sm-6 offset-sm-3 bank-card-info-item">
-				<label class="bank-card-info-item-title">开户银行:</label> <label class="bank-card-info-item-value">{{accountInfo.openAccountBank }}</label>
-			</div>
+			<div class="col-sm-5 table-detail-item-label">开户银行:</div>
+			<div class="col-sm-7 table-detail-item-value">{{accountInfo.openAccountBank }}</div>
 		</div>
 		<div class="row">
-			<div class="col-sm-6 offset-sm-3 bank-card-info-item">
-				<label class="bank-card-info-item-title">开户人姓名:</label> <label class="bank-card-info-item-value">{{accountInfo.accountHolder }}</label>
-			</div>
+			<div class="col-sm-5 table-detail-item-label">开户人姓名:</div>
+			<div class="col-sm-7 table-detail-item-value">{{accountInfo.accountHolder }}</div>
 		</div>
 		<div class="row">
-			<div class="col-sm-6 offset-sm-3 bank-card-info-item">
-				<label class="bank-card-info-item-title">银行卡账号:</label> <label class="bank-card-info-item-value">{{accountInfo.bankCardAccount }}</label>
-			</div>
+			<div class="col-sm-5 table-detail-item-label">银行卡账号:</div>
+			<div class="col-sm-7 table-detail-item-value">{{accountInfo.bankCardAccount }}</div>
 		</div>
 		<div class="row">
-			<div class="col-sm-6 offset-sm-3 bank-card-info-item">
-				<label class="bank-card-info-item-title">银行资料最近修改时间:</label> <label class="bank-card-info-item-value">{{accountInfo.bankInfoLatelyModifyTime }}</label>
-			</div>
+			<div class="col-sm-5 table-detail-item-label">银行资料最近修改时间:</div>
+			<div class="col-sm-7 table-detail-item-value">{{accountInfo.bankInfoLatelyModifyTime }}</div>
 		</div>
 		{{if accountInfo.bankInfoLatelyModifyTime == null}}
 		<div class="row">
-			<div class="col-sm-6 offset-sm-3 bank-card-info-item">
-				<label class="bank-card-info-item-title" style="color: red; text-align: center;">未绑定银行卡</label>
-			</div>
+			<div class="col-sm-5 offset-sm-3" style="color: red; text-align: center;">未绑定银行卡</div>
 		</div>
 		{{/if}}
 		<div class="row">
-			<div class="col-sm-6 offset-sm-3">
+			<div class="col-sm-5 offset-sm-3">
 				<button type="button" class="btn btn-outline-success btn-sm" onclick="accountManageVM.showBindBankInfoModal({{accountInfo }})">绑定银行卡</button>
 				<button type="button" class="btn btn-outline-info btn-sm" onclick="accountManageVM.showModifyMoneyPwdModal({{accountInfo }})">修改资金密码</button>
 			</div>
 		</div>
 	</div>
 </script>
-<link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <style type="text/css">
-.bank-card-info {
-	width: 97%;
-}
-
-.bank-card-info .row {
-	padding-bottom: 10px;
-}
-
-.bank-card-info-item .bank-card-info-item-title {
-	padding-right: 20px;
-	min-width: 30%;
-	color: #666;
-	text-align: end;
-}
-
-.bank-card-info-item .bank-card-info-item-value {
-	min-width: 30%;
-	color: #666;
-	text-align: start;
-}
-
-.edit-bank-info-form button {
-	margin-right: 20px;
-}
 </style>
 </head>
 
@@ -144,7 +114,7 @@
 		<div v-if="modifyLoginPwdFlag">
 			<div class="modal-mask">
 				<div class="modal-wrapper">
-					<div class="modal-dialog modify-login-pwd-modal-dialog">
+					<div class="modal-dialog modify-login-pwd-dialog">
 						<div class="modal-content">
 							<div class="modal-header">
 								<h5 class="modal-title">修改登录密码</h5>
@@ -183,7 +153,7 @@
 		<div v-if="modifyMoneyPwdFlag">
 			<div class="modal-mask">
 				<div class="modal-wrapper">
-					<div class="modal-dialog modify-money-pwd-modal-dialog">
+					<div class="modal-dialog modify-money-pwd-dialog">
 						<div class="modal-content">
 							<div class="modal-header">
 								<h5 class="modal-title">修改资金密码</h5>
@@ -222,7 +192,7 @@
 		<div v-if="bindBankInfoFlag">
 			<div class="modal-mask">
 				<div class="modal-wrapper">
-					<div class="modal-dialog bind-bank-info-modal-dialog">
+					<div class="modal-dialog bind-bank-info-dialog">
 						<div class="modal-content">
 							<div class="modal-header">
 								<h5 class="modal-title">绑定银行卡</h5>

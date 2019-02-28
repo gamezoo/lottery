@@ -123,7 +123,7 @@
 }
 
 .lately-lottery-result-card {
-	height: 55%;
+	height: 48%;
 	margin-bottom: 4px;
 }
 
@@ -171,7 +171,7 @@
 }
 
 .today-latest-betting-record-card {
-	height: 55%;
+	height: 48%;
 }
 
 .today-latest-betting-record-card .card-header {
@@ -504,7 +504,7 @@
 }
 
 .pre-betting-area .card {
-	height: 15%;
+	height: 130px;;
 }
 
 .pre-betting-area .card-body {

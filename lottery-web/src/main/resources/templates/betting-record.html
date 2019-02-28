@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8">
@@ -12,52 +13,8 @@
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/locale/bootstrap-table-zh-CN.min.js"></script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <style type="text/css">
-.betting-record-query-cond-form {
-	padding-left: 25px;
-	padding-right: 25px;
-	padding-top: 8px;
-}
-
-.betting-record-query-cond {
-	padding-right: 30px;
-}
-
-.betting-record-query-cond label {
-	padding-right: 5px;
-}
-
-.betting-record-query-cond span {
-	padding-left: 2px;
-	padding-right: 2px;
-}
-
-.fixed-table-header {
-	background-color: #dedede;
-}
-
-.betting-record-table {
-	border-bottom: 0 !important;
-}
-
-.betting-record-table thead th {
-	border-top: 0;
-	border-bottom: 0;
-	text-align: center;
-	color: #666;
-	font-size: 14px;
-	font-weight: normal;
-	background-color: #dedede;
-}
-
-.betting-record-table tr td {
-	text-align: center;
-	border-top: 0;
-	color: #666;
-	border-bottom: 1px dashed #a0a0a0;
-	border-left: 0;
-}
-
 .betting-record-table .betting-record-order-no {
 	color: #2765a1;
 	cursor: pointer;
@@ -74,17 +31,17 @@
 		<div th:replace="common/header::html"></div>
 		<div th:replace="common/personal-navbar::html"></div>
 		<div id="betting-record" v-cloak>
-			<form class="form-inline betting-record-query-cond-form" action="#">
-				<div class="form-group betting-record-query-cond">
+			<form class="form-inline common-query-cond-form" action="#">
+				<div class="form-group common-query-cond">
 					<label>游戏:</label> <select class="form-control" v-model="gameCode">
 						<option value="">请选择</option>
 						<option value="CQSSC">重庆时时彩</option>
 					</select>
 				</div>
-				<div class="form-group betting-record-query-cond">
+				<div class="form-group common-query-cond">
 					<label>时间:</label><input type="date" class="form-control" v-model="startTime"><span>到</span><input type="date" class="form-control" v-model="endTime">
 				</div>
-				<div class="form-group betting-record-query-cond">
+				<div class="form-group common-query-cond">
 					<label>状态:</label> <select class="form-control" v-model="state">
 						<option value="">全部</option>
 						<option value="1">未开奖</option>
@@ -94,7 +51,7 @@
 				</div>
 				<button type="button" class="btn btn-danger" v-on:click="refreshTable">搜索</button>
 			</form>
-			<table class="betting-record-table"></table>
+			<table class="common-table betting-record-table"></table>
 		</div>
 		<div th:replace="component/betting-order-details-modal::html"></div>
 	</div>
@@ -119,7 +76,7 @@
 					var that = this;
 					$('.betting-record-table').bootstrapTable({
 						classes : 'table table-hover',
-						height : 490,
+						height : 540,
 						url : '/betting/findMyBettingOrderInfoByPage',
 						pagination : true,
 						sidePagination : 'server',
