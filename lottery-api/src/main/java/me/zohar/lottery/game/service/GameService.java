@@ -10,7 +10,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import me.zohar.lottery.common.exception.BizError;
 import me.zohar.lottery.common.exception.BizException;
@@ -24,6 +23,7 @@ import me.zohar.lottery.game.domain.OptionalNum;
 import me.zohar.lottery.game.param.GameParam;
 import me.zohar.lottery.game.param.GamePlayParam;
 import me.zohar.lottery.game.param.NumLocateParam;
+import me.zohar.lottery.game.param.OptionalNumParam;
 import me.zohar.lottery.game.repo.GamePlayRepo;
 import me.zohar.lottery.game.repo.GameRepo;
 import me.zohar.lottery.game.repo.NumLocateRepo;
@@ -119,8 +119,8 @@ public class GameService {
 		Set<NumLocate> numLocates = gamePlay.getNumLocates();
 		for (NumLocate numLocate : numLocates) {
 			optionalNumRepo.deleteAll(numLocate.getOptionalNums());
-			numLocateRepo.delete(numLocate);
 		}
+		numLocateRepo.deleteAll(numLocates);
 		gamePlayRepo.delete(gamePlay);
 	}
 
@@ -193,6 +193,17 @@ public class GameService {
 	@ParamValid
 	@Transactional
 	public void addOrUpdateGamePlay(GamePlayParam gamePlayParam) {
+		if (Constant.赔率模式_固定赔率.equals(gamePlayParam.getOddsMode())) {
+			if (gamePlayParam.getOdds() == null) {
+				throw new BizException(BizError.参数异常.getCode(), "赔率不能为空");
+			}
+			if (gamePlayParam.getOdds() <= 0) {
+				throw new BizException(BizError.参数异常.getCode(), "赔率不能小于或等于0");
+			}
+		} else {
+			gamePlayParam.setOdds(0d);
+		}
+
 		// 新增
 		if (StrUtil.isBlank(gamePlayParam.getId())) {
 			GamePlay existGamePlay = gamePlayRepo.findByGameCodeAndGamePlayCode(gamePlayParam.getGameCode(),
@@ -202,13 +213,20 @@ public class GameService {
 			}
 			GamePlay gamePlay = gamePlayParam.convertToPo();
 			gamePlayRepo.save(gamePlay);
-			if (CollectionUtil.isEmpty(gamePlayParam.getNumLocates())) {
-				return;
-			}
-			for (NumLocateParam numLocateParam : gamePlayParam.getNumLocates()) {
+			for (int i = 0; i < gamePlayParam.getNumLocates().size(); i++) {
+				NumLocateParam numLocateParam = gamePlayParam.getNumLocates().get(i);
 				NumLocate numLocate = numLocateParam.convertToPo();
+				numLocate.setOrderNo((double) (i + 1));
 				numLocate.setGamePlayId(gamePlay.getId());
 				numLocateRepo.save(numLocate);
+
+				for (int j = 0; j < numLocateParam.getOptionalNums().size(); j++) {
+					OptionalNumParam optionalNumParam = numLocateParam.getOptionalNums().get(j);
+					OptionalNum optionalNum = optionalNumParam.convertToPo();
+					optionalNum.setOrderNo((double) (j + 1));
+					optionalNum.setNumLocateId(numLocate.getId());
+					optionalNumRepo.save(optionalNum);
+				}
 			}
 		}
 		// 修改
@@ -225,13 +243,22 @@ public class GameService {
 			numLocateRepo.deleteAll(numLocates);
 
 			GamePlay gamePlay = gamePlayRepo.getOne(gamePlayParam.getId());
-			delGamePlayInner(gamePlay);
 			BeanUtils.copyProperties(gamePlayParam, gamePlay);
 			gamePlayRepo.save(gamePlay);
-			for (NumLocateParam numLocateParam : gamePlayParam.getNumLocates()) {
+			for (int i = 0; i < gamePlayParam.getNumLocates().size(); i++) {
+				NumLocateParam numLocateParam = gamePlayParam.getNumLocates().get(i);
 				NumLocate numLocate = numLocateParam.convertToPo();
+				numLocate.setOrderNo((double) (i + 1));
 				numLocate.setGamePlayId(gamePlay.getId());
 				numLocateRepo.save(numLocate);
+
+				for (int j = 0; j < numLocateParam.getOptionalNums().size(); j++) {
+					OptionalNumParam optionalNumParam = numLocateParam.getOptionalNums().get(j);
+					OptionalNum optionalNum = optionalNumParam.convertToPo();
+					optionalNum.setOrderNo((double) (j + 1));
+					optionalNum.setNumLocateId(numLocate.getId());
+					optionalNumRepo.save(optionalNum);
+				}
 			}
 		}
 	}

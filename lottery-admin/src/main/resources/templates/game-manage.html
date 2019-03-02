@@ -132,7 +132,7 @@
 							</div>
 							<div class="row">
 								<div class="col-sm-6 game-play-details-item">
-									<label>赔率:</label> <span>{{selectedGamePlay.hasFixedOddsFlag ? selectedGamePlay.odds : '不固定赔率'}}</span>
+									<label>赔率:</label> <span>{{selectedGamePlay.oddsMode == '1' ? selectedGamePlay.odds : '不固定赔率'}}</span>
 								</div>
 								<div class="col-sm-6 game-play-details-item">
 									<label>状态:</label> <span class="game-play-details-highlight">{{selectedGamePlay.stateName}}</span>
@@ -351,9 +351,9 @@
 											<label>赔率:</label>
 											<div class="input-group">
 												<div class="input-group-prepend">
-													<select class="form-control" v-model="editGamePlay.hasFixedOddsFlag">
-														<option value="true">固定赔率</option>
-														<option value="false">不固定赔率</option>
+													<select class="form-control" v-model="editGamePlay.oddsMode">
+														<option value="1">固定赔率</option>
+														<option value="2">不固定赔率</option>
 													</select>
 												</div>
 												<input type="text" class="form-control" v-model="editGamePlay.odds">
@@ -407,7 +407,7 @@
 													<div class="input-group-append">
 														<button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown"></button>
 														<div class="dropdown-menu">
-															<a class="dropdown-item" href="javascript:;">重新生成号码</a> <a class="dropdown-item" href="javascript:;" v-on:click="numLocate.showDetails = !numLocate.showDetails">{{!numLocate.showDetails ? '显示明细' : '隐藏明细'}}</a>
+															<a class="dropdown-item" href="javascript:;" v-on:click="generateNumAndShowNumDetails(numLocate)">生成号码</a><a class="dropdown-item" href="javascript:;" v-on:click="showNumDetails(numLocate)">{{!numLocate.showDetails ? '号码明细' : '隐藏明细'}}</a>
 														</div>
 													</div>
 												</div>

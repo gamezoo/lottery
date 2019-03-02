@@ -2,6 +2,10 @@ package me.zohar.lottery.constants;
 
 public class Constant {
 
+	public static final String 用户账号状态_启用 = "1";
+
+	public static final String 用户账号状态_禁用 = "2";
+
 	public static final String 游戏状态_启用 = "1";
 
 	public static final String 游戏状态_禁用 = "2";
@@ -63,5 +67,9 @@ public class Constant {
 	public static final String 提现记录状态_审核不通过 = "3";
 
 	public static final String 提现记录状态_已到账 = "4";
+	
+	public static final String 赔率模式_固定赔率 = "1";
+	
+	public static final String 赔率模式_不固定赔率 = "2";
 
 }

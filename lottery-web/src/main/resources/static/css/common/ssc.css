@@ -290,94 +290,128 @@
 	background-color: #fff;
 }
 
-.select-no-area {
+.select-num-area {
 	display: grid;
 	padding-bottom: 15px;
+	padding-top: 15px;
 }
 
-.no-locate>ul {
-	padding-top: 12px;
+.num-locate {
+	padding-bottom: 2px;
 }
 
-.no-locate ul {
-	list-style: none;
-	padding-left: 0;
-}
-
-.no-locate-label {
-	width: 95px;
-	height: 34px;
-	line-height: 34px;
-	color: #000;
-	display: block;
-	margin-right: 34px;
-	margin-top: 2px;
+.num-locate-name {
 	float: left;
+	height: 38px;
+	width: 80px;
+	line-height: 38px;
 	text-align: center;
+	color: #666;
 	font-size: 14px;
-	font-weight: bold;
-	background-color: #e6e6e6;
-	border-radius: 34px;
-	border: 1px solid #cecece;
 }
 
-.ball-list li {
-	width: 36px;
-	height: 36px;
-	display: block;
-	text-align: center;
-	line-height: 36px;
-	color: #333;
-	float: left;
-	margin: 0 10px 10px 0;
-	font-size: 18px;
-	border-radius: 50%;
-	border: 1px solid #cccccc;
-	cursor: pointer;
-	position: relative;
-	background-color: #e4e4e4;
-	background: linear-gradient(#fff, #e4e4e4);
-}
-
-.ball-list li:hover {
-	background-color: #e69393;
-	background: linear-gradient(#da9393, #e69393);
-	color: #fff !important;
-	border: 1px solid #e69393;
-}
-
-.ball-selected {
+.ball-selected, .odds-ball-selected .ball {
 	background-color: #cb3a3a !important;
 	background: linear-gradient(#f56868, #cb3a3a) !important;
 	color: #fff !important;
 	border: 1px solid #da4a4a !important;
 }
 
-.quick-select-no {
-	position: relative;
-	bottom: 12px;
+.odds-ball-selected .ball-odds {
+	color: #e4393c;
 }
 
-.quick-select-no dd {
-	width: 28px;
-	height: 28px;
+.ball-box {
 	float: left;
-	margin-left: 10px;
-	background-color: #f1f1f1;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	max-width: calc(100% - 80px);
+	padding: 2px 0;
+}
+
+.ball-wrap {
+	cursor: pointer;
+	text-align: center;
+	padding: 0;
+	margin-right: 10px;
+	margin-top: 0px;
+	margin-bottom: 2px;
+}
+
+.show-odds-ball-wrap {
+	padding: 4px 10px;
+	margin-right: 2px;
+}
+
+.odds-ball-selected, .show-odds-ball-wrap:hover {
+	background: #f3f3f3;
+}
+
+.ball {
+	display: inline-block;
+	vertical-align: middle;
+	min-width: 38px;
+	height: 38px;
+	text-align: center;
+	line-height: 38px;
+	font-size: 18px;
+	color: #333;
+	cursor: pointer;
+	background-color: #e4e4e4;
 	background: linear-gradient(#fff, #e4e4e4);
 	border-radius: 50%;
-	text-align: center;
-	line-height: 28px;
-	cursor: pointer;
-	font-size: 14px;
 	border: 1px solid #cccccc;
 }
 
-.quick-select-no dd:hover {
-	background-color: #cb3a3a;
-	background: linear-gradient(#f56868, #cb3a3a);
+.ball:hover, .show-odds-ball-wrap:hover .ball {
+	background-color: #e69393;
+	background: linear-gradient(#da9393, #e69393);
 	color: #fff !important;
-	border: 1px solid #da4a4a;
+	border: 1px solid #e69393;
+}
+
+.ball-odds {
+	display: inline-block;
+	vertical-align: middle;
+	height: 38px;
+	width: 66px;
+	font-size: 14px;
+	line-height: 38px;
+	color: #333;
+	text-align: center;
+}
+
+.fliter-btn-wrap {
+	overflow: hidden;
+	float: right;
+	margin-left: 0px;
+	padding-top: 4px;
+}
+
+.fliter-btn-wrap ul {
+	list-style: none;
+	padding-left: 0;
+}
+
+.fliter-btn-wrap ul>li {
+	float: left;
+	width: 30px;
+	height: 30px;
+	color: #333;
+	line-height: 28px;
+	border: 1px solid #e7e7e7;
+	border-radius: 6px;
+	text-align: center;
+	cursor: pointer;
+	margin-right: 10px;
+	background-color: #fff;
+}
+
+.fliter-btn-wrap ul>li:hover {
+	color: #e4393c;
+	border-color: #e4393c;
 }
 
 .pre-betting-btn-operation-area {

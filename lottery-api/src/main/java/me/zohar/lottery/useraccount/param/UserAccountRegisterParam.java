@@ -8,6 +8,7 @@ import org.springframework.beans.BeanUtils;
 
 import lombok.Data;
 import me.zohar.lottery.common.utils.IdUtils;
+import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.useraccount.domain.UserAccount;
 
 @Data
@@ -42,6 +43,7 @@ public class UserAccountRegisterParam {
 		po.setId(IdUtils.getId());
 		po.setRegisteredTime(new Date());
 		po.setMoneyPwd(po.getLoginPwd());
+		po.setState(Constant.用户账号状态_启用);
 		return po;
 	}
 

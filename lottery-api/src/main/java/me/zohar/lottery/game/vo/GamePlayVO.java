@@ -34,9 +34,9 @@ public class GamePlayVO {
 	private Double odds;
 
 	/**
-	 * 是否固定赔率
+	 * 赔率模式
 	 */
-	private Boolean hasFixedOddsFlag;
+	private String oddsMode;
 
 	/**
 	 * 玩法描述

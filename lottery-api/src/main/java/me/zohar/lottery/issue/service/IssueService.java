@@ -265,7 +265,9 @@ public class IssueService {
 
 						Issue issue = Issue.builder().id(IdUtils.getId()).gameCode(issueSetting.getGameCode())
 								.lotteryDate(lotteryDate).lotteryTime(endTime).issueNum(issueNum).startTime(startTime)
-								.endTime(endTime).state(Constant.期号状态_未开奖).build();
+								.endTime(endTime).state(Constant.期号状态_未开奖)
+								.automaticLottery(true).automaticSettlement(true)
+								.build();
 						issueRepo.save(issue);
 					}
 					count += issueCount;

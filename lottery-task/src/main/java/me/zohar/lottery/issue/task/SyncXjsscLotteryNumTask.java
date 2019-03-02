@@ -14,7 +14,7 @@ public class SyncXjsscLotteryNumTask {
 	@Autowired
 	private XjsscService xjsscService;
 
-	@Scheduled(fixedRate = 5000)
+	@Scheduled(fixedRate = 6000)
 	public void execute() {
 		try {
 			log.info("执行同步新疆时时彩开奖号码定时任务start");

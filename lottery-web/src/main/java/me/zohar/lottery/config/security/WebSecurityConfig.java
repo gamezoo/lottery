@@ -28,6 +28,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		http.csrf().disable()
 		.authorizeRequests()
 		.antMatchers("/").permitAll()
+		.antMatchers("/register").permitAll()
+		.antMatchers("/userAccount/register").permitAll()
 		.antMatchers("/userAccount/getUserAccountInfo").permitAll()
 		.antMatchers("/game/findAllOpenGame").permitAll()
 		.anyRequest().authenticated()

@@ -52,33 +52,37 @@
 			</div>
 		</div>
 		<div class="row betting-main">
-			<div class="col-sm-9">
+			<div class="col-sm-9" style="padding-right: 0;">
 				<div class="play-category">
 					<div class="definite-play" v-for="subGamePlayCategory in subGamePlayCategorys">
 						<dt>{{subGamePlayCategory.subGamePlayCategoryName}}</dt>
 						<dd v-for="play in subGamePlayCategory.plays" v-bind:class="{'definite-play-selected': play == selectedPlay}" v-on:click="switchPlay(play)">{{play.gamePlayName}}</dd>
 					</div>
 				</div>
-				<div class="select-no-area">
-					<div class="no-locate" v-for="(numLocate, i) in numLocates">
-						<ul>
-							<li class="no-locate-label">{{numLocate.locateName}}</li>
-							<li>
-								<ul class="ball-list">
-									<li v-for="(num, j) in numLocate.nums" v-bind:class="{'ball-selected': num.selectedFlag}" v-on:click="switchNumSelectedState(i, j)">{{num.num}}</li>
-								</ul>
-							</li>
-							<li class="quick-select-no" v-if="numLocate.hasFilterBtnFlag">
-								<dl>
-									<dd v-on:click="selectAllNo(i)">全</dd>
-									<dd v-on:click="selectOddNum(i)">奇</dd>
-									<dd v-on:click="selectEvenNum(i)">偶</dd>
-									<dd v-on:click="selectBigNum(i)">大</dd>
-									<dd v-on:click="selectSmallNum(i)">小</dd>
-									<dd v-on:click="clearSelected(i)">清</dd>
-								</dl>
-							</li>
-						</ul>
+				<div class="select-num-area">
+					<div class="num-locate" v-for="(numLocate, i) in numLocates">
+						<div class="num-locate-name">{{numLocate.locateName}}</div>
+						<div class="ball-box" v-if="selectedPlay.oddsMode == '1'">
+							<div class="ball-wrap" v-for="(num, j) in numLocate.nums">
+								<div class="ball" v-bind:class="{'ball-selected': num.selectedFlag}" v-on:click="switchNumSelectedState(i, j)">{{num.num}}</div>
+							</div>
+						</div>
+						<div class="ball-box" v-if="selectedPlay.oddsMode == '2'">
+							<div class="ball-wrap show-odds-ball-wrap" v-for="(num, j) in numLocate.nums" v-bind:class="{'odds-ball-selected': num.selectedFlag}" v-on:click="switchNumSelectedState(i, j)">
+								<div class="ball">{{num.num}}</div>
+								<div class="ball-odds">{{num.odds}}</div>
+							</div>
+						</div>
+						<div class="fliter-btn-wrap" v-if="numLocate.hasFilterBtnFlag">
+							<ul>
+								<li v-on:click="selectAllNo(i)">全</li>
+								<li v-on:click="selectSmallNum(i)">大</li>
+								<li v-on:click="selectSmallNum(i)">小</li>
+								<li v-on:click="selectOddNum(i)">单</li>
+								<li v-on:click="selectEvenNum(i)">双</li>
+								<li v-on:click="clearSelected(i)">清</li>
+							</ul>
+						</div>
 					</div>
 				</div>
 				<div class="pre-betting-btn-operation-area">
@@ -108,7 +112,7 @@
 						<div class="play-introduce-play-odds">
 							<i class="play-introduce" v-on:mouseenter="showPlayIntroduceDesc" v-on:mouseleave="hidePlayIntroduceDesc">玩法介绍<label>?</label>
 								<div class="play-introduce-desc" style="display: none;">{{selectedPlay.gamePlayDesc}}</div>
-							</i> <i class="play-odds"><label class="play-odds-label">赔率:</label><label class="play-odds-value">{{selectedPlay.odds}}</label></i>
+							</i> <i class="play-odds" v-if="selectedPlay.oddsMode == '1'"><label class="play-odds-label">赔率:</label><label class="play-odds-value">{{selectedPlay.odds}}</label></i>
 						</div>
 					</div>
 				</div>

@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.BeanUtils;
@@ -14,7 +15,7 @@ import me.zohar.lottery.game.domain.GamePlay;
 
 @Data
 public class GamePlayParam {
-	
+
 	/**
 	 * 主键id
 	 */
@@ -31,12 +32,16 @@ public class GamePlayParam {
 	 */
 	@NotBlank
 	private String gamePlayName;
+	
+	/**
+	 * 赔率模式
+	 */
+	@NotNull
+	private String oddsMode;
 
 	/**
 	 * 赔率
 	 */
-	@NotNull
-	@DecimalMin(value = "0", inclusive = false, message = "odds不能少于或等于0")
 	private Double odds;
 
 	/**
@@ -44,7 +49,7 @@ public class GamePlayParam {
 	 */
 	@NotBlank
 	private String gamePlayDesc;
-	
+
 	/**
 	 * 排序号
 	 */
@@ -63,7 +68,7 @@ public class GamePlayParam {
 	 */
 	@NotBlank
 	private String state;
-	
+
 	/**
 	 * 所属游戏玩法类别名称
 	 */
@@ -75,12 +80,13 @@ public class GamePlayParam {
 	 */
 	@NotBlank
 	private String subGamePlayCategoryName;
-	
+
 	/**
 	 * 号位集合
 	 */
+	@NotEmpty
 	private List<NumLocateParam> numLocates;
-	
+
 	public GamePlay convertToPo() {
 		GamePlay po = new GamePlay();
 		BeanUtils.copyProperties(this, po);

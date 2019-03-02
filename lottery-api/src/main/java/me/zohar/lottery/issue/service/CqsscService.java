@@ -64,7 +64,7 @@ public class CqsscService {
 		}));
 		for (Future<IssueVO> future : futures) {
 			try {
-				IssueVO issueVO = future.get(2, TimeUnit.SECONDS);
+				IssueVO issueVO = future.get(3, TimeUnit.SECONDS);
 				issues.add(issueVO);
 			} catch (InterruptedException | ExecutionException | TimeoutException e) {
 				log.error("异步future接口出现错误", e);

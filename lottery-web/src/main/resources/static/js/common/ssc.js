@@ -138,10 +138,11 @@ var ssc = new Vue({
 					hasFilterBtnFlag : data.hasFilterBtnFlag,
 					nums : []
 				};
-				var numArr = data.nums.split(',');
+				var numArr = data.optionalNums;
 				for (var j = 0; j < numArr.length; j++) {
 					numLocate.nums.push({
-						num : numArr[j],
+						num : numArr[j].num,
+						odds : numArr[j].odds,
 						selectedFlag : false
 					});
 				}
@@ -174,6 +175,7 @@ var ssc = new Vue({
 						gamePlayName : obj.gamePlayName,
 						gamePlayDesc : obj.gamePlayDesc,
 						odds : obj.odds,
+						oddsMode : obj.oddsMode,
 						numLocates : obj.numLocates,
 						gameCode : obj.gameCode,
 						gamePlayCategoryCode : obj.gamePlayCategoryCode,

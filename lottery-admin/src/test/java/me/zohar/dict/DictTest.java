@@ -33,7 +33,7 @@ public class DictTest {
 		dictItem.setDictTypeId(dictTypeId);
 		return dictItem;
 	}
-	
+
 	/**
 	 * 初始化提现记录状态字典
 	 */
@@ -202,6 +202,8 @@ public class DictTest {
 	@Transactional(readOnly = false)
 	@Rollback(false)
 	public void initGameDict() {
+		deleteDict("game");
+
 		DictType dictType = new DictType();
 		dictType.setId(IdUtils.getId());
 		dictType.setDictTypeCode("game");
@@ -209,6 +211,15 @@ public class DictTest {
 		dictTypeRepo.save(dictType);
 
 		dictItemRepo.save(buildDictItem("CQSSC", "重庆时时彩", 1d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("XJSSC", "新疆时时彩", 2d, dictType.getId()));
+	}
+
+	public void deleteDict(String dictTypeCode) {
+		DictType dictType = dictTypeRepo.findByDictTypeCode(dictTypeCode);
+		for (DictItem dictItem : dictType.getDictItems()) {
+			dictItemRepo.delete(dictItem);
+		}
+		dictTypeRepo.delete(dictType);
 	}
 
 	/**

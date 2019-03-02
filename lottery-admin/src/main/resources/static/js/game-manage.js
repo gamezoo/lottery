@@ -419,12 +419,46 @@ var gameManage = new Vue({
 				numLocateName : '',
 				nums : '',
 				maxSelected : '',
-				hasFilterBtnFlag : true
+				hasFilterBtnFlag : true,
+				optionalNums : []
 			});
 		},
 
 		delNumLocate : function(index) {
 			this.editGamePlay.numLocates.splice(index, 1);
+		},
+
+		generateNum : function(numLocate, odds) {
+			if (numLocate.nums != null && numLocate.nums != '') {
+				var optionalNums = [];
+				var numSplit = numLocate.nums.split(',');
+				for (var i = 0; i < numSplit.length; i++) {
+					optionalNums.push({
+						num : numSplit[i],
+						odds : odds
+					});
+				}
+				numLocate.optionalNums = optionalNums;
+			} else {
+				numLocate.optionalNums = [];
+			}
+		},
+
+		generateNumAndShowNumDetails : function(numLocate) {
+			numLocate.showDetails = true;
+			this.generateNum(numLocate, '');
+		},
+
+		/**
+		 * 显示号码明细
+		 */
+		showNumDetails : function(numLocate) {
+			numLocate.showDetails = !numLocate.showDetails;
+			if (this.editGamePlay.oddsMode == '2' && numLocate.optionalNums.length == 0) {
+				if (numLocate.showDetails) {
+					this.generateNum(numLocate, '');
+				}
+			}
 		},
 
 		addOrUpdateGamePlay : function() {
@@ -438,7 +472,15 @@ var gameManage = new Vue({
 				});
 				return;
 			}
-			if (editGamePlay.odds == null || editGamePlay.odds == '') {
+			if (editGamePlay.oddsMode == null || editGamePlay.oddsMode == '') {
+				layer.alert('请选择赔率模式', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			if (editGamePlay.oddsMode == '1' && (editGamePlay.odds == null || editGamePlay.odds == '')) {
 				layer.alert('请输入赔率', {
 					title : '提示',
 					icon : 7,
@@ -505,13 +547,39 @@ var gameManage = new Vue({
 					});
 					return;
 				}
-				if (numLocate.hasFilterBtnFlag == null || numLocate.hasFilterBtnFlag == '') {
+				if (numLocate.hasFilterBtnFlag == null) {
 					layer.alert('请选择是否显示快捷按钮', {
 						title : '提示',
 						icon : 7,
 						time : 3000
 					});
 					return;
+				}
+
+				if (editGamePlay.oddsMode == '1') {
+					that.generateNum(numLocate, editGamePlay.odds);
+				}
+				if (editGamePlay.oddsMode == '2') {
+					var optionalNums = numLocate.optionalNums;
+					if (optionalNums.length == 0) {
+						layer.alert('请点击号码明细下拉菜单设置各个号码的赔率', {
+							title : '提示',
+							icon : 7,
+							time : 3000
+						});
+						return;
+					}
+					for (var j = 0; j < optionalNums.length; j++) {
+						var optionalNum = optionalNums[j];
+						if (optionalNum.odds == null || optionalNum.odds == '') {
+							layer.alert('请设置各个号码的赔率', {
+								title : '提示',
+								icon : 7,
+								time : 3000
+							});
+							return;
+						}
+					}
 				}
 			}
 
