@@ -25,7 +25,7 @@ var issueManage = new Vue({
 
 		loadGameDictItem : function() {
 			var that = this;
-			that.$http.get('/dict/findDictItemInCache', {
+			that.$http.get('/dictconfig/findDictItemInCache', {
 				params : {
 					dictTypeCode : 'game'
 				}
@@ -36,7 +36,7 @@ var issueManage = new Vue({
 
 		loadIssueStateDictItem : function() {
 			var that = this;
-			that.$http.get('/dict/findDictItemInCache', {
+			that.$http.get('/dictconfig/findDictItemInCache', {
 				params : {
 					dictTypeCode : 'issueState'
 				}

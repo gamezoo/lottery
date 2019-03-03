@@ -25,7 +25,7 @@ var withdrawRecordVM = new Vue({
 		 */
 		loadWithdrawRecordStateDictItem : function() {
 			var that = this;
-			that.$http.get('/dict/findDictItemInCache', {
+			that.$http.get('/dictconfig/findDictItemInCache', {
 				params : {
 					dictTypeCode : 'withdrawRecordState'
 				}

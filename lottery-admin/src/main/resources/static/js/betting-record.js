@@ -22,7 +22,7 @@ var bettingRecordVM = new Vue({
 
 		loadGameDictItem : function() {
 			var that = this;
-			that.$http.get('/dict/findDictItemInCache', {
+			that.$http.get('/dictconfig/findDictItemInCache', {
 				params : {
 					dictTypeCode : 'game'
 				}
@@ -33,7 +33,7 @@ var bettingRecordVM = new Vue({
 
 		loadBettingOrderStateDictItem : function() {
 			var that = this;
-			that.$http.get('/dict/findDictItemInCache', {
+			that.$http.get('/dictconfig/findDictItemInCache', {
 				params : {
 					dictTypeCode : 'bettingOrderState'
 				}

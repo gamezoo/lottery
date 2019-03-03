@@ -35,16 +35,6 @@ public class ConfigItem {
 	private String id;
 
 	/**
-	 * 配置项类型code
-	 */
-	private String configTypeCode;
-
-	/**
-	 * 配置项类型名称
-	 */
-	private String configTypeName;
-	
-	/**
 	 * 配置项code
 	 */
 	private String configCode;

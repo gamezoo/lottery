@@ -217,7 +217,7 @@ var ssc = new Vue({
 		},
 
 		/**
-		 * 选择全部奇数号球
+		 * 选择全部单数号球
 		 */
 		selectOddNum : function(index) {
 			var nums = this.numLocates[index].nums;
@@ -228,7 +228,7 @@ var ssc = new Vue({
 		},
 
 		/**
-		 * 选择全部偶数号球
+		 * 选择全部双数号球
 		 */
 		selectEvenNum : function(index) {
 			var nums = this.numLocates[index].nums;
@@ -446,7 +446,7 @@ var ssc = new Vue({
 				if (selectedBalls[i].length == 0) {
 					selectedNos.push('-');
 				} else {
-					selectedNos.push(selectedBalls[i].join(''));
+					selectedNos.push(selectedBalls[i].join('_'));
 				}
 			}
 			var preBettingRecords = [ {

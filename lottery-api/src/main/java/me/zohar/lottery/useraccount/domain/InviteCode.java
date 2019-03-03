@@ -78,7 +78,7 @@ public class InviteCode {
 		inviteCode.setCode(code);
 		inviteCode.setCreateTime(new Date());
 		inviteCode.setPeriodOfValidity(DateUtil.offset(inviteCode.getCreateTime(), DateField.SECOND,
-				Integer.parseInt(ConfigHolder.getConfigValue("inviteCode", "effectiveDuration"))));
+				Integer.parseInt(ConfigHolder.getConfigValue("inviteCode.effectiveDuration"))));
 		inviteCode.setUserAccountId(userAccountId);
 		return inviteCode;
 	}

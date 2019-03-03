@@ -243,7 +243,6 @@
 
 .betting-main {
 	padding-top: 7px;
-	padding-right: 7px;
 }
 
 .play-category {
@@ -303,7 +302,7 @@
 .num-locate-name {
 	float: left;
 	height: 38px;
-	width: 80px;
+	width: 100px;
 	line-height: 38px;
 	text-align: center;
 	color: #666;
@@ -327,7 +326,7 @@
 	display: flex;
 	-ms-flex-wrap: wrap;
 	flex-wrap: wrap;
-	max-width: calc(100% - 80px);
+	max-width: calc(100% - 100px);
 	padding: 2px 0;
 }
 

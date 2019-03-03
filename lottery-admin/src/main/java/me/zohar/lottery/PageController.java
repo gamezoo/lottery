@@ -85,5 +85,15 @@ public class PageController {
 	public String withdrawRecord() {
 		return "withdraw-record";
 	}
+	
+	/**
+	 * 配置项管理
+	 * 
+	 * @return
+	 */
+	@GetMapping("/config-manage")
+	public String configManage() {
+		return "config-manage";
+	}
 
 }

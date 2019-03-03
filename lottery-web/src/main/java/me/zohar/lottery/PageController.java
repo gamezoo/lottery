@@ -57,6 +57,16 @@ public class PageController {
 	}
 
 	/**
+	 * 江西11选5
+	 * 
+	 * @return
+	 */
+	@GetMapping("/jx11x5")
+	public String jx11x5() {
+		return "jx11x5";
+	}
+
+	/**
 	 * 个人中心
 	 * 
 	 * @return

@@ -14,11 +14,11 @@ public class ConfigHolder {
 	}
 
 	public static void putConfig(ConfigItemVO configItem) {
-		configMap.put(configItem.getConfigTypeCode() + "_" + configItem.getConfigCode(), configItem);
+		configMap.put(configItem.getConfigCode(), configItem);
 	}
 
-	public static String getConfigValue(String configTypeCode, String configItemCode) {
-		ConfigItemVO configItemVO = configMap.get(configTypeCode + "_" + configItemCode);
+	public static String getConfigValue(String configItemCode) {
+		ConfigItemVO configItemVO = configMap.get(configItemCode);
 		if (configItemVO == null) {
 			return null;
 		}

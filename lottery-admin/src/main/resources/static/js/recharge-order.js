@@ -23,7 +23,7 @@ var rechargeOrderVM = new Vue({
 		 */
 		loadRechargeWayDictItem : function() {
 			var that = this;
-			that.$http.get('/dict/findDictItemInCache', {
+			that.$http.get('/dictconfig/findDictItemInCache', {
 				params : {
 					dictTypeCode : 'rechargeWay'
 				}
@@ -37,7 +37,7 @@ var rechargeOrderVM = new Vue({
 		 */
 		loadRechargeOrderStateDictItem : function() {
 			var that = this;
-			that.$http.get('/dict/findDictItemInCache', {
+			that.$http.get('/dictconfig/findDictItemInCache', {
 				params : {
 					dictTypeCode : 'rechargeOrderState'
 				}

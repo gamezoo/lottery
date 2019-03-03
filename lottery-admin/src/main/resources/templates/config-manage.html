@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>配置项管理</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.bootcss.com/dayjs/1.7.8/dayjs.min.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/locale/bootstrap-table-zh-CN.min.js"></script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+</style>
+</head>
+
+<body>
+	<div th:replace="common/header::html"></div>
+	<div id="config-manage" v-cloak>
+		<form class="form-inline common-query-cond-form" action="#">
+			<div class="form-group common-query-cond">
+				<label>配置项code:</label><input type="text" class="form-control" v-model="configCode">
+			</div>
+			<div class="form-group common-query-cond">
+				<label>配置项名称:</label><input type="text" class="form-control" v-model="configName">
+			</div>
+			<button type="button" class="btn btn-danger" v-on:click="refreshTable">搜索</button>
+		</form>
+		<form class="form-inline common-query-cond-form float-right" action="#">
+			<button type="button" class="btn btn-info " v-on:click="openAddConfigModal">新增配置项</button>
+		</form>
+		<table class="common-table config-manage-table"></table>
+
+		<div v-if="addOrUpdateConfigFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog add-or-update-game-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">{{configActionTitle}}</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="addOrUpdateConfigFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<form>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>配置项code:</label> <input type="text" class="form-control" v-model="editConfig.configCode">
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>配置项名称:</label> <input type="text" class="form-control" v-model="editConfig.configName">
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>配置项值:</label>
+											<textarea class="form-control" rows="3" v-model="editConfig.configValue"></textarea>
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="addOrUpdateConfig">保存</button>
+								<button type="button" class="btn btn-sm" v-on:click="addOrUpdateConfigFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="/js/config-manage.js"></script>
+</body>
+</html>

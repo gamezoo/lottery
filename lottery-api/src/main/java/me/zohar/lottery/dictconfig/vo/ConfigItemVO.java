@@ -1,28 +1,22 @@
 package me.zohar.lottery.dictconfig.vo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.BeanUtils;
 
+import cn.hutool.core.collection.CollectionUtil;
 import lombok.Data;
 import me.zohar.lottery.dictconfig.domain.ConfigItem;
 
 @Data
 public class ConfigItemVO {
-	
+
 	/**
 	 * 主键id
 	 */
 	private String id;
 
-	/**
-	 * 配置项类型code
-	 */
-	private String configTypeCode;
-
-	/**
-	 * 配置项类型名称
-	 */
-	private String configTypeName;
-	
 	/**
 	 * 配置项code
 	 */
@@ -32,12 +26,23 @@ public class ConfigItemVO {
 	 * 配置项名称
 	 */
 	private String configName;
-	
+
 	/**
 	 * 配置项值
 	 */
 	private String configValue;
-	
+
+	public static List<ConfigItemVO> convertFor(List<ConfigItem> configItems) {
+		if (CollectionUtil.isEmpty(configItems)) {
+			return new ArrayList<>();
+		}
+		List<ConfigItemVO> vos = new ArrayList<>();
+		for (ConfigItem configItem : configItems) {
+			vos.add(convertFor(configItem));
+		}
+		return vos;
+	}
+
 	public static ConfigItemVO convertFor(ConfigItem configItem) {
 		if (configItem == null) {
 			return null;

@@ -5,7 +5,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import me.zohar.lottery.constants.GameCode;
+import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.issue.service.IssueService;
 
 @Component
@@ -19,7 +19,7 @@ public class UpdateCqsscStateTask {
 	public void execute() {
 		try {
 			log.info("更新重庆时时彩状态定时任务start");
-			issueService.updateGameCurrentIssueState(GameCode.重庆时时彩);
+			issueService.updateGameCurrentIssueState(Constant.游戏_重庆时时彩);
 			log.info("更新重庆时时彩状态定时任务end");
 		} catch (Exception e) {
 			log.error("更新重庆时时彩状态定时任务发生异常", e);

@@ -19,7 +19,7 @@ var accountChangeLogVM = new Vue({
 	methods : {
 		loadGameDictItem : function() {
 			var that = this;
-			that.$http.get('/dict/findDictItemInCache', {
+			that.$http.get('/dictconfig/findDictItemInCache', {
 				params : {
 					dictTypeCode : 'game'
 				}
@@ -33,7 +33,7 @@ var accountChangeLogVM = new Vue({
 		 */
 		loadAccountChangeTypeDictItem : function() {
 			var that = this;
-			that.$http.get('/dict/findDictItemInCache', {
+			that.$http.get('/dictconfig/findDictItemInCache', {
 				params : {
 					dictTypeCode : 'accountChangeType'
 				}

@@ -21,7 +21,7 @@ import me.zohar.lottery.issue.vo.IssueVO;
 
 @Service
 @Slf4j
-public class XjsscService {
+public class Jx11x5Service {
 
 	@Autowired
 	private IssueService issueService;
@@ -34,14 +34,14 @@ public class XjsscService {
 		if (latestWithInterface == null) {
 			return;
 		}
-		issueService.syncLotteryNum(Constant.游戏_新疆时时彩, latestWithInterface.getIssueNum(),
+		issueService.syncLotteryNum(Constant.游戏_江西11选5, latestWithInterface.getIssueNum(),
 				latestWithInterface.getLotteryNum());
 	}
 
 	public IssueVO getLatestLotteryResultWithKjh() {
 		try {
 			Map<String, Object> paramMap = new HashMap<>();
-			paramMap.put("lotterytype", "GP_SSC_XinJiang");
+			paramMap.put("lotterytype", "GP_11x5_JiangXi");
 			String result = HttpUtil.post("https://kjh.55128.cn/k/Template/_getKjData", paramMap);
 			JSONObject resultJsonObject = JSON.parseObject(result);
 			long issueNum = Long.parseLong("20" + resultJsonObject.getString("Term"));
@@ -58,7 +58,7 @@ public class XjsscService {
 					.lotteryNum(lotteryNum).build();
 			return lotteryResult;
 		} catch (Exception e) {
-			log.error("通过开奖助手获取新疆时时彩最新开奖结果发生异常", e);
+			log.error("通过开奖助手获取江西11选5最新开奖结果发生异常", e);
 		}
 		return null;
 	}

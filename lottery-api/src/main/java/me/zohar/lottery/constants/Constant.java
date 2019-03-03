@@ -67,9 +67,17 @@ public class Constant {
 	public static final String 提现记录状态_审核不通过 = "3";
 
 	public static final String 提现记录状态_已到账 = "4";
-	
+
 	public static final String 赔率模式_固定赔率 = "1";
-	
+
 	public static final String 赔率模式_不固定赔率 = "2";
+
+	public static final String 游戏_广东11选5 = "GD11X5";
+
+	public static final String 游戏_江西11选5 = "JX11X5";
+
+	public static final String 游戏_重庆时时彩 = "CQSSC";
+
+	public static final String 游戏_新疆时时彩 = "XJSSC";
 
 }

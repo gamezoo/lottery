@@ -19,12 +19,9 @@ public class ConfigTest {
 	@Autowired
 	private ConfigItemRepo configItemRepo;
 
-	public ConfigItem buildConfigItem(String configTypeCode, String configTypeName, String configCode,
-			String configName, String configValue) {
+	public ConfigItem buildConfigItem(String configCode, String configName, String configValue) {
 		ConfigItem configItem = new ConfigItem();
 		configItem.setId(IdUtils.getId());
-		configItem.setConfigTypeCode(configTypeCode);
-		configItem.setConfigTypeName(configTypeName);
 		configItem.setConfigCode(configCode);
 		configItem.setConfigName(configName);
 		configItem.setConfigValue(configValue);
@@ -35,25 +32,24 @@ public class ConfigTest {
 	@Transactional(readOnly = false)
 	@Rollback(false)
 	public void initMuspayConfig() {
-		configItemRepo.save(buildConfigItem("muspay", "muspay聚合支付", "payUrl", "支付接口地址", "https://api.xxv.cn/Pay"));
-//		configItemRepo.save(buildConfigItem("common", "通用配置", "site", "地址", "http://5qp7qa.natappfree.cc"));
-//		configItemRepo.save(buildConfigItem("muspay", "muspay聚合支付", "fxid", "商户ID", "2019505"));
-//		configItemRepo
-//				.save(buildConfigItem("muspay", "muspay聚合支付", "secret", "密钥", "jCjWOTvNpXShjyeZEaaSyaNHXKGWeMCu"));
+		configItemRepo.save(buildConfigItem("muspay.asynNoticeUrl", "muspay聚合支付-异步通知地址",
+				"http://37shwt.natappfree.cc/recharge/muspayCallback"));
+		configItemRepo.save(buildConfigItem("muspay.ssynNoticeUrl", "muspay聚合支付-同步通知地址",
+				"http://37shwt.natappfree.cc/pay-success"));
 	}
 
 	@Test
 	@Transactional(readOnly = false)
 	@Rollback(false)
 	public void initRechargeConfig() {
-		configItemRepo.save(buildConfigItem("recharge", "充值", "effectiveDuration", "订单有效时长", "300"));
+		configItemRepo.save(buildConfigItem("recharge.effectiveDuration", "充值-订单有效时长", "300"));
 	}
-	
+
 	@Test
 	@Transactional(readOnly = false)
 	@Rollback(false)
 	public void initInviteCodeConfig() {
-		configItemRepo.save(buildConfigItem("inviteCode", "邀请码", "effectiveDuration", "邀请码有效时长", "2592000"));
+		configItemRepo.save(buildConfigItem("inviteCode.effectiveDuration", "邀请码-邀请码有效时长", "2592000"));
 	}
 
 }

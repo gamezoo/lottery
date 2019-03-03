@@ -29,6 +29,7 @@
 	padding-right: 25px;
 	padding-top: 8px;
 	padding-bottom: 8px;
+	display: inline-flex;
 }
 
 .common-query-cond {

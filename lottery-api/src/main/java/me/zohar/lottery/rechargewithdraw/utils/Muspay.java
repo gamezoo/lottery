@@ -19,10 +19,6 @@ public class Muspay {
 
 	public static final String 发起支付成功状态 = "1";
 
-	public static final String 异步通知地址 = ConfigHolder.getConfigValue("common", "site") + "/recharge/muspayCallback";
-
-	public static final String 同步通知地址 = ConfigHolder.getConfigValue("common", "site") + "/pay-success";
-
 	/**
 	 * 生成回调的签名
 	 * 
@@ -35,8 +31,8 @@ public class Muspay {
 	 * @return
 	 */
 	public static String generateCallbackSign(String fxstatus, String fxddh, Double fxfee) {
-		String fxid = ConfigHolder.getConfigValue("muspay", "fxid");
-		String secret = ConfigHolder.getConfigValue("muspay", "secret");
+		String fxid = ConfigHolder.getConfigValue("muspay.fxid");
+		String secret = ConfigHolder.getConfigValue("muspay.secret");
 		String signature = DigestUtil.md5Hex(fxstatus + fxid + fxddh + fxfee + secret);
 		return signature;
 	}
@@ -51,9 +47,9 @@ public class Muspay {
 	 * @return
 	 */
 	public static String generateRequestSign(String fxddh, Double fxfee) {
-		String fxid = ConfigHolder.getConfigValue("muspay", "fxid");
-		String fxnotifyurl = 异步通知地址;
-		String secret = ConfigHolder.getConfigValue("muspay", "secret");
+		String fxid = ConfigHolder.getConfigValue("muspay.fxid");
+		String fxnotifyurl = ConfigHolder.getConfigValue("muspay.asynNoticeUrl");
+		String secret = ConfigHolder.getConfigValue("muspay.secret");
 		String signature = DigestUtil.md5Hex(fxid + fxddh + fxfee + fxnotifyurl + secret);
 		return signature;
 	}
@@ -68,18 +64,18 @@ public class Muspay {
 	 */
 	public static String sendRequest(String fxddh, Double fxfee, String fxpay) {
 		Map<String, Object> params = new HashMap<>();
-		params.put("fxid", ConfigHolder.getConfigValue("muspay", "fxid"));
+		params.put("fxid", ConfigHolder.getConfigValue("muspay.fxid"));
 		params.put("fxddh", fxddh);
 		params.put("fxdesc", "订单" + fxfee);
 		params.put("fxfee", fxfee);
-		params.put("fxnotifyurl", 异步通知地址);
-		params.put("fxbackurl", 同步通知地址);
+		params.put("fxnotifyurl", ConfigHolder.getConfigValue("muspay.asynNoticeUrl"));
+		params.put("fxbackurl", ConfigHolder.getConfigValue("muspay.ssynNoticeUrl"));
 		params.put("fxpay", fxpay);
 		params.put("fxnotifystyle", "2");
 		params.put("fxsmstyle", "1");
 		params.put("fxsign", generateRequestSign(fxddh, fxfee));
 		params.put("fxip", "192.168.1.1");
-		String result = HttpUtil.post(ConfigHolder.getConfigValue("muspay", "payUrl"), params);
+		String result = HttpUtil.post(ConfigHolder.getConfigValue("muspay.payUrl"), params);
 		System.err.println(result);
 		if (StrUtil.isEmpty(result)) {
 			throw new BizException(BizError.发起支付异常);

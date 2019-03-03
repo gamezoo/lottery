@@ -212,6 +212,7 @@ public class DictTest {
 
 		dictItemRepo.save(buildDictItem("CQSSC", "重庆时时彩", 1d, dictType.getId()));
 		dictItemRepo.save(buildDictItem("XJSSC", "新疆时时彩", 2d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("JX11X5", "江西11选5", 2d, dictType.getId()));
 	}
 
 	public void deleteDict(String dictTypeCode) {

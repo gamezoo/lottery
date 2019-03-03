@@ -51,7 +51,7 @@ public class RechargeOrderParam {
 		po.setId(IdUtils.getId());
 		po.setSubmitTime(new Date());
 		po.setUsefulTime(DateUtil.offset(po.getSubmitTime(), DateField.SECOND,
-				Integer.parseInt(ConfigHolder.getConfigValue("recharge", "effectiveDuration"))));
+				Integer.parseInt(ConfigHolder.getConfigValue("recharge.effectiveDuration"))));
 		po.setOrderNo(po.getId());
 		po.setOrderState(Constant.充值订单状态_待支付);
 		return po;

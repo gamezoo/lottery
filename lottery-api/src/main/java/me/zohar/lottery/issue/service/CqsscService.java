@@ -27,7 +27,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import me.zohar.lottery.common.utils.ThreadPoolUtil;
-import me.zohar.lottery.constants.GameCode;
+import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.issue.vo.IssueVO;
 
 @Service
@@ -45,7 +45,7 @@ public class CqsscService {
 		if (latestWithInterface == null) {
 			return;
 		}
-		issueService.syncLotteryNum(GameCode.重庆时时彩, latestWithInterface.getIssueNum(),
+		issueService.syncLotteryNum(Constant.游戏_重庆时时彩, latestWithInterface.getIssueNum(),
 				latestWithInterface.getLotteryNum());
 	}
 
