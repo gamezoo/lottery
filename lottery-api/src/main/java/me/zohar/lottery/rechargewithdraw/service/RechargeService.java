@@ -15,8 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,9 +41,9 @@ import me.zohar.lottery.useraccount.repo.UserAccountRepo;
 
 @Service
 public class RechargeService {
-
+	
 	@Autowired
-	private KafkaTemplate<String, String> kafkaTemplate;
+	private StringRedisTemplate redisTemplate;
 
 	@Autowired
 	private RechargeOrderRepo rechargeOrderRepo;
@@ -65,7 +64,7 @@ public class RechargeService {
 			throw new BizException(BizError.签名不正确);
 		}
 		long payTimestamp = param.getFxtime() * 1000;
-		checkOrder(param.getFxddh(), param.getFxfee(), new Date(payTimestamp));
+		checkOrder(param.getFxddh(), Double.parseDouble(param.getFxfee()), new Date(payTimestamp));
 	}
 
 	/**
@@ -87,13 +86,12 @@ public class RechargeService {
 		order.setDealTime(new Date());
 		order.setOrderState(Constant.充值订单状态_已支付);
 		rechargeOrderRepo.save(order);
-		kafkaTemplate.send(Constant.充值订单_已支付订单单号, order.getOrderNo());
+		redisTemplate.opsForList().leftPush(Constant.充值订单_已支付订单单号, order.getOrderNo());
 	}
 
 	/**
 	 * 充值订单结算
 	 */
-	@KafkaListener(topics = Constant.充值订单_已支付订单单号)
 	@Transactional
 	public void rechargeOrderSettlement(String orderNo) {
 		RechargeOrder rechargeOrder = rechargeOrderRepo.findByOrderNo(orderNo);
@@ -116,7 +114,7 @@ public class RechargeService {
 	public void rechargeOrderAutoSettlement() {
 		List<RechargeOrder> orders = rechargeOrderRepo.findByPayTimeIsNotNullAndSettlementTimeIsNullOrderBySubmitTime();
 		for (RechargeOrder order : orders) {
-			kafkaTemplate.send(Constant.充值订单_已支付订单单号, order.getOrderNo());
+			redisTemplate.opsForList().leftPush(Constant.充值订单_已支付订单单号, order.getOrderNo());
 		}
 	}
 
@@ -126,8 +124,7 @@ public class RechargeService {
 	@Transactional
 	public void orderTimeoutDeal() {
 		Date now = new Date();
-		List<RechargeOrder> orders = rechargeOrderRepo
-				.findByOrderStateAndUsefulTimeLessThan(Constant.充值订单状态_待支付, now);
+		List<RechargeOrder> orders = rechargeOrderRepo.findByOrderStateAndUsefulTimeLessThan(Constant.充值订单状态_待支付, now);
 		for (RechargeOrder order : orders) {
 			order.setDealTime(now);
 			order.setOrderState(Constant.充值订单状态_超时取消);

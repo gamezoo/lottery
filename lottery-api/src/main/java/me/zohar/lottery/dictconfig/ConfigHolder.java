@@ -1,24 +1,29 @@
 package me.zohar.lottery.dictconfig;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import me.zohar.lottery.dictconfig.service.ConfigService;
 import me.zohar.lottery.dictconfig.vo.ConfigItemVO;
 
+@Component
 public class ConfigHolder {
 
-	public static Map<String, ConfigItemVO> configMap = new HashMap<>();
+	@Autowired
+	private ConfigService configService;
 
-	public static void clearConfig() {
-		configMap.clear();
-	}
+	private static ConfigHolder configHolder;
 
-	public static void putConfig(ConfigItemVO configItem) {
-		configMap.put(configItem.getConfigCode(), configItem);
+	@PostConstruct
+	public void init() {
+		configHolder = this;
+		configHolder.configService = this.configService;
 	}
 
 	public static String getConfigValue(String configItemCode) {
-		ConfigItemVO configItemVO = configMap.get(configItemCode);
+		ConfigItemVO configItemVO = configHolder.configService.findConfigItemByConfigCode(configItemCode);
 		if (configItemVO == null) {
 			return null;
 		}

@@ -1,30 +1,32 @@
 package me.zohar.lottery.dictconfig;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import me.zohar.lottery.dictconfig.service.DictService;
 import me.zohar.lottery.dictconfig.vo.DictItemVO;
 
+@Component
 public class DictHolder {
 
-	public static Map<String, Map<String, DictItemVO>> dictMap = new HashMap<>();
+	@Autowired
+	private DictService dictService;
 
-	public static void clearDict() {
-		dictMap.clear();
-	}
+	private static DictHolder dictHolder;
 
-	public static void putDict(String key, Map<String, DictItemVO> dictItemMap) {
-		dictMap.put(key, dictItemMap);
+	@PostConstruct
+	public void init() {
+		dictHolder = this;
+		dictHolder.dictService = this.dictService;
 	}
 
 	public static String getDictItemName(String dictTypeCode, String dictItemCode) {
-		Map<String, DictItemVO> dictItemMap = dictMap.get(dictTypeCode);
-		if (dictItemMap == null) {
-			return null;
-		}
-		DictItemVO dictItemVO = dictItemMap.get(dictItemCode);
+		DictItemVO dictItemVO = dictHolder.dictService.findDictItemByDictTypeCodeAndDictItemCode(dictTypeCode,
+				dictItemCode);
 		if (dictItemVO == null) {
 			return null;
 		}
@@ -32,11 +34,7 @@ public class DictHolder {
 	}
 
 	public static List<DictItemVO> findDictItem(String dictTypeCode) {
-		Map<String, DictItemVO> dictItemMap = dictMap.get(dictTypeCode);
-		if (dictItemMap == null) {
-			return new ArrayList<>();
-		}
-		return new ArrayList<>(dictItemMap.values());
+		return dictHolder.dictService.findDictItemByDictTypeCode(dictTypeCode);
 	}
 
 }

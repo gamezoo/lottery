@@ -1,9 +1,15 @@
 package me.zohar.lottery.issue.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +22,7 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
+import me.zohar.lottery.common.utils.ThreadPoolUtil;
 import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.issue.vo.IssueVO;
 
@@ -30,12 +37,52 @@ public class XjsscService {
 	 * 同步当前时间的开奖号码
 	 */
 	public void syncLotteryNum() {
-		IssueVO latestWithInterface = getLatestLotteryResultWithKjh();
+		IssueVO latestWithInterface = getLatestLotteryResultWithApi();
 		if (latestWithInterface == null) {
 			return;
 		}
 		issueService.syncLotteryNum(Constant.游戏_新疆时时彩, latestWithInterface.getIssueNum(),
 				latestWithInterface.getLotteryNum());
+	}
+
+	public IssueVO getLatestLotteryResultWithApi() {
+		List<IssueVO> issues = new ArrayList<>();
+		CountDownLatch countlatch = new CountDownLatch(1);
+		List<Future<IssueVO>> futures = new ArrayList<>();
+		futures.add(ThreadPoolUtil.getPool().submit(() -> {
+			return getLatestLotteryResultWithKjh();
+		}));
+		for (Future<IssueVO> future : futures) {
+			try {
+				IssueVO issueVO = future.get(3, TimeUnit.SECONDS);
+				issues.add(issueVO);
+			} catch (InterruptedException | ExecutionException | TimeoutException e) {
+				log.error("异步future接口出现错误", e);
+			}
+			countlatch.countDown();
+		}
+		try {
+			countlatch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		issues.sort(new Comparator<IssueVO>() {
+
+			@Override
+			public int compare(IssueVO o1, IssueVO o2) {
+				if (o1 == null) {
+					return -1;
+				}
+				if (o2 == null) {
+					return -1;
+				}
+				if (o1 != null && o2 != null) {
+					return o2.getIssueNum().compareTo(o1.getIssueNum());
+				}
+				return 0;
+			}
+		});
+		return issues.isEmpty() ? null : issues.get(0);
 	}
 
 	public IssueVO getLatestLotteryResultWithKjh() {

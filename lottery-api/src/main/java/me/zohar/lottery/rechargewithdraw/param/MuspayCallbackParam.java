@@ -1,6 +1,5 @@
 package me.zohar.lottery.rechargewithdraw.param;
 
-import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -43,8 +42,7 @@ public class MuspayCallbackParam {
 	 * 支付金额
 	 */
 	@NotNull(message = "fxfee不能为空")
-	@DecimalMin(value = "0", inclusive = false, message = "fxfee不能少于或等于0")
-	private Double fxfee;
+	private String fxfee;
 
 	/**
 	 * 附加信息

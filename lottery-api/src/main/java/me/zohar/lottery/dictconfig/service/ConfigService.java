@@ -18,11 +18,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.alicp.jetcache.anno.Cached;
+
 import cn.hutool.core.util.StrUtil;
-import lombok.extern.slf4j.Slf4j;
 import me.zohar.lottery.common.valid.ParamValid;
 import me.zohar.lottery.common.vo.PageResult;
-import me.zohar.lottery.dictconfig.ConfigHolder;
 import me.zohar.lottery.dictconfig.domain.ConfigItem;
 import me.zohar.lottery.dictconfig.param.ConfigItemQueryCondParam;
 import me.zohar.lottery.dictconfig.param.ConfigParam;
@@ -30,7 +30,6 @@ import me.zohar.lottery.dictconfig.repo.ConfigItemRepo;
 import me.zohar.lottery.dictconfig.vo.ConfigItemVO;
 
 @Service
-@Slf4j
 public class ConfigService {
 
 	@Autowired
@@ -62,6 +61,12 @@ public class ConfigService {
 		return pageResult;
 	}
 
+	@Cached(name = "configItem_", key = "#configCode", expire = 3600)
+	@Transactional(readOnly = true)
+	public ConfigItemVO findConfigItemByConfigCode(String configCode) {
+		return ConfigItemVO.convertFor(configItemRepo.findByConfigCode(configCode));
+	}
+
 	@Transactional(readOnly = true)
 	public ConfigItemVO findConfigItemById(String id) {
 		return ConfigItemVO.convertFor(configItemRepo.getOne(id));
@@ -87,19 +92,6 @@ public class ConfigService {
 	@Transactional
 	public void delConfigById(@NotBlank String id) {
 		configItemRepo.deleteById(id);
-	}
-
-	/**
-	 * 同步配置到缓存
-	 */
-	@Transactional(readOnly = true)
-	public void syncConfigToCache() {
-		log.warn("同步配置");
-		ConfigHolder.clearConfig();
-		List<ConfigItem> configItems = configItemRepo.findAll();
-		for (ConfigItem configItem : configItems) {
-			ConfigHolder.putConfig(ConfigItemVO.convertFor(configItem));
-		}
 	}
 
 }

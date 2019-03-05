@@ -18,7 +18,7 @@ public class Muspay {
 	public static final String 支付成功状态 = "1";
 
 	public static final String 发起支付成功状态 = "1";
-
+	
 	/**
 	 * 生成回调的签名
 	 * 
@@ -30,7 +30,7 @@ public class Muspay {
 	 *            支付金额
 	 * @return
 	 */
-	public static String generateCallbackSign(String fxstatus, String fxddh, Double fxfee) {
+	public static String generateCallbackSign(String fxstatus, String fxddh, String fxfee) {
 		String fxid = ConfigHolder.getConfigValue("muspay.fxid");
 		String secret = ConfigHolder.getConfigValue("muspay.secret");
 		String signature = DigestUtil.md5Hex(fxstatus + fxid + fxddh + fxfee + secret);

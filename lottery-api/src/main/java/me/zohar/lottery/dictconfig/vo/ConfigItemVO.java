@@ -1,5 +1,6 @@
 package me.zohar.lottery.dictconfig.vo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,12 @@ import lombok.Data;
 import me.zohar.lottery.dictconfig.domain.ConfigItem;
 
 @Data
-public class ConfigItemVO {
+public class ConfigItemVO implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * 主键id

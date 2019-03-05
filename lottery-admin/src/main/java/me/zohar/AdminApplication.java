@@ -1,22 +1,17 @@
 package me.zohar;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import me.zohar.lottery.dictconfig.service.ConfigService;
-import me.zohar.lottery.dictconfig.service.DictService;
+import com.alicp.jetcache.anno.config.EnableCreateCacheAnnotation;
+import com.alicp.jetcache.anno.config.EnableMethodCache;
 
 @SpringBootApplication
+@EnableMethodCache(basePackages = "me.zohar.lottery")
+@EnableCreateCacheAnnotation
 public class AdminApplication implements ApplicationRunner {
-
-	@Autowired
-	private DictService dictService;
-
-	@Autowired
-	private ConfigService configService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(AdminApplication.class, args);
@@ -24,8 +19,6 @@ public class AdminApplication implements ApplicationRunner {
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
-		dictService.syncDictToCache();
-		configService.syncConfigToCache();
 	}
 
 }

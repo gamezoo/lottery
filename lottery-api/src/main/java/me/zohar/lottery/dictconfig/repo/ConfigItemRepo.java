@@ -7,4 +7,6 @@ import me.zohar.lottery.dictconfig.domain.ConfigItem;
 
 public interface ConfigItemRepo extends JpaRepository<ConfigItem, String>, JpaSpecificationExecutor<ConfigItem> {
 
+	ConfigItem findByConfigCode(String configCode);
+
 }

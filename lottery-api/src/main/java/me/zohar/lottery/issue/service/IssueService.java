@@ -6,8 +6,6 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,9 +47,6 @@ public class IssueService {
 
 	@Autowired
 	private StringRedisTemplate redisTemplate;
-
-	@Autowired
-	private KafkaTemplate<String, String> kafkaTemplate;
 
 	@Autowired
 	private IssueRepo issueRepo;
@@ -100,7 +95,7 @@ public class IssueService {
 			log.error("当前期号没有没有设置自动结算,结算失败.gameCode:{},issueNum:{}", gameCode, issueNum);
 			return;
 		}
-		kafkaTemplate.send(Constant.当前开奖期号ID, latestIssue.getId());
+		redisTemplate.opsForList().leftPush(Constant.当前开奖期号ID, latestIssue.getId());
 	}
 
 	/**
@@ -141,7 +136,6 @@ public class IssueService {
 	/**
 	 * 结算
 	 */
-	@KafkaListener(topics = Constant.当前开奖期号ID)
 	@Transactional
 	public void settlement(String issueId) {
 		Issue issue = issueRepo.getOne(issueId);
@@ -265,9 +259,8 @@ public class IssueService {
 
 						Issue issue = Issue.builder().id(IdUtils.getId()).gameCode(issueSetting.getGameCode())
 								.lotteryDate(lotteryDate).lotteryTime(endTime).issueNum(issueNum).startTime(startTime)
-								.endTime(endTime).state(Constant.期号状态_未开奖)
-								.automaticLottery(true).automaticSettlement(true)
-								.build();
+								.endTime(endTime).state(Constant.期号状态_未开奖).automaticLottery(true)
+								.automaticSettlement(true).build();
 						issueRepo.save(issue);
 					}
 					count += issueCount;
@@ -293,7 +286,7 @@ public class IssueService {
 		issueRepo.save(issue);
 
 		if (param.getAutoSettlementFlag()) {
-			kafkaTemplate.send(Constant.当前开奖期号ID, param.getId());
+			redisTemplate.opsForList().leftPush(Constant.当前开奖期号ID, param.getId());
 		}
 	}
 
@@ -308,7 +301,7 @@ public class IssueService {
 		if (!Constant.期号状态_已开奖.equals(issue.getState())) {
 			throw new BizException(BizError.开奖后才能结算);
 		}
-		kafkaTemplate.send(Constant.当前开奖期号ID, id);
+		redisTemplate.opsForList().leftPush(Constant.当前开奖期号ID, id);
 	}
 
 	@ParamValid

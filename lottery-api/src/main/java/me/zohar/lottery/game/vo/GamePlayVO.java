@@ -1,5 +1,6 @@
 package me.zohar.lottery.game.vo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,12 @@ import me.zohar.lottery.game.domain.GamePlay;
 import me.zohar.lottery.game.domain.NumLocate;
 
 @Data
-public class GamePlayVO {
+public class GamePlayVO implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * 主键id

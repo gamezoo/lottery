@@ -48,6 +48,10 @@ public class CqsscService {
 		issueService.syncLotteryNum(Constant.游戏_重庆时时彩, latestWithInterface.getIssueNum(),
 				latestWithInterface.getLotteryNum());
 	}
+	
+	public void test() {
+		
+	}
 
 	public IssueVO getLatestLotteryResultWithApi() {
 		List<IssueVO> issues = new ArrayList<>();

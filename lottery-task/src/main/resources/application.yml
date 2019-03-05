@@ -1,8 +1,6 @@
 server:
   port: 8081
-
 spring:
-  # 数据源
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/lottery?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
@@ -10,21 +8,11 @@ spring:
     driverClassName: com.mysql.cj.jdbc.Driver
   jpa:
     show-sql: true
-    # 自动生成表结构
     generate-ddl: true
     hibernate:
       ddl-auto: none
-      
   thymeleaf:
     cache: false
   redis:
     port: 6379
     host: localhost
-    
-  kafka:
-    consumer:
-      group-id: lottery
-
-
-
-

@@ -46,6 +46,7 @@ public class GameService {
 	@Autowired
 	private OptionalNumRepo optionalNumRepo;
 
+	
 	@Transactional(readOnly = true)
 	public List<GameVO> findAllGame() {
 		List<Game> games = gameRepo.findAll(Sort.by(Sort.Order.asc("orderNo")));

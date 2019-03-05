@@ -1,44 +1,33 @@
 package me.zohar.lottery.dictconfig.service;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.extern.slf4j.Slf4j;
-import me.zohar.lottery.dictconfig.DictHolder;
-import me.zohar.lottery.dictconfig.domain.DictItem;
-import me.zohar.lottery.dictconfig.domain.DictType;
-import me.zohar.lottery.dictconfig.repo.DictTypeRepo;
+import com.alicp.jetcache.anno.Cached;
+
+import me.zohar.lottery.dictconfig.repo.DictItemRepo;
 import me.zohar.lottery.dictconfig.vo.DictItemVO;
 
 @Service
-@Slf4j
 public class DictService {
 
 	@Autowired
-	private DictTypeRepo dictTypeRepo;
+	private DictItemRepo dictItemRepo;
 
-	/**
-	 * 同步数据字典到缓存
-	 */
+	@Cached(name = "dictItem_", key = "#dictTypeCode + '_' +  #dictItemCode", expire = 3600)
 	@Transactional(readOnly = true)
-	public void syncDictToCache() {
-		log.warn("同步数据字典");
-		DictHolder.clearDict();
-		List<DictType> dictTypes = dictTypeRepo.findAll();
-		for (DictType dictType : dictTypes) {
-			Map<String, DictItemVO> dictItemMap = new LinkedHashMap<>();
-			Set<DictItem> dictItems = dictType.getDictItems();
-			for (DictItem dictItem : dictItems) {
-				dictItemMap.put(dictItem.getDictItemCode(), DictItemVO.convertFor(dictItem));
-			}
-			DictHolder.putDict(dictType.getDictTypeCode(), dictItemMap);
-		}
+	public DictItemVO findDictItemByDictTypeCodeAndDictItemCode(String dictTypeCode, String dictItemCode) {
+		return DictItemVO
+				.convertFor(dictItemRepo.findByDictTypeDictTypeCodeAndDictItemCode(dictTypeCode, dictItemCode));
+	}
+
+	@Cached(name = "dictItems_", key = "#dictTypeCode", expire = 3600)
+	@Transactional(readOnly = true)
+	public List<DictItemVO> findDictItemByDictTypeCode(String dictTypeCode) {
+		return DictItemVO.convertFor(dictItemRepo.findByDictTypeDictTypeCodeOrderByOrderNo(dictTypeCode));
 	}
 
 }
