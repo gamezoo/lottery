@@ -1,10 +1,16 @@
 package me.zohar.lottery.constants;
 
 public class Constant {
+	
+	public static final String 账号类型_管理员 = "admin";
+	
+	public static final String 账号类型_代理 = "agent";
+	
+	public static final String 账号类型_会员 = "member";
 
-	public static final String 用户账号状态_启用 = "1";
+	public static final String 账号状态_启用 = "1";
 
-	public static final String 用户账号状态_禁用 = "2";
+	public static final String 账号状态_禁用 = "2";
 
 	public static final String 游戏状态_启用 = "1";
 

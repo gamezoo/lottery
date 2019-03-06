@@ -26,6 +26,12 @@ public class UserAccountEditParam {
 	private String realName;
 
 	/**
+	 * 账号类型
+	 */
+	@NotBlank
+	private String accountType;
+
+	/**
 	 * 状态
 	 */
 	@NotBlank

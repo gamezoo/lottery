@@ -115,6 +115,10 @@
 				 */
 				register : function() {
 					var that = this;
+					if (that.inviteCode == null || that.inviteCode == '') {
+						layer.alert('请输入邀请码');
+						return;
+					}
 					if (that.userName == null || that.userName == '') {
 						layer.alert('请输入用户名');
 						return;

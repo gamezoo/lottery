@@ -3,13 +3,20 @@ package me.zohar.lottery.useraccount.domain;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -45,6 +52,11 @@ public class UserAccount {
 	 * 真实姓名
 	 */
 	private String realName;
+
+	/**
+	 * 账号类型
+	 */
+	private String accountType;
 
 	/**
 	 * 登录密码
@@ -99,7 +111,16 @@ public class UserAccount {
 	/**
 	 * 邀请人id
 	 */
+	@Column(name = "inviter_id", length = 32)
 	private String inviterId;
+
+	/**
+	 * 邀请人
+	 */
+	@NotFound(action=NotFoundAction.IGNORE)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "inviter_id", updatable = false, insertable = false, foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	private UserAccount inviter;
 
 	/**
 	 * 乐观锁版本号

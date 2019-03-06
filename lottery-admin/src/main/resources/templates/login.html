@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>用户登录</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.bootcss.com/layer/2.3/layer.js"></script>
+<style type="text/css">
+@charset "UTF-8";
+
+[v-cloak] {
+	display: none;
+}
+
+body.my-login-page {
+	background-color: #f7f9fb;
+	font-size: 14px;
+}
+
+.my-login-page .card-wrapper {
+	width: 400px;
+	padding-top: 10%;
+}
+
+.my-login-page .card {
+	border-color: transparent;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, .05);
+}
+
+.my-login-page .card.fat {
+	padding: 10px;
+}
+
+.my-login-page .card .card-title {
+	margin-bottom: 30px;
+}
+
+.my-login-page .form-control {
+	border-width: 2.3px;
+}
+
+.my-login-page .form-group label {
+	width: 100%;
+}
+
+.my-login-page .btn.btn-block {
+	padding: 12px 10px;
+}
+
+.my-login-page .footer {
+	margin: 40px 0;
+	color: #888;
+	text-align: center;
+}
+
+@media screen and (max-width: 425px) {
+	.my-login-page .card-wrapper {
+		width: 90%;
+		margin: 0 auto;
+	}
+}
+
+@media screen and (max-width: 320px) {
+	.my-login-page .card.fat {
+		padding: 0;
+	}
+	.my-login-page .card.fat .card-body {
+		padding: 15px;
+	}
+}
+</style>
+</head>
+
+<body class="my-login-page">
+	<div class="container h-100" id="login" v-cloak>
+		<div class="row justify-content-md-center h-100">
+			<div class="card-wrapper">
+				<div class="card fat">
+					<div class="card-body">
+						<h4 class="card-title">用户登录</h4>
+						<form>
+							<div class="form-group">
+								<label for="email">用户名</label> <input type="text" class="form-control" v-model="userName">
+							</div>
+
+							<div class="form-group">
+								<label for="password">密码 </label> <input type="password" class="form-control" v-model="password" v-on:keyup.enter="login">
+							</div>
+							<div class="form-group m-0">
+								<button type="button" class="btn btn-primary btn-block" v-on:click="login">登录</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Vue.http.interceptors.push(function(request) {
+			return function(response) {
+				if (response.body.code != 200) {
+					response.ok = false;
+					layer.alert(response.body.msg, {
+						title : '提示',
+						icon : 7,
+						time : 3000
+					});
+				}
+			};
+		});
+
+		var loginVM = new Vue({
+			el : '#login',
+			data : {
+				userName : '',
+				password : '',
+			},
+			computed : {},
+			created : function() {
+			},
+			methods : {
+				login : function() {
+					var that = this;
+					if (that.userName == null || that.userName == '') {
+						layer.alert('请输入用户名');
+						return;
+					}
+					if (that.password == null || that.password == '') {
+						layer.alert('请输入密码');
+						return;
+					}
+					that.$http.post('/login', {
+						username : that.userName,
+						password : that.password
+					}, {
+						emulateJSON : true
+					}).then(function(res) {
+						window.location.href = '/account-manage';
+					});
+				}
+			}
+		});
+	</script>
+</body>
+</html>

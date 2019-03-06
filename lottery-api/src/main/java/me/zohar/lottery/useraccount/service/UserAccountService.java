@@ -181,6 +181,12 @@ public class UserAccountService {
 
 	@Transactional
 	public UserAccountInfoVO userAccountRegister(UserAccountRegisterParam param) {
+		InviteCode inviteCode = inviteCodeRepo.findTopByCodeAndPeriodOfValidityGreaterThanEqual(param.getInviteCode(),
+				new Date());
+		if (inviteCode == null) {
+			throw new BizException(BizError.邀请码不存在或已失效);
+		}
+
 		UserAccount userAccount = userAccountRepo.findByUserName(param.getUserName());
 		if (userAccount != null) {
 			throw new BizException(BizError.用户名已存在);
@@ -189,10 +195,7 @@ public class UserAccountService {
 		param.setLoginPwd(encodePwd);
 		UserAccount newUserAccount = param.convertToPo();
 		newUserAccount.setBalance(100d);
-		InviteCode inviteCode = inviteCodeRepo.findTopByCodeAndPeriodOfValidityGreaterThanEqual(param.getInviteCode(), new Date());
-		if (inviteCode != null) {
-			newUserAccount.setInviterId(inviteCode.getUserAccountId());
-		}
+		newUserAccount.setInviterId(inviteCode.getUserAccountId());
 		userAccountRepo.save(newUserAccount);
 		return UserAccountInfoVO.convertFor(newUserAccount);
 	}
@@ -264,6 +267,12 @@ public class UserAccountService {
 		}
 		InviteCode newInviteCode = InviteCode.generateInviteCode(code, userAccountId);
 		inviteCodeRepo.save(newInviteCode);
+	}
+
+	@ParamValid
+	@Transactional
+	public void delUserAccount(@NotBlank String userAccountId) {
+		userAccountRepo.deleteById(userAccountId);
 	}
 
 }

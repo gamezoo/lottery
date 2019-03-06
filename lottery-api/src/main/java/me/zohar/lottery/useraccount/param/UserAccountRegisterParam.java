@@ -17,6 +17,7 @@ public class UserAccountRegisterParam {
 	/**
 	 * 邀请码
 	 */
+	@NotBlank
 	private String inviteCode;
 
 	/**
@@ -43,7 +44,8 @@ public class UserAccountRegisterParam {
 		po.setId(IdUtils.getId());
 		po.setRegisteredTime(new Date());
 		po.setMoneyPwd(po.getLoginPwd());
-		po.setState(Constant.用户账号状态_启用);
+		po.setState(Constant.账号状态_启用);
+		po.setAccountType(Constant.账号类型_会员);
 		return po;
 	}
 

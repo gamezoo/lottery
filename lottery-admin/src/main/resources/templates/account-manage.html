@@ -89,14 +89,25 @@
 									</div>
 									<div class="form-group row">
 										<div class="col-sm-12">
+											<label>账号类型:</label>
+											<div>
+												<template v-for="dictItem in accountTypeDictItems">
+												<div class="custom-control custom-radio custom-control-inline">
+													<input type="radio" class="custom-control-input" :id="'accountType' + dictItem.dictItemCode" v-model="selectedAccount.accountType" :value="dictItem.dictItemCode"> <label class="custom-control-label" :for="'accountType' + dictItem.dictItemCode">{{dictItem.dictItemName}}</label>
+												</div>
+												</template>
+											</div>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
 											<label>状态:</label>
 											<div>
+												<template v-for="dictItem in accountStateDictItems">
 												<div class="custom-control custom-radio custom-control-inline">
-													<input type="radio" class="custom-control-input" id="userAccountState1" v-model="selectedAccount.state" value="1"> <label class="custom-control-label" for="userAccountState1">启用</label>
+													<input type="radio" class="custom-control-input" :id="'accountState' + dictItem.dictItemCode" v-model="selectedAccount.state" :value="dictItem.dictItemCode"> <label class="custom-control-label" :for="'accountState' + dictItem.dictItemCode">{{dictItem.dictItemName}}</label>
 												</div>
-												<div class="custom-control custom-radio custom-control-inline">
-													<input type="radio" class="custom-control-input" id="userAccountState0" v-model="selectedAccount.state" value="0"> <label class="custom-control-label" for="userAccountState0">禁用</label>
-												</div>
+												</template>
 											</div>
 										</div>
 									</div>

@@ -1,8 +1,11 @@
 var accountManageVM = new Vue({
 	el : '#account-manage',
 	data : {
+		accountTypeDictItems : [],
+		accountStateDictItems : [],
 		userName : '',
 		realName : '',
+		accountType : '',
 		selectedAccount : {},
 		modifyLoginPwdFlag : false,
 		newLoginPwd : '',
@@ -16,9 +19,34 @@ var accountManageVM = new Vue({
 	created : function() {
 	},
 	mounted : function() {
+		this.loadAccountTypeItem();
+		this.loadAccountStateItem();
 		this.initTable();
 	},
 	methods : {
+
+		loadAccountTypeItem : function() {
+			var that = this;
+			that.$http.get('/dictconfig/findDictItemInCache', {
+				params : {
+					dictTypeCode : 'accountType'
+				}
+			}).then(function(res) {
+				this.accountTypeDictItems = res.body.data;
+			});
+		},
+
+		loadAccountStateItem : function() {
+			var that = this;
+			that.$http.get('/dictconfig/findDictItemInCache', {
+				params : {
+					dictTypeCode : 'accountState'
+				}
+			}).then(function(res) {
+				this.accountStateDictItems = res.body.data;
+			});
+		},
+
 		initTable : function() {
 			var that = this;
 			$('.account-manage-table').bootstrapTable({
@@ -60,11 +88,17 @@ var accountManageVM = new Vue({
 					field : 'realName',
 					title : '真实姓名'
 				}, {
+					field : 'accountTypeName',
+					title : '账号类型'
+				}, {
 					field : 'balance',
 					title : '余额'
 				}, {
 					field : 'stateName',
 					title : '状态'
+				}, {
+					field : 'inviterUserName',
+					title : '邀请人'
 				}, {
 					field : 'registeredTime',
 					title : '注册时间'
@@ -74,7 +108,7 @@ var accountManageVM = new Vue({
 				}, {
 					title : '操作',
 					formatter : function(value, row, index) {
-						return [ '<button type="button" class="account-edit-btn btn btn-outline-primary btn-sm" style="margin-right: 4px;">编辑</button>', '<button type="button" class="modify-login-pwd-btn btn btn-outline-secondary btn-sm" style="margin-right: 4px;">修改登录密码</button>', '<button type="button" class="change-order-btn btn btn-outline-danger btn-sm">删除</button>' ].join('');
+						return [ '<button type="button" class="account-edit-btn btn btn-outline-primary btn-sm" style="margin-right: 4px;">编辑</button>', '<button type="button" class="modify-login-pwd-btn btn btn-outline-secondary btn-sm" style="margin-right: 4px;">修改登录密码</button>', '<button type="button" class="del-account-btn btn btn-outline-danger btn-sm">删除</button>' ].join('');
 					},
 					events : {
 						'click .account-edit-btn' : function(event, value, row, index) {
@@ -82,6 +116,9 @@ var accountManageVM = new Vue({
 						},
 						'click .modify-login-pwd-btn' : function(event, value, row, index) {
 							that.showModifyLoginPwdModal(row);
+						},
+						'click .del-account-btn' : function(event, value, row, index) {
+							that.delAccount(row);
 						}
 					}
 				} ]
@@ -90,6 +127,28 @@ var accountManageVM = new Vue({
 		refreshTable : function() {
 			$('.account-manage-table').bootstrapTable('refreshOptions', {
 				pageNumber : 1
+			});
+		},
+
+		delAccount : function(row) {
+			var that = this;
+			layer.confirm('确定要删除该账号吗?', {
+				icon : 7,
+				title : '提示'
+			}, function(index) {
+				layer.close(index);
+				that.$http.get('/userAccount/delUserAccount', {
+					params : {
+						userAccountId : row.id
+					}
+				}).then(function(res) {
+					layer.alert('操作成功!', {
+						icon : 1,
+						time : 3000,
+						shade : false
+					});
+					that.refreshTable();
+				});
 			});
 		},
 
@@ -132,6 +191,14 @@ var accountManageVM = new Vue({
 				});
 				return;
 			}
+			if (selectedAccount.accountType == null || selectedAccount.accountType == '') {
+				layer.alert('请选择账号类型', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
 			if (selectedAccount.state == null || selectedAccount.state == '') {
 				layer.alert('请选择状态', {
 					title : '提示',
@@ -144,6 +211,7 @@ var accountManageVM = new Vue({
 				userAccountId : selectedAccount.id,
 				userName : selectedAccount.userName,
 				realName : selectedAccount.realName,
+				accountType : selectedAccount.accountType,
 				state : selectedAccount.state
 			}, {
 				emulateJSON : true

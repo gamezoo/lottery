@@ -3,6 +3,7 @@ package me.zohar.lottery.issue.service;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -25,6 +26,7 @@ import me.zohar.lottery.betting.repo.BettingRecordRepo;
 import me.zohar.lottery.common.exception.BizError;
 import me.zohar.lottery.common.exception.BizException;
 import me.zohar.lottery.common.utils.IdUtils;
+import me.zohar.lottery.common.utils.ThreadPoolUtil;
 import me.zohar.lottery.common.valid.ParamValid;
 import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.issue.domain.Issue;
@@ -95,7 +97,10 @@ public class IssueService {
 			log.error("当前期号没有没有设置自动结算,结算失败.gameCode:{},issueNum:{}", gameCode, issueNum);
 			return;
 		}
-		redisTemplate.opsForList().leftPush(Constant.当前开奖期号ID, latestIssue.getId());
+		
+		ThreadPoolUtil.getScheduledPool().schedule(() -> {
+			redisTemplate.opsForList().leftPush(Constant.当前开奖期号ID, latestIssue.getId());
+		}, 1, TimeUnit.SECONDS);
 	}
 
 	/**
@@ -140,6 +145,7 @@ public class IssueService {
 	public void settlement(String issueId) {
 		Issue issue = issueRepo.getOne(issueId);
 		if (issue == null || StrUtil.isEmpty(issue.getLotteryNum())) {
+			log.error("当前期号还没开奖;id:{},issueNum:{}", issue.getId(), issue.getLotteryNum());
 			return;
 		}
 		issue.settlement();

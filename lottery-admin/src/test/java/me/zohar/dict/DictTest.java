@@ -71,7 +71,7 @@ public class DictTest {
 	}
 
 	/**
-	 * 初始化用户账号状态字典
+	 * 初始化账号状态字典
 	 */
 	@Test
 	@Transactional(readOnly = false)
@@ -79,8 +79,8 @@ public class DictTest {
 	public void initAccountStateDict() {
 		DictType dictType = new DictType();
 		dictType.setId(IdUtils.getId());
-		dictType.setDictTypeCode("userAccountState");
-		dictType.setDictTypeName("用户账号状态");
+		dictType.setDictTypeCode("accountState");
+		dictType.setDictTypeName("账号状态");
 		dictTypeRepo.save(dictType);
 
 		dictItemRepo.save(buildDictItem("1", "启用", 1d, dictType.getId()));
@@ -217,6 +217,9 @@ public class DictTest {
 
 	public void deleteDict(String dictTypeCode) {
 		DictType dictType = dictTypeRepo.findByDictTypeCode(dictTypeCode);
+		if (dictType == null) {
+			return;
+		}
 		for (DictItem dictItem : dictType.getDictItems()) {
 			dictItemRepo.delete(dictItem);
 		}
@@ -242,6 +245,26 @@ public class DictTest {
 		dictItemRepo.save(buildDictItem("4", "投注返奖", 4d, dictType.getId()));
 		dictItemRepo.save(buildDictItem("5", "账号提现", 5d, dictType.getId()));
 
+	}
+	
+	/**
+	 * 初始化账号类型字典
+	 */
+	@Test
+	@Transactional(readOnly = false)
+	@Rollback(false)
+	public void initAccountTypeDict() {
+		deleteDict("accountType");
+		
+		DictType dictType = new DictType();
+		dictType.setId(IdUtils.getId());
+		dictType.setDictTypeCode("accountType");
+		dictType.setDictTypeName("账号类型");
+		dictTypeRepo.save(dictType);
+
+		dictItemRepo.save(buildDictItem("admin", "管理员", 1d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("agent", "代理", 2d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("member", "会员", 3d, dictType.getId()));
 	}
 
 }

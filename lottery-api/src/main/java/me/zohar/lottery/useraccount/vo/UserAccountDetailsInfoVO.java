@@ -15,13 +15,14 @@ import me.zohar.lottery.useraccount.domain.UserAccount;
 
 /**
  * 用户账号明细信息vo
+ * 
  * @author zohar
  * @date 2019年2月22日
  *
  */
 @Data
 public class UserAccountDetailsInfoVO {
-	
+
 	/**
 	 * 主键id
 	 */
@@ -36,20 +37,24 @@ public class UserAccountDetailsInfoVO {
 	 * 真实姓名
 	 */
 	private String realName;
-	
+
+	/**
+	 * 账号类型
+	 */
+	private String accountType;
+
+	private String accountTypeName;
+
 	/**
 	 * 余额
 	 */
 	private Double balance;
-	
+
 	/**
 	 * 状态
 	 */
 	private String state;
-	
-	/**
-	 * 状态
-	 */
+
 	private String stateName;
 
 	/**
@@ -63,7 +68,7 @@ public class UserAccountDetailsInfoVO {
 	 */
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date latelyLoginTime;
-	
+
 	/**
 	 * 开户银行
 	 */
@@ -84,7 +89,12 @@ public class UserAccountDetailsInfoVO {
 	 */
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date bankInfoLatelyModifyTime;
-	
+
+	/**
+	 * 邀请人
+	 */
+	private String inviterUserName;
+
 	public static List<UserAccountDetailsInfoVO> convertFor(List<UserAccount> userAccounts) {
 		if (CollectionUtil.isEmpty(userAccounts)) {
 			return new ArrayList<>();
@@ -95,14 +105,18 @@ public class UserAccountDetailsInfoVO {
 		}
 		return vos;
 	}
-	
+
 	public static UserAccountDetailsInfoVO convertFor(UserAccount userAccount) {
 		if (userAccount == null) {
 			return null;
 		}
 		UserAccountDetailsInfoVO vo = new UserAccountDetailsInfoVO();
 		BeanUtils.copyProperties(userAccount, vo);
-		vo.setStateName(DictHolder.getDictItemName("userAccountState", vo.getState()));
+		vo.setAccountTypeName(DictHolder.getDictItemName("accountType", vo.getAccountType()));
+		vo.setStateName(DictHolder.getDictItemName("accountState", vo.getState()));
+		if (userAccount.getInviter() != null) {
+			vo.setInviterUserName(userAccount.getInviter().getUserName());
+		}
 		return vo;
 	}
 
