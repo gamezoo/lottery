@@ -121,7 +121,9 @@ public class BettingOrderDetailsVO {
 		BeanUtils.copyProperties(bettingOrder, vo);
 		vo.setGameName(DictHolder.getDictItemName("game", vo.getGameCode()));
 		vo.setStateName(DictHolder.getDictItemName("bettingOrderState", vo.getState()));
-		vo.setUserName(bettingOrder.getUserAccount().getUserName());
+		if (bettingOrder.getUserAccount() != null) {
+			vo.setUserName(bettingOrder.getUserAccount().getUserName());
+		}
 		vo.setBettingRecords(BettingRecordVO.convertFor(bettingOrder.getBettingRecords()));
 		return vo;
 	}

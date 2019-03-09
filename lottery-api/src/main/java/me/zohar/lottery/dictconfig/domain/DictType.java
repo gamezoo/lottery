@@ -51,7 +51,12 @@ public class DictType {
 	 * 字典类型名称
 	 */
 	private String dictTypeName;
-	
+
+	/**
+	 * 备注
+	 */
+	private String note;
+
 	/**
 	 * 乐观锁版本号
 	 */

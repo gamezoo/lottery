@@ -6,10 +6,10 @@ import org.springframework.beans.BeanUtils;
 
 import lombok.Data;
 import me.zohar.lottery.common.utils.IdUtils;
-import me.zohar.lottery.dictconfig.domain.ConfigItem;
+import me.zohar.lottery.dictconfig.domain.DictType;
 
 @Data
-public class ConfigParam {
+public class AddOrUpdateDictTypeParam {
 
 	/**
 	 * 主键id
@@ -17,25 +17,24 @@ public class ConfigParam {
 	private String id;
 
 	/**
-	 * 配置项code
+	 * 字典类型code
 	 */
 	@NotBlank
-	private String configCode;
+	private String dictTypeCode;
 
 	/**
-	 * 配置项名称
+	 * 字典类型名称
 	 */
 	@NotBlank
-	private String configName;
+	private String dictTypeName;
 
 	/**
-	 * 配置项值
+	 * 备注
 	 */
-	@NotBlank
-	private String configValue;
+	private String note;
 	
-	public ConfigItem convertToPo() {
-		ConfigItem po = new ConfigItem();
+	public DictType convertToPo() {
+		DictType po = new DictType();
 		BeanUtils.copyProperties(this, po);
 		po.setId(IdUtils.getId());
 		return po;

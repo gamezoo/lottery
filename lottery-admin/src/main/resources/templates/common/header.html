@@ -13,15 +13,15 @@
 	<div id="header" v-cloak>
 		<nav class="navbar navbar-expand-sm bg-info navbar-dark" style="justify-content: space-between;">
 			<ul class="navbar-nav">
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/game-manage'}" v-on:click="navTo('/game-manage')"><a class="nav-link" href="#">游戏管理</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/lottery-situation'}" v-on:click="navTo('/lottery-situation')"><a class="nav-link" href="#">开奖情况</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/betting-record'}" v-on:click="navTo('/betting-record')"><a class="nav-link" href="#">投注记录</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/account-change-log'}" v-on:click="navTo('/account-change-log')"><a class="nav-link" href="#">帐变日志</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/recharge-order'}" v-on:click="navTo('/recharge-order')"><a class="nav-link" href="#">充值订单</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/withdraw-record'}" v-on:click="navTo('/withdraw-record')"><a class="nav-link" href="#">提现记录</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/account-manage'}" v-on:click="navTo('/account-manage')"><a class="nav-link" href="#">账号管理</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/config-manage'}" v-on:click="navTo('/config-manage')"><a class="nav-link" href="#">配置项管理</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/data-dict'}" v-on:click="navTo('/data-dict')"><a class="nav-link" href="#">数据字典</a></li>
+				<li class="nav-item" v-bind:class="{'active': currentPathName == '/game-manage'}" v-on:click="navTo('/game-manage')"><a class="nav-link">游戏管理</a></li>
+				<li class="nav-item" v-bind:class="{'active': currentPathName == '/lottery-situation'}" v-on:click="navTo('/lottery-situation')"><a class="nav-link">开奖情况</a></li>
+				<li class="nav-item" v-bind:class="{'active': currentPathName == '/betting-record'}" v-on:click="navTo('/betting-record')"><a class="nav-link">投注记录</a></li>
+				<li class="nav-item" v-bind:class="{'active': currentPathName == '/account-change-log'}" v-on:click="navTo('/account-change-log')"><a class="nav-link">帐变日志</a></li>
+				<li class="nav-item" v-bind:class="{'active': currentPathName == '/recharge-order'}" v-on:click="navTo('/recharge-order')"><a class="nav-link">充值订单</a></li>
+				<li class="nav-item" v-bind:class="{'active': currentPathName == '/withdraw-record'}" v-on:click="navTo('/withdraw-record')"><a class="nav-link">提现记录</a></li>
+				<li class="nav-item" v-bind:class="{'active': currentPathName == '/account-manage'}" v-on:click="navTo('/account-manage')"><a class="nav-link">账号管理</a></li>
+				<li class="nav-item" v-bind:class="{'active': currentPathName == '/config-manage'}" v-on:click="navTo('/config-manage')"><a class="nav-link">配置项管理</a></li>
+				<li class="nav-item" v-bind:class="{'active': currentPathName == '/dict-manage'}" v-on:click="navTo('/dict-manage')"><a class="nav-link">字典管理</a></li>
 			</ul>
 			<form class="form-inline" style="float: right;">
 				<span style="padding-right: 20px;">欢迎你:{{userName}}</span>

@@ -12,5 +12,7 @@ public interface DictItemRepo extends JpaRepository<DictItem, String>, JpaSpecif
 	DictItem findByDictTypeDictTypeCodeAndDictItemCode(String dictTypeCode, String dictItemCode);
 
 	List<DictItem> findByDictTypeDictTypeCodeOrderByOrderNo(String dictTypeCode);
+	
+	List<DictItem> findByDictTypeIdOrderByOrderNo(String dictTypeId);
 
 }

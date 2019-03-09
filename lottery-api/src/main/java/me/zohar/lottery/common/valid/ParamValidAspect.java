@@ -18,6 +18,7 @@ import me.zohar.lottery.common.exception.ParamValidException;
 
 /**
  * Spring AOP实现参数校验
+ * 
  * @author zohar
  * @date 2019年1月17日
  *
@@ -42,7 +43,9 @@ public class ParamValidAspect {
 			Iterator<ConstraintViolation<Object>> iterator = violations.iterator();
 			// 参数校验不通过,直接抛出异常
 			if (iterator.hasNext()) {
-				throw new ParamValidException(BizError.参数异常.getCode(), iterator.next().getMessage());
+				ConstraintViolation<Object> violation = iterator.next();
+				throw new ParamValidException(BizError.参数异常.getCode(),
+						violation.getPropertyPath() + ":" + violation.getMessage());
 			}
 		}
 

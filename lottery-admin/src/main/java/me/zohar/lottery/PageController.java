@@ -10,7 +10,7 @@ public class PageController {
 	public String index() {
 		return "index";
 	}
-	
+
 	/**
 	 * 登录页面
 	 * 
@@ -80,7 +80,7 @@ public class PageController {
 	public String rechargeOrder() {
 		return "recharge-order";
 	}
-	
+
 	/**
 	 * 提现记录
 	 * 
@@ -90,7 +90,7 @@ public class PageController {
 	public String withdrawRecord() {
 		return "withdraw-record";
 	}
-	
+
 	/**
 	 * 配置项管理
 	 * 
@@ -99,6 +99,16 @@ public class PageController {
 	@GetMapping("/config-manage")
 	public String configManage() {
 		return "config-manage";
+	}
+
+	/**
+	 * 字典管理
+	 * 
+	 * @return
+	 */
+	@GetMapping("/dict-manage")
+	public String dictManage() {
+		return "dict-manage";
 	}
 
 }

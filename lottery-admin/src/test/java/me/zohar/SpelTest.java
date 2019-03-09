@@ -1,5 +1,8 @@
 package me.zohar;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.Test;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -9,12 +12,9 @@ public class SpelTest {
 
 	@Test
 	public void test() {
-		StandardEvaluationContext context = new StandardEvaluationContext();
-		context.setVariable("dictTypeCode", "111");
-		context.setVariable("dictItemCode", "222");
-		
-		ExpressionParser parser = new SpelExpressionParser();
-		System.out.println(parser.parseExpression("#dictTypeCode + '_' +  #dictItemCode").getValue(context));
+		Set<String> dictItemCodeSet = new HashSet<String>();
+		System.out.println(dictItemCodeSet.add("1"));
+		System.out.println(dictItemCodeSet.add("1"));
 	}
 
 }

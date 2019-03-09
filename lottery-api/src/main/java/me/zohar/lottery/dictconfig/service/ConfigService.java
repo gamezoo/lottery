@@ -67,8 +67,9 @@ public class ConfigService {
 		return ConfigItemVO.convertFor(configItemRepo.findByConfigCode(configCode));
 	}
 
+	@ParamValid
 	@Transactional(readOnly = true)
-	public ConfigItemVO findConfigItemById(String id) {
+	public ConfigItemVO findConfigItemById(@NotBlank String id) {
 		return ConfigItemVO.convertFor(configItemRepo.getOne(id));
 	}
 

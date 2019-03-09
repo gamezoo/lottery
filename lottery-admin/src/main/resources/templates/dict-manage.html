@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>数据字典</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.bootcss.com/dayjs/1.7.8/dayjs.min.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/locale/bootstrap-table-zh-CN.min.js"></script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+.edit-dict-data-dialog {
+	max-width: 100%;
+	width: 50%;
+}
+
+.edit-dict-data-dialog .modal-body {
+	max-height: 450px;
+	overflow: auto;
+}
+</style>
+</head>
+
+<body>
+	<div th:replace="common/header::html"></div>
+	<div id="dict-manage" v-cloak>
+		<form class="form-inline common-query-cond-form" action="#">
+			<div class="form-group common-query-cond">
+				<label>字典code:</label><input type="text" class="form-control" v-model="dictTypeCode">
+			</div>
+			<div class="form-group common-query-cond">
+				<label>字典名称:</label><input type="text" class="form-control" v-model="dictTypeName">
+			</div>
+			<button type="button" class="btn btn-danger" v-on:click="refreshTable">搜索</button>
+		</form>
+		<form class="form-inline common-query-cond-form float-right" action="#">
+			<button type="button" class="btn btn-info " v-on:click="openAddDictTypeModal">新增字典</button>
+		</form>
+		<table class="common-table dict-manage-table"></table>
+
+		<div v-if="addOrUpdateDictTypeFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog add-or-update-dict-type-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">{{dictTypeActionTitle}}</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="addOrUpdateDictTypeFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<form>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>字典code:</label> <input type="text" class="form-control" v-model="editDictType.dictTypeCode">
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>字典名称:</label> <input type="text" class="form-control" v-model="editDictType.dictTypeName">
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>备注:</label>
+											<textarea class="form-control" rows="3" v-model="editDictType.note"></textarea>
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="addOrUpdateDictType">保存</button>
+								<button type="button" class="btn btn-sm" v-on:click="addOrUpdateDictTypeFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div v-if="editDictDataFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog edit-dict-data-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">编辑字典数据</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="editDictDataFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<button type="button" class="btn btn-info btn-sm float-right" style="margin-bottom: 10px;" v-on:click="addDictItem">增加字典项</button>
+								<table class="table table-sm common-table">
+									<thead>
+										<tr>
+											<th>字典项code</th>
+											<th>字典项名称</th>
+											<th>操作</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr v-for="(dictItem, index) in dictItems">
+											<td><input type="text" class="form-control-sm" v-model="dictItem.dictItemCode"></td>
+											<td><input type="text" class="form-control-sm" v-model="dictItem.dictItemName"></td>
+											<td>
+												<button type="button" class="btn btn-link" v-bind:disabled="index == 0" v-on:click="moveUpDictItem(index)">上移</button>
+												<button type="button" class="btn btn-link" v-bind:disabled="index == dictItems.length - 1" v-on:click="moveDownDictItem(index)">下移</button>
+												<button type="button" class="btn btn-danger btn-sm" v-on:click="delDictItem(index)">删除</button>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="updateDictData">保存</button>
+								<button type="button" class="btn btn-sm" v-on:click="editDictDataFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="/js/dict-manage.js"></script>
+</body>
+</html>

@@ -3,6 +3,7 @@ package me.zohar.lottery.betting.param;
 import java.util.Date;
 import java.util.List;
 
+import javax.validation.Valid;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -55,6 +56,7 @@ public class PlaceOrderParam {
 	 * 投注记录集合
 	 */
 	@NotEmpty(message = "bettingRecords不能为空")
+	@Valid
 	private List<BettingRecordParam> bettingRecords;
 
 	public BettingOrder convertToPo(Long totalBettingCount, Double totalBettingAmount, String userAccountId) {

@@ -4,6 +4,10 @@
 	display: none;
 }
 
+a {
+	cursor: pointer;
+}
+
 .modal-mask {
 	position: fixed;
 	z-index: 9998;
