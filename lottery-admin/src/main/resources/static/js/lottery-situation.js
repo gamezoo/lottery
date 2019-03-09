@@ -6,7 +6,8 @@ var issueManage = new Vue({
 		issueStateDictItems : [],
 		state : '',
 		issueNum : '',
-		lotteryDate : dayjs().format('YYYY-MM-DD'),
+		lotteryStartDate : dayjs().format('YYYY-MM-DD'),
+		lotteryEndDate : dayjs().format('YYYY-MM-DD'),
 		manualLotteryFlag : false,
 		autoSettlementFlag : true,
 		selectedIssue : {},
@@ -67,7 +68,8 @@ var issueManage = new Vue({
 						gameCode : that.gameCode,
 						issueNum : that.issueNum,
 						state : that.state,
-						lotteryDate : that.lotteryDate
+						lotteryStartDate : that.lotteryStartDate,
+						lotteryEndDate : that.lotteryEndDate
 					};
 					return condParam;
 				},

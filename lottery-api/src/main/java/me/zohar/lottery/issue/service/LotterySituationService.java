@@ -60,9 +60,13 @@ public class LotterySituationService {
 				if (StrUtil.isNotEmpty(param.getState())) {
 					predicates.add(builder.equal(root.get("state"), param.getState()));
 				}
-				if (param.getLotteryDate() != null) {
-					predicates.add(builder.equal(root.get("lotteryDate").as(Date.class),
-							DateUtil.beginOfDay(param.getLotteryDate())));
+				if (param.getLotteryStartDate() != null) {
+					predicates.add(builder.greaterThanOrEqualTo(root.get("lotteryDate").as(Date.class),
+							DateUtil.beginOfDay(param.getLotteryStartDate())));
+				}
+				if (param.getLotteryEndDate() != null) {
+					predicates.add(builder.lessThanOrEqualTo(root.get("lotteryDate").as(Date.class),
+							DateUtil.endOfDay(param.getLotteryEndDate())));
 				}
 				return predicates.size() > 0 ? builder.and(predicates.toArray(new Predicate[predicates.size()])) : null;
 			}

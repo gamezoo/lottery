@@ -21,16 +21,22 @@ public class LotterySituationQueryCondParam extends PageParam {
 	 * 期号
 	 */
 	private Long issueNum;
-	
+
 	/**
 	 * 状态
 	 */
 	private String state;
 
 	/**
-	 * 开奖日期
+	 * 开奖开始日期
 	 */
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private Date lotteryDate;
+	private Date lotteryStartDate;
+
+	/**
+	 * 开奖结束日期
+	 */
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private Date lotteryEndDate;
 
 }

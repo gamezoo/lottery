@@ -5,7 +5,8 @@ var accountManageVM = new Vue({
 		accountStateDictItems : [],
 		userName : '',
 		realName : '',
-		accountType : '',
+
+		addUserAccountFlag : false,
 		selectedAccount : {},
 		modifyLoginPwdFlag : false,
 		newLoginPwd : '',
@@ -130,6 +131,74 @@ var accountManageVM = new Vue({
 			});
 		},
 
+		openAddAccountModal : function() {
+			this.addUserAccountFlag = true;
+			this.selectedAccount = {
+				inviterUserName : header.userName,
+				userName : '',
+				realName : '',
+				loginPwd : '',
+				accountType : '',
+				state : ''
+			}
+		},
+
+		addUserAccount : function() {
+			var that = this;
+			var selectedAccount = that.selectedAccount;
+			if (selectedAccount.userName == null || selectedAccount.userName == '') {
+				layer.alert('请输入用户名', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			if (selectedAccount.realName == null || selectedAccount.realName == '') {
+				layer.alert('请输入真实姓名', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			if (selectedAccount.loginPwd == null || selectedAccount.loginPwd == '') {
+				layer.alert('请输入登录密码', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			if (selectedAccount.accountType == null || selectedAccount.accountType == '') {
+				layer.alert('请选择账号类型', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			if (selectedAccount.state == null || selectedAccount.state == '') {
+				layer.alert('请选择状态', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			that.$http.post('/userAccount/addUserAccount', selectedAccount, {
+				emulateJSON : true
+			}).then(function(res) {
+				layer.alert('操作成功!', {
+					icon : 1,
+					time : 3000,
+					shade : false
+				});
+				that.addUserAccountFlag = false;
+				that.refreshTable();
+			});
+		},
+
 		delAccount : function(row) {
 			var that = this;
 			layer.confirm('确定要删除该账号吗?', {
@@ -167,14 +236,6 @@ var accountManageVM = new Vue({
 		updateUserAccount : function() {
 			var that = this;
 			var selectedAccount = that.selectedAccount
-			if (selectedAccount.userName == null || selectedAccount.userName == '') {
-				layer.alert('请输入用户名', {
-					title : '提示',
-					icon : 7,
-					time : 3000
-				});
-				return;
-			}
 			if (selectedAccount.userName == null || selectedAccount.userName == '') {
 				layer.alert('请输入用户名', {
 					title : '提示',

@@ -31,6 +31,7 @@ import me.zohar.lottery.useraccount.domain.AccountChangeLog;
 import me.zohar.lottery.useraccount.domain.InviteCode;
 import me.zohar.lottery.useraccount.domain.UserAccount;
 import me.zohar.lottery.useraccount.param.AccountChangeLogQueryCondParam;
+import me.zohar.lottery.useraccount.param.AddUserAccountParam;
 import me.zohar.lottery.useraccount.param.BindBankInfoParam;
 import me.zohar.lottery.useraccount.param.ModifyLoginPwdParam;
 import me.zohar.lottery.useraccount.param.ModifyMoneyPwdParam;
@@ -177,6 +178,27 @@ public class UserAccountService {
 	@Transactional(readOnly = true)
 	public BankInfoVO getBankInfo(String userAccountId) {
 		return BankInfoVO.convertFor(userAccountRepo.getOne(userAccountId));
+	}
+
+	@ParamValid
+	@Transactional
+	public void addUserAccount(AddUserAccountParam param) {
+		UserAccount userAccount = userAccountRepo.findByUserName(param.getUserName());
+		if (userAccount != null) {
+			throw new BizException(BizError.用户名已存在);
+		}
+		String encodePwd = new BCryptPasswordEncoder().encode(param.getLoginPwd());
+		param.setLoginPwd(encodePwd);
+		UserAccount newUserAccount = param.convertToPo();
+		newUserAccount.setBalance(100d);
+		if (StrUtil.isNotBlank(param.getInviterUserName())) {
+			UserAccount inviter = userAccountRepo.findByUserName(param.getInviterUserName());
+			if (inviter == null) {
+				throw new BizException(BizError.邀请人不存在);
+			}
+			newUserAccount.setInviterId(inviter.getId());
+		}
+		userAccountRepo.save(newUserAccount);
 	}
 
 	@Transactional
