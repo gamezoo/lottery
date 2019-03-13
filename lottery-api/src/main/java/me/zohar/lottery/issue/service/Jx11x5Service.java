@@ -22,7 +22,7 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
-import me.zohar.lottery.common.utils.ThreadPoolUtil;
+import me.zohar.lottery.common.utils.ThreadPoolUtils;
 import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.issue.vo.IssueVO;
 
@@ -49,7 +49,7 @@ public class Jx11x5Service {
 		List<IssueVO> issues = new ArrayList<>();
 		CountDownLatch countlatch = new CountDownLatch(1);
 		List<Future<IssueVO>> futures = new ArrayList<>();
-		futures.add(ThreadPoolUtil.getPool().submit(() -> {
+		futures.add(ThreadPoolUtils.getSyncLotteryThreadPool().submit(() -> {
 			return getLatestLotteryResultWithKjh();
 		}));
 		for (Future<IssueVO> future : futures) {

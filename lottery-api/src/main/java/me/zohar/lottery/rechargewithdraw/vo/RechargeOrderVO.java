@@ -40,6 +40,11 @@ public class RechargeOrderVO {
 	 * 充值金额
 	 */
 	private Double rechargeAmount;
+	
+	/**
+	 * 实际支付金额
+	 */
+	private Double actualPayAmount;
 
 	/**
 	 * 提交时间

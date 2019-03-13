@@ -3,6 +3,7 @@ package me.zohar.lottery.rechargewithdraw.service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -18,12 +19,15 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
+import lombok.extern.slf4j.Slf4j;
 import me.zohar.lottery.common.exception.BizError;
 import me.zohar.lottery.common.exception.BizException;
+import me.zohar.lottery.common.utils.ThreadPoolUtils;
 import me.zohar.lottery.common.valid.ParamValid;
 import me.zohar.lottery.common.vo.PageResult;
 import me.zohar.lottery.constants.Constant;
@@ -41,6 +45,8 @@ import me.zohar.lottery.useraccount.domain.UserAccount;
 import me.zohar.lottery.useraccount.repo.AccountChangeLogRepo;
 import me.zohar.lottery.useraccount.repo.UserAccountRepo;
 
+@Validated
+@Slf4j
 @Service
 public class RechargeService {
 
@@ -76,7 +82,7 @@ public class RechargeService {
 	 * 核对订单
 	 */
 	@Transactional
-	public void checkOrder(String orderNo, Double rechargeAmount, Date payTime) {
+	public void checkOrder(String orderNo, Double actualPayAmount, Date payTime) {
 		RechargeOrder order = rechargeOrderRepo.findByOrderNo(orderNo);
 		if (order == null) {
 			throw new BizException(BizError.充值订单不存在);
@@ -84,14 +90,27 @@ public class RechargeService {
 		if (Constant.充值订单状态_已支付.equals(order.getOrderState())) {
 			return;
 		}
-		if (order.getRechargeAmount().compareTo(rechargeAmount) != 0) {
-			throw new BizException(BizError.充值金额对不上);
-		}
-		order.setPayTime(payTime);
-		order.setDealTime(new Date());
-		order.setOrderState(Constant.充值订单状态_已支付);
+
+		order.updatePayInfo(actualPayAmount, payTime);
 		rechargeOrderRepo.save(order);
-		redisTemplate.opsForList().leftPush(Constant.充值订单_已支付订单单号, order.getOrderNo());
+
+		if (order.getRechargeAmount().compareTo(actualPayAmount) != 0) {
+			log.warn("充值金额跟实际支付金额对不上,无法进行自动结算;充值订单单号为{}", orderNo);
+			return;
+		}
+		ThreadPoolUtils.getRechargeSettlementPool().schedule(() -> {
+			redisTemplate.opsForList().leftPush(Constant.充值订单_已支付订单单号, order.getOrderNo());
+		}, 1, TimeUnit.SECONDS);
+	}
+
+	/**
+	 * 手动结算
+	 * 
+	 * @param orderNo
+	 */
+	@Transactional(readOnly = true)
+	public void manualSettlement(@NotBlank String orderNo) {
+		redisTemplate.opsForList().leftPush(Constant.充值订单_已支付订单单号, orderNo);
 	}
 
 	/**
@@ -106,19 +125,43 @@ public class RechargeService {
 		if (!Constant.充值订单状态_已支付.equals(rechargeOrder.getOrderState())) {
 			return;
 		}
-		rechargeOrder.setSettlementTime(new Date());
+
+		rechargeOrder.settlement();
 		rechargeOrderRepo.save(rechargeOrder);
 		UserAccount userAccount = rechargeOrder.getUserAccount();
-		double balance = userAccount.getBalance() + rechargeOrder.getRechargeAmount();
+		double balance = userAccount.getBalance() + rechargeOrder.getActualPayAmount();
 		userAccount.setBalance(NumberUtil.round(balance, 4).doubleValue());
 		userAccountRepo.save(userAccount);
 		accountChangeLogRepo.save(AccountChangeLog.buildWithRecharge(userAccount, rechargeOrder));
+		updateBalanceWithRechargePreferential(userAccount, rechargeOrder.getActualPayAmount());
+	}
+
+	/**
+	 * 获取充值优惠返水金额,并更新账号余额
+	 */
+	public void updateBalanceWithRechargePreferential(UserAccount userAccount, Double actualPayAmount) {
+		RechargeSetting setting = rechargeSettingRepo.findTopByOrderByLatelyUpdateTime();
+		if (setting == null || !setting.getReturnWaterRateEnabled() || setting.getReturnWaterRate() == null) {
+			return;
+		}
+
+		double returnWater = actualPayAmount * setting.getReturnWaterRate() * 0.01;
+		double balance = userAccount.getBalance() + returnWater;
+		userAccount.setBalance(NumberUtil.round(balance, 4).doubleValue());
+		userAccountRepo.save(userAccount);
+		accountChangeLogRepo.save(
+				AccountChangeLog.buildWithRechargePreferential(userAccount, returnWater, setting.getReturnWaterRate()));
 	}
 
 	@Transactional(readOnly = true)
 	public void rechargeOrderAutoSettlement() {
 		List<RechargeOrder> orders = rechargeOrderRepo.findByPayTimeIsNotNullAndSettlementTimeIsNullOrderBySubmitTime();
 		for (RechargeOrder order : orders) {
+			// 充值金额跟实际支付金额对不上的订单,不能自动结算
+			if (order.getRechargeAmount().compareTo(order.getActualPayAmount()) != 0) {
+				log.warn("充值金额跟实际支付金额对不上,无法进行自动结算;充值订单单号为{}", order.getOrderNo());
+				continue;
+			}
 			redisTemplate.opsForList().leftPush(Constant.充值订单_已支付订单单号, order.getOrderNo());
 		}
 	}

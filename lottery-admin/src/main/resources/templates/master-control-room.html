@@ -38,7 +38,7 @@
 					<div class="card-body">
 						<div class="row">
 							<div class="col-sm-12">
-								<label>邀请码有效时长</label> <span><input type="text" class="master-control-room-input" v-model="inviteCodeEffectiveDuration">天</span>
+								<label>邀请码有效时长</label> <span><input type="text" class="form-control-sm master-control-room-input" v-model="inviteCodeEffectiveDuration">天</span>
 							</div>
 						</div>
 						<div class="row">
@@ -60,7 +60,7 @@
 					<div class="card-body">
 						<div class="row">
 							<div class="col-sm-12">
-								<label>注册礼金</label> <span><input type="text" class="master-control-room-input" v-model="registerAmount">元</span>
+								<label>注册礼金</label> <span><input type="text" class="form-control-sm master-control-room-input" v-model="registerAmount">元</span>
 							</div>
 						</div>
 						<div class="row">
@@ -82,12 +82,12 @@
 					<div class="card-body">
 						<div class="row">
 							<div class="col-sm-12">
-								<label>充值订单有效时长</label> <span><input type="text" class="master-control-room-input" v-model="rechargeOrderEffectiveDuration">分钟</span>
+								<label>充值订单有效时长</label> <span><input type="text" class="form-control-sm master-control-room-input" v-model="rechargeOrderEffectiveDuration">分钟</span>
 							</div>
 						</div>
 						<div class="row">
 							<div class="col-sm-12">
-								<label>充值返水率</label> <span><input type="text" class="master-control-room-input" v-model="rechargeReturnWaterRate">%</span>
+								<label>充值返水率</label> <span><input type="text" class="form-control-sm master-control-room-input" v-model="rechargeReturnWaterRate">%</span>
 								<div class="custom-control custom-switch custom-control-inline">
 									<input type="checkbox" class="custom-control-input" id="rechargeReturnWaterRateEnabled" v-model="rechargeReturnWaterRateEnabled"> <label class="custom-control-label" for="rechargeReturnWaterRateEnabled">{{rechargeReturnWaterRateEnabled ? '启用' : '关闭'}}</label>
 								</div>

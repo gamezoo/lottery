@@ -15,9 +15,12 @@ import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.useraccount.domain.UserAccount;
 
 /**
@@ -58,10 +61,15 @@ public class RechargeOrder {
 	private Double rechargeAmount;
 
 	/**
+	 * 实际支付金额
+	 */
+	private Double actualPayAmount;
+
+	/**
 	 * 提交时间
 	 */
 	private Date submitTime;
-	
+
 	/**
 	 * 有效时间
 	 */
@@ -76,7 +84,7 @@ public class RechargeOrder {
 	 * 备注
 	 */
 	private String note;
-	
+
 	/**
 	 * 支付地址
 	 */
@@ -91,12 +99,12 @@ public class RechargeOrder {
 	 * 处理时间
 	 */
 	private Date dealTime;
-	
+
 	/**
 	 * 结算时间,即更新到账号余额的时间
 	 */
 	private Date settlementTime;
-	
+
 	/**
 	 * 乐观锁版本号
 	 */
@@ -112,8 +120,30 @@ public class RechargeOrder {
 	/**
 	 * 用户账号
 	 */
+	@NotFound(action = NotFoundAction.IGNORE)
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_account_id", updatable = false, insertable = false, foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	private UserAccount userAccount;
+
+	/**
+	 * 更新支付信息
+	 * 
+	 * @param actualPayAmount
+	 * @param payTime
+	 */
+	public void updatePayInfo(Double actualPayAmount, Date payTime) {
+		this.setActualPayAmount(actualPayAmount);
+		this.setPayTime(payTime);
+		this.setDealTime(new Date());
+		this.setOrderState(Constant.充值订单状态_已支付);
+	}
+
+	/**
+	 * 订单结算
+	 */
+	public void settlement() {
+		this.setSettlementTime(new Date());
+		this.setOrderState(Constant.充值订单状态_已结算);
+	}
 
 }

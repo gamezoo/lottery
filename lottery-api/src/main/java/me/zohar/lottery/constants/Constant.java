@@ -49,10 +49,12 @@ public class Constant {
 	public static final String 充值订单状态_待支付 = "1";
 
 	public static final String 充值订单状态_已支付 = "2";
+	
+	public static final String 充值订单状态_已结算 = "3";
 
-	public static final String 充值订单状态_超时取消 = "3";
+	public static final String 充值订单状态_超时取消 = "4";
 
-	public static final String 充值订单状态_人工取消 = "4";
+	public static final String 充值订单状态_人工取消 = "5";
 
 	public static final String 账变日志类型_账号充值 = "1";
 

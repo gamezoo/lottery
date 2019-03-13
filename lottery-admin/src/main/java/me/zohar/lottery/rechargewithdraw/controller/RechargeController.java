@@ -35,5 +35,12 @@ public class RechargeController {
 		rechargeService.cancelOrder(id);
 		return Result.success();
 	}
+	
+	@GetMapping("/manualSettlement")
+	@ResponseBody
+	public Result manualSettlement(String orderNo) {
+		rechargeService.manualSettlement(orderNo);
+		return Result.success();
+	}
 
 }

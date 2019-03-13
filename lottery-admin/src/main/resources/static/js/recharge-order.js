@@ -93,11 +93,14 @@ var rechargeOrderVM = new Vue({
 					field : 'orderStateName',
 					title : '订单状态'
 				}, {
-					field : 'rechargeAmount',
-					title : '充值金额'
-				}, {
-					field : 'rechargeWayName',
-					title : '充值方式'
+					title : '充值方式/充值金额/实际支付',
+					formatter : function(value, row, index, field) {
+						var text = row.rechargeWayName + '/' + row.rechargeAmount;
+						if (row.actualPayAmount != null) {
+							text += '/' + row.actualPayAmount;
+						}
+						return text;
+					}
 				}, {
 					field : 'submitTime',
 					title : '提交时间'
@@ -113,10 +116,16 @@ var rechargeOrderVM = new Vue({
 						if (row.orderState == '1') {
 							return [ '<button type="button" class="cancel-order-btn btn btn-outline-danger btn-sm">取消订单</button>' ].join('');
 						}
+						if (row.orderState == '2') {
+							return [ '<button type="button" class="manual-settlement-btn btn btn-outline-success btn-sm">手动结算</button>' ].join('');
+						}
 					},
 					events : {
 						'click .cancel-order-btn' : function(event, value, row, index) {
 							that.cancelOrder(row.id);
+						},
+						'click .manual-settlement-btn' : function(event, value, row, index) {
+							that.manualSettlement(row.orderNo);
 						}
 					}
 				} ]
@@ -142,6 +151,28 @@ var rechargeOrderVM = new Vue({
 					}
 				}).then(function(res) {
 					layer.alert('操作成功!', {
+						icon : 1,
+						time : 3000,
+						shade : false
+					});
+					that.refreshTable();
+				});
+			});
+		},
+		
+		manualSettlement : function(orderNo) {
+			var that = this;
+			layer.confirm('确定要结算吗?', {
+				icon : 7,
+				title : '提示'
+			}, function(index) {
+				layer.close(index);
+				that.$http.get('/recharge/manualSettlement', {
+					params : {
+						orderNo : orderNo
+					}
+				}).then(function(res) {
+					layer.alert('已通知系统进行结算!', {
 						icon : 1,
 						time : 3000,
 						shade : false

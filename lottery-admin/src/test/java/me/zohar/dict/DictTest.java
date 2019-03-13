@@ -165,6 +165,8 @@ public class DictTest {
 	@Transactional(readOnly = false)
 	@Rollback(false)
 	public void initRechargeOrderStateDict() {
+		deleteDict("rechargeOrderState");
+		
 		DictType dictType = new DictType();
 		dictType.setId(IdUtils.getId());
 		dictType.setDictTypeCode("rechargeOrderState");
@@ -173,8 +175,10 @@ public class DictTest {
 
 		dictItemRepo.save(buildDictItem("1", "待支付", 1d, dictType.getId()));
 		dictItemRepo.save(buildDictItem("2", "已支付", 2d, dictType.getId()));
-		dictItemRepo.save(buildDictItem("3", "超时取消", 3d, dictType.getId()));
-		dictItemRepo.save(buildDictItem("4", "人工取消", 4d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("3", "已结算", 3d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("4", "超时取消", 4d, dictType.getId()));
+		dictItemRepo.save(buildDictItem("5", "人工取消", 5d, dictType.getId()));
+
 	}
 
 	/**
@@ -247,7 +251,7 @@ public class DictTest {
 		dictItemRepo.save(buildDictItem("5", "账号提现", 5d, dictType.getId()));
 		dictItemRepo.save(buildDictItem("6", "活动礼金", 6d, dictType.getId()));
 	}
-	
+
 	/**
 	 * 初始化账号类型字典
 	 */
@@ -256,7 +260,7 @@ public class DictTest {
 	@Rollback(false)
 	public void initAccountTypeDict() {
 		deleteDict("accountType");
-		
+
 		DictType dictType = new DictType();
 		dictType.setId(IdUtils.getId());
 		dictType.setDictTypeCode("accountType");

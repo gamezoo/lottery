@@ -26,7 +26,7 @@ import me.zohar.lottery.betting.repo.BettingRecordRepo;
 import me.zohar.lottery.common.exception.BizError;
 import me.zohar.lottery.common.exception.BizException;
 import me.zohar.lottery.common.utils.IdUtils;
-import me.zohar.lottery.common.utils.ThreadPoolUtil;
+import me.zohar.lottery.common.utils.ThreadPoolUtils;
 import me.zohar.lottery.common.valid.ParamValid;
 import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.issue.domain.Issue;
@@ -98,7 +98,7 @@ public class IssueService {
 			return;
 		}
 		
-		ThreadPoolUtil.getScheduledPool().schedule(() -> {
+		ThreadPoolUtils.getLotterySettlementPool().schedule(() -> {
 			redisTemplate.opsForList().leftPush(Constant.当前开奖期号ID, latestIssue.getId());
 		}, 1, TimeUnit.SECONDS);
 	}

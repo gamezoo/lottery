@@ -1,5 +1,6 @@
 package me.zohar.lottery.useraccount.domain;
 
+import java.text.MessageFormat;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -140,8 +141,30 @@ public class AccountChangeLog {
 		log.setOrderNo(rechargeOrder.getOrderNo());
 		log.setAccountChangeTime(rechargeOrder.getSettlementTime());
 		log.setAccountChangeTypeCode(Constant.账变日志类型_账号充值);
-		log.setAccountChangeAmount(NumberUtil.round(rechargeOrder.getRechargeAmount(), 4).doubleValue());
+		log.setAccountChangeAmount(NumberUtil.round(rechargeOrder.getActualPayAmount(), 4).doubleValue());
 		log.setBalance(userAccount.getBalance());
+		log.setUserAccountId(userAccount.getId());
+		return log;
+	}
+
+	/**
+	 * 构建充值优惠账变日志
+	 * 
+	 * @param userAccount
+	 * @param returnWater
+	 * @param returnWaterRate
+	 * @return
+	 */
+	public static AccountChangeLog buildWithRechargePreferential(UserAccount userAccount, double returnWater,
+			Integer returnWaterRate) {
+		AccountChangeLog log = new AccountChangeLog();
+		log.setId(IdUtils.getId());
+		log.setOrderNo(log.getId());
+		log.setAccountChangeTime(new Date());
+		log.setAccountChangeTypeCode(Constant.账变日志类型_充值优惠);
+		log.setAccountChangeAmount(NumberUtil.round(returnWater, 4).doubleValue());
+		log.setBalance(userAccount.getBalance());
+		log.setNote(MessageFormat.format("充值返水率:{0}%", 5));
 		log.setUserAccountId(userAccount.getId());
 		return log;
 	}

@@ -26,7 +26,7 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
-import me.zohar.lottery.common.utils.ThreadPoolUtil;
+import me.zohar.lottery.common.utils.ThreadPoolUtils;
 import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.issue.vo.IssueVO;
 
@@ -57,13 +57,13 @@ public class CqsscService {
 		List<IssueVO> issues = new ArrayList<>();
 		CountDownLatch countlatch = new CountDownLatch(3);
 		List<Future<IssueVO>> futures = new ArrayList<>();
-		futures.add(ThreadPoolUtil.getPool().submit(() -> {
+		futures.add(ThreadPoolUtils.getSyncLotteryThreadPool().submit(() -> {
 			return getLatestLotteryIssueWithAiCai();
 		}));
-		futures.add(ThreadPoolUtil.getPool().submit(() -> {
+		futures.add(ThreadPoolUtils.getSyncLotteryThreadPool().submit(() -> {
 			return getLatestLotteryResultWith500();
 		}));
-		futures.add(ThreadPoolUtil.getPool().submit(() -> {
+		futures.add(ThreadPoolUtils.getSyncLotteryThreadPool().submit(() -> {
 			return getLatestLotteryResultWithOpenCai();
 		}));
 		for (Future<IssueVO> future : futures) {
