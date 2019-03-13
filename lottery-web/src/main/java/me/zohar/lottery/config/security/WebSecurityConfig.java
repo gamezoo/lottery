@@ -29,6 +29,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		.authorizeRequests()
 		.antMatchers("/").permitAll()
 		.antMatchers("/register").permitAll()
+		.antMatchers("/masterControl/getInviteRegisterSetting").permitAll()
 		.antMatchers("/userAccount/register").permitAll()
 		.antMatchers("/userAccount/getUserAccountInfo").permitAll()
 		.antMatchers("/game/findAllOpenGame").permitAll()

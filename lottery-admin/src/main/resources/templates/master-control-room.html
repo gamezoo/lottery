@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>总控室</title>
+<link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+.master-control-room-row {
+	margin-left: 0;
+	margin-right: 0;
+	padding-top: 10px;
+}
+
+.master-control-room-row .card-body {
+	height: 170px;
+	padding-left: 5.25rem;
+	padding-top: 2.25rem;
+}
+
+.master-control-room-input {
+	text-align: right;
+	width: 40%;
+}
+</style>
+</head>
+<body>
+	<div th:replace="common/header::html"></div>
+	<div id="master-control-room" v-cloak>
+		<div class="row master-control-room-row">
+			<div class="col-sm-4">
+				<div class="card">
+					<div class="card-header">邀请注册</div>
+					<div class="card-body">
+						<div class="row">
+							<div class="col-sm-12">
+								<label>邀请码有效时长</label> <span><input type="text" class="master-control-room-input" v-model="inviteCodeEffectiveDuration">天</span>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<label>&nbsp;</label> <span>
+									<div class="custom-control custom-switch custom-control-inline">
+										<input type="checkbox" class="custom-control-input" id="inviteRegisterEnabled" v-model="inviteRegisterEnabled"> <label class="custom-control-label" for="inviteRegisterEnabled">{{inviteRegisterEnabled ? '启用' : '关闭'}}</label>
+									</div>
+								</span>
+							</div>
+						</div>
+						<button type="button" class="btn btn-success btn-sm" v-on:click="updateInviteRegisterSetting">更新</button>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-4">
+				<div class="card">
+					<div class="card-header">新用户注册礼金</div>
+					<div class="card-body">
+						<div class="row">
+							<div class="col-sm-12">
+								<label>注册礼金</label> <span><input type="text" class="master-control-room-input" v-model="registerAmount">元</span>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<label>&nbsp;</label> <span>
+									<div class="custom-control custom-switch custom-control-inline">
+										<input type="checkbox" class="custom-control-input" id="registerAmountEnabled" v-model="registerAmountEnabled"> <label class="custom-control-label" for="registerAmountEnabled">{{registerAmountEnabled ? '启用' : '关闭'}}</label>
+									</div>
+								</span>
+							</div>
+						</div>
+						<button type="button" class="btn btn-success btn-sm" v-on:click="updateRegisterAmountSetting">更新</button>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-4">
+				<div class="card">
+					<div class="card-header">充值</div>
+					<div class="card-body">
+						<div class="row">
+							<div class="col-sm-12">
+								<label>充值订单有效时长</label> <span><input type="text" class="master-control-room-input" v-model="rechargeOrderEffectiveDuration">分钟</span>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<label>充值返水率</label> <span><input type="text" class="master-control-room-input" v-model="rechargeReturnWaterRate">%</span>
+								<div class="custom-control custom-switch custom-control-inline">
+									<input type="checkbox" class="custom-control-input" id="rechargeReturnWaterRateEnabled" v-model="rechargeReturnWaterRateEnabled"> <label class="custom-control-label" for="rechargeReturnWaterRateEnabled">{{rechargeReturnWaterRateEnabled ? '启用' : '关闭'}}</label>
+								</div>
+							</div>
+						</div>
+						<button type="button" class="btn btn-success btn-sm" v-on:click="updateRechargeSetting">更新</button>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row master-control-room-row">
+			<div class="col-sm-4">
+				<div class="card">
+					<div class="card-header">刷新缓存</div>
+					<div class="card-body">
+						<div class="row">
+							<div class="col-sm-12">
+								<label>缓存</label> <span>
+									<div class="custom-control custom-checkbox custom-control-inline">
+										<input type="checkbox" class="custom-control-input" id="cacheConfigItem" v-model="refreshConfigItem"> <label class="custom-control-label" for="cacheConfigItem">配置项</label>
+									</div>
+									<div class="custom-control custom-checkbox custom-control-inline">
+										<input type="checkbox" class="custom-control-input" id="cacheDict" v-model="refreshDict"> <label class="custom-control-label" for="cacheDict">字典数据</label>
+									</div>
+								</span>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<label style="color: red;">*</label><span>勾选要刷新的缓存数据</span>
+							</div>
+						</div>
+						<button type="button" class="btn btn-success btn-sm" v-on:click="refreshCache">刷新缓存</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="/js/master-control-room.js"></script>
+</body>
+</html>

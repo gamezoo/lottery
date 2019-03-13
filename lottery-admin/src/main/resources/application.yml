@@ -11,6 +11,11 @@ spring:
     generate-ddl: true
     hibernate:
       ddl-auto: none
+    properties:
+      javax:
+        persistence:
+          validation:
+            mode: none
   thymeleaf:
     cache: false
   redis:

@@ -149,6 +149,7 @@
 				userName : '',
 				password : '',
 				balance : '',
+				accountType : '',
 				games : []
 			},
 			computed : {},
@@ -219,6 +220,7 @@
 						} else {
 							that.userName = res.body.data.userName;
 							that.balance = '￥' + res.body.data.balance;
+							that.accountType = res.body.data.accountType;
 						}
 					});
 				},

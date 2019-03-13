@@ -20,7 +20,6 @@ import cn.hutool.core.date.DateUtil;
 import lombok.Getter;
 import lombok.Setter;
 import me.zohar.lottery.common.utils.IdUtils;
-import me.zohar.lottery.dictconfig.ConfigHolder;
 
 /**
  * 邀请码
@@ -72,13 +71,13 @@ public class InviteCode {
 	@JoinColumn(name = "user_account_id", updatable = false, insertable = false, foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	private UserAccount userAccount;
 
-	public static InviteCode generateInviteCode(String code, String userAccountId) {
+	public static InviteCode generateInviteCode(String code, Integer effectiveDuration, String userAccountId) {
 		InviteCode inviteCode = new InviteCode();
 		inviteCode.setId(IdUtils.getId());
 		inviteCode.setCode(code);
 		inviteCode.setCreateTime(new Date());
-		inviteCode.setPeriodOfValidity(DateUtil.offset(inviteCode.getCreateTime(), DateField.SECOND,
-				Integer.parseInt(ConfigHolder.getConfigValue("inviteCode.effectiveDuration"))));
+		inviteCode.setPeriodOfValidity(
+				DateUtil.offset(inviteCode.getCreateTime(), DateField.DAY_OF_YEAR, effectiveDuration));
 		inviteCode.setUserAccountId(userAccountId);
 		return inviteCode;
 	}

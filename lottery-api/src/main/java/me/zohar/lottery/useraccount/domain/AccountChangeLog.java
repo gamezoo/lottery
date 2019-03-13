@@ -22,6 +22,7 @@ import lombok.Setter;
 import me.zohar.lottery.betting.domain.BettingOrder;
 import me.zohar.lottery.common.utils.IdUtils;
 import me.zohar.lottery.constants.Constant;
+import me.zohar.lottery.mastercontrol.domain.RegisterAmountSetting;
 import me.zohar.lottery.rechargewithdraw.domain.RechargeOrder;
 import me.zohar.lottery.rechargewithdraw.domain.WithdrawRecord;
 
@@ -83,6 +84,11 @@ public class AccountChangeLog {
 	private Double balance;
 
 	/**
+	 * 备注
+	 */
+	private String note;
+
+	/**
 	 * 乐观锁版本号
 	 */
 	@Version
@@ -100,6 +106,26 @@ public class AccountChangeLog {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_account_id", updatable = false, insertable = false, foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	private UserAccount userAccount;
+
+	/**
+	 * 构建注册礼金账变日志
+	 * 
+	 * @param userAccount
+	 * @param bettingOrder
+	 * @return
+	 */
+	public static AccountChangeLog buildWithRegisterAmount(UserAccount userAccount, RegisterAmountSetting setting) {
+		AccountChangeLog log = new AccountChangeLog();
+		log.setId(IdUtils.getId());
+		log.setOrderNo(log.getId());
+		log.setAccountChangeTime(new Date());
+		log.setAccountChangeTypeCode(Constant.账变日志类型_活动礼金);
+		log.setAccountChangeAmount(NumberUtil.round(setting.getRegisterAmount(), 4).doubleValue());
+		log.setBalance(userAccount.getBalance());
+		log.setNote("新用户注册礼金");
+		log.setUserAccountId(userAccount.getId());
+		return log;
+	}
 
 	/**
 	 * 构建充值账变日志

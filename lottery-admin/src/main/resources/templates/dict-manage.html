@@ -41,7 +41,6 @@
 		</form>
 		<form class="form-inline common-query-cond-form float-right" action="#">
 			<button type="button" class="btn btn-info" v-on:click="openAddDictTypeModal" style="margin-right: 4px;">新增字典</button>
-			<button type="button" class="btn btn-secondary" v-on:click="refreshCacheModal.openRefreshCacheModal">刷新缓存</button>
 		</form>
 		<table class="common-table dict-manage-table"></table>
 
@@ -130,7 +129,6 @@
 			</div>
 		</div>
 	</div>
-	<div th:replace="component/refresh-cache-modal::html"></div>
 	<script src="/js/dict-manage.js"></script>
 </body>
 </html>

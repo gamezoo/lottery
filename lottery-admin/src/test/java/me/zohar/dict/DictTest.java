@@ -233,6 +233,7 @@ public class DictTest {
 	@Transactional(readOnly = false)
 	@Rollback(false)
 	public void initAccountChangeTypeDict() {
+		deleteDict("accountChangeType");
 		DictType dictType = new DictType();
 		dictType.setId(IdUtils.getId());
 		dictType.setDictTypeCode("accountChangeType");
@@ -244,7 +245,7 @@ public class DictTest {
 		dictItemRepo.save(buildDictItem("3", "投注扣款", 3d, dictType.getId()));
 		dictItemRepo.save(buildDictItem("4", "投注返奖", 4d, dictType.getId()));
 		dictItemRepo.save(buildDictItem("5", "账号提现", 5d, dictType.getId()));
-
+		dictItemRepo.save(buildDictItem("6", "活动礼金", 6d, dictType.getId()));
 	}
 	
 	/**

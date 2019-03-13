@@ -39,6 +39,9 @@ public class ParamValidAspect {
 		// 获取入参
 		Object[] args = joinPoint.getArgs();
 		for (Object arg : args) {
+			if (arg == null) {
+				throw new ParamValidException(BizError.参数异常.getCode(), "入参为空");
+			}
 			Set<ConstraintViolation<Object>> violations = validator.validate(arg);
 			Iterator<ConstraintViolation<Object>> iterator = violations.iterator();
 			// 参数校验不通过,直接抛出异常

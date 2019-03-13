@@ -1,11 +1,11 @@
 package me.zohar.lottery.constants;
 
 public class Constant {
-	
+
 	public static final String 账号类型_管理员 = "admin";
-	
+
 	public static final String 账号类型_代理 = "agent";
-	
+
 	public static final String 账号类型_会员 = "member";
 
 	public static final String 账号状态_启用 = "1";
@@ -42,6 +42,8 @@ public class Constant {
 
 	public static final String 当前开奖期号ID = "CURRENT_LOTTERY_ISSUE_ID";
 
+	public static final Integer 充值订单默认有效时长 = 10;
+
 	public static final String 充值订单_已支付订单单号 = "RECHARGE_ORDER_PAID_ORDER_NO";
 
 	public static final String 充值订单状态_待支付 = "1";
@@ -61,6 +63,8 @@ public class Constant {
 	public static final String 账变日志类型_投注返奖 = "4";
 
 	public static final String 账变日志类型_账号提现 = "5";
+
+	public static final String 账变日志类型_活动礼金 = "6";
 
 	public static final String 充提日志订单类型_充值 = "1";
 

@@ -17,7 +17,6 @@ public class UserAccountRegisterParam {
 	/**
 	 * 邀请码
 	 */
-	@NotBlank
 	private String inviteCode;
 
 	/**

@@ -44,7 +44,7 @@ public class Jx11x5Service {
 		issueService.syncLotteryNum(Constant.游戏_江西11选5, latestWithInterface.getIssueNum(),
 				latestWithInterface.getLotteryNum());
 	}
-	
+
 	public IssueVO getLatestLotteryResultWithApi() {
 		List<IssueVO> issues = new ArrayList<>();
 		CountDownLatch countlatch = new CountDownLatch(1);
@@ -96,9 +96,10 @@ public class Jx11x5Service {
 					DateUtil.parse(String.valueOf(issueNum).substring(0, 8), DatePattern.PURE_DATE_PATTERN),
 					DatePattern.NORM_DATE_PATTERN);
 			List<String> lotteryNums = new ArrayList<>();
+
 			JSONArray jsonArray = resultJsonObject.getJSONArray("RedBall");
 			for (int i = 0; i < jsonArray.size(); i++) {
-				lotteryNums.add(jsonArray.getString(i));
+				lotteryNums.add(String.format("%02d", Integer.parseInt(jsonArray.getString(i))));
 			}
 			String lotteryNum = String.join(",", lotteryNums);
 			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(lotteryDateFormat)

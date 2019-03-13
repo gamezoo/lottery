@@ -26,7 +26,7 @@
 				<div class="col-sm-12">
 					<nav class="navbar navbar-expand-sm bg-light personal-center-navbar">
 						<ul class="navbar-nav">
-							<li class="nav-item" v-if="header.accountType == 'admin' || header.accountType == 'agent'" v-bind:class="{'selected-personal-center-navbar-item': currentTab == 'inviteCode'}" v-on:click="switchInviteCodeTab"><a class="nav-link" href="#"><span>邀请码</span></a></li>
+							<li class="nav-item" v-if="inviteRegisterFlag && (header.accountType == 'admin' || header.accountType == 'agent')" v-bind:class="{'selected-personal-center-navbar-item': currentTab == 'inviteCode'}" v-on:click="switchInviteCodeTab"><a class="nav-link" href="#"><span>邀请码</span></a></li>
 							<li class="nav-item" v-bind:class="{'selected-personal-center-navbar-item': currentTab == 'bankCardInfo'}" v-on:click="switchBankCardInfoTab"><a class="nav-link" href="#"><span>银行卡资料管理</span></a></li>
 							<li class="nav-item" v-bind:class="{'selected-personal-center-navbar-item': currentTab == 'loginPwdModify'}" v-on:click="switchLoginPwdModifyTab"><a class=" nav-link" href="#"><span>登录密码修改</span></a></li>
 							<li class="nav-item" v-bind:class="{'selected-personal-center-navbar-item': currentTab == 'moneyPwdModify'}" v-on:click="switchMoneyPwdModifyTab"><a class="nav-link" href="#"><span>资金密码修改</span></a></li>

@@ -19,14 +19,20 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import me.zohar.lottery.common.exception.BizError;
 import me.zohar.lottery.common.exception.BizException;
 import me.zohar.lottery.common.valid.ParamValid;
 import me.zohar.lottery.common.vo.PageResult;
+import me.zohar.lottery.mastercontrol.domain.InviteRegisterSetting;
+import me.zohar.lottery.mastercontrol.domain.RegisterAmountSetting;
+import me.zohar.lottery.mastercontrol.repo.InviteRegisterSettingRepo;
+import me.zohar.lottery.mastercontrol.repo.RegisterAmountSettingRepo;
 import me.zohar.lottery.useraccount.domain.AccountChangeLog;
 import me.zohar.lottery.useraccount.domain.InviteCode;
 import me.zohar.lottery.useraccount.domain.UserAccount;
@@ -48,6 +54,7 @@ import me.zohar.lottery.useraccount.vo.LoginAccountInfoVO;
 import me.zohar.lottery.useraccount.vo.UserAccountDetailsInfoVO;
 import me.zohar.lottery.useraccount.vo.UserAccountInfoVO;
 
+@Validated
 @Service
 public class UserAccountService {
 
@@ -59,6 +66,12 @@ public class UserAccountService {
 
 	@Autowired
 	private InviteCodeRepo inviteCodeRepo;
+
+	@Autowired
+	private RegisterAmountSettingRepo registerAmountSettingRepo;
+
+	@Autowired
+	private InviteRegisterSettingRepo inviteRegisterSettingRepo;
 
 	/**
 	 * 更新最近登录时间
@@ -199,16 +212,26 @@ public class UserAccountService {
 			newUserAccount.setInviterId(inviter.getId());
 		}
 		userAccountRepo.save(newUserAccount);
+		updateBalanceWithRegisterAmount(newUserAccount);
+	}
+
+	/**
+	 * 新注册用户送活动礼金
+	 */
+	@Transactional
+	public void updateBalanceWithRegisterAmount(UserAccount userAccount) {
+		RegisterAmountSetting setting = registerAmountSettingRepo.findTopByOrderByEnabled();
+		if (setting == null || !setting.getEnabled()) {
+			return;
+		}
+		double balance = NumberUtil.round(userAccount.getBalance() + setting.getRegisterAmount(), 4).doubleValue();
+		userAccount.setBalance(balance);
+		userAccountRepo.save(userAccount);
+		accountChangeLogRepo.save(AccountChangeLog.buildWithRegisterAmount(userAccount, setting));
 	}
 
 	@Transactional
 	public UserAccountInfoVO userAccountRegister(UserAccountRegisterParam param) {
-		InviteCode inviteCode = inviteCodeRepo.findTopByCodeAndPeriodOfValidityGreaterThanEqual(param.getInviteCode(),
-				new Date());
-		if (inviteCode == null) {
-			throw new BizException(BizError.邀请码不存在或已失效);
-		}
-
 		UserAccount userAccount = userAccountRepo.findByUserName(param.getUserName());
 		if (userAccount != null) {
 			throw new BizException(BizError.用户名已存在);
@@ -216,10 +239,32 @@ public class UserAccountService {
 		String encodePwd = new BCryptPasswordEncoder().encode(param.getLoginPwd());
 		param.setLoginPwd(encodePwd);
 		UserAccount newUserAccount = param.convertToPo();
-		newUserAccount.setBalance(100d);
-		newUserAccount.setInviterId(inviteCode.getUserAccountId());
+		newUserAccount.setBalance(0d);
+		newUserAccount.setInviterId(confirmCodeAndGetInviterId(param.getInviteCode()));
 		userAccountRepo.save(newUserAccount);
+		updateBalanceWithRegisterAmount(newUserAccount);
 		return UserAccountInfoVO.convertFor(newUserAccount);
+	}
+
+	/**
+	 * 确认邀请码并返回邀请人id
+	 * 
+	 * @param code
+	 * @return
+	 */
+	public String confirmCodeAndGetInviterId(String code) {
+		InviteRegisterSetting setting = inviteRegisterSettingRepo.findTopByOrderByEnabled();
+		if (setting == null || !setting.getEnabled()) {
+			return null;
+		}
+		if (StrUtil.isBlank(code)) {
+			throw new BizException(BizError.邀请码不存在或已失效);
+		}
+		InviteCode inviteCode = inviteCodeRepo.findTopByCodeAndPeriodOfValidityGreaterThanEqual(code, new Date());
+		if (inviteCode == null) {
+			throw new BizException(BizError.邀请码不存在或已失效);
+		}
+		return inviteCode.getUserAccountId();
 	}
 
 	@Transactional(readOnly = true)
@@ -278,6 +323,11 @@ public class UserAccountService {
 	 */
 	@Transactional
 	public void generateInviteCode(String userAccountId) {
+		InviteRegisterSetting setting = inviteRegisterSettingRepo.findTopByOrderByEnabled();
+		if (setting == null || !setting.getEnabled()) {
+			throw new BizException(BizError.邀请注册功能已关闭);
+		}
+
 		InviteCode inviteCode = inviteCodeRepo.findTopByUserAccountIdOrderByPeriodOfValidityDesc(userAccountId);
 		if (inviteCode != null && inviteCode.getPeriodOfValidity().getTime() > new Date().getTime()) {
 			return;
@@ -287,7 +337,7 @@ public class UserAccountService {
 		while (inviteCodeRepo.findTopByCodeAndPeriodOfValidityGreaterThanEqual(code, new Date()) != null) {
 			code = IdUtil.fastSimpleUUID().substring(0, 6);
 		}
-		InviteCode newInviteCode = InviteCode.generateInviteCode(code, userAccountId);
+		InviteCode newInviteCode = InviteCode.generateInviteCode(code, setting.getEffectiveDuration(), userAccountId);
 		inviteCodeRepo.save(newInviteCode);
 	}
 

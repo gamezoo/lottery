@@ -111,4 +111,14 @@ public class PageController {
 		return "dict-manage";
 	}
 
+	/**
+	 * 总控室
+	 * 
+	 * @return
+	 */
+	@GetMapping("/master-control-room")
+	public String masterControlRoom() {
+		return "master-control-room";
+	}
+
 }

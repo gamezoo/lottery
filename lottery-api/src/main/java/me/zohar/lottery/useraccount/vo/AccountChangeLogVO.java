@@ -66,6 +66,11 @@ public class AccountChangeLogVO {
 	 * 余额
 	 */
 	private Double balance;
+	
+	/**
+	 * 备注
+	 */
+	private String note;
 
 	/**
 	 * 用户账号id

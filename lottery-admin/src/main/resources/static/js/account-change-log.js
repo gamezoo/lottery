@@ -88,7 +88,10 @@ var accountChangeLogVM = new Vue({
 					title : '账变时间'
 				}, {
 					field : 'accountChangeTypeName',
-					title : '类型'
+					title : '帐变类型'
+				}, {
+					field : 'note',
+					title : '备注'
 				}, {
 					field : 'accountChangeAmount',
 					title : '账变金额'

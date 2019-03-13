@@ -7,6 +7,7 @@ var personalCenter = new Vue({
 		/**
 		 * 邀请码tab相关参数start
 		 */
+		inviteRegisterFlag : false,
 		inviteDetailsInfo : {},
 
 		/**
@@ -53,9 +54,19 @@ var personalCenter = new Vue({
 	created : function() {
 	},
 	mounted : function() {
+		this.loadInviteRegisterSetting();
 		this.switchAccountChangeTab();
 	},
 	methods : {
+		
+		loadInviteRegisterSetting : function() {
+			var that = this;
+			that.$http.get('/masterControl/getInviteRegisterSetting').then(function(res) {
+				if (res.body.data != null) {
+					that.inviteRegisterFlag = res.body.data.enabled;
+				}
+			});
+		},
 
 		/**
 		 * 邀请码tab相关方法start

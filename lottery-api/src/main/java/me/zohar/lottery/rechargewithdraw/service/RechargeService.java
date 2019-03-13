@@ -27,6 +27,8 @@ import me.zohar.lottery.common.exception.BizException;
 import me.zohar.lottery.common.valid.ParamValid;
 import me.zohar.lottery.common.vo.PageResult;
 import me.zohar.lottery.constants.Constant;
+import me.zohar.lottery.mastercontrol.domain.RechargeSetting;
+import me.zohar.lottery.mastercontrol.repo.RechargeSettingRepo;
 import me.zohar.lottery.rechargewithdraw.domain.RechargeOrder;
 import me.zohar.lottery.rechargewithdraw.param.MuspayCallbackParam;
 import me.zohar.lottery.rechargewithdraw.param.RechargeOrderParam;
@@ -41,7 +43,7 @@ import me.zohar.lottery.useraccount.repo.UserAccountRepo;
 
 @Service
 public class RechargeService {
-	
+
 	@Autowired
 	private StringRedisTemplate redisTemplate;
 
@@ -53,6 +55,9 @@ public class RechargeService {
 
 	@Autowired
 	private AccountChangeLogRepo accountChangeLogRepo;
+
+	@Autowired
+	private RechargeSettingRepo rechargeSettingRepo;
 
 	@ParamValid
 	public void checkOrderWithMuspay(MuspayCallbackParam param) {
@@ -134,7 +139,13 @@ public class RechargeService {
 
 	@Transactional
 	public RechargeOrderVO generateRechargeOrder(RechargeOrderParam param) {
-		RechargeOrder rechargeOrder = param.convertToPo();
+		Integer orderEffectiveDuration = Constant.充值订单默认有效时长;
+		RechargeSetting rechargeSetting = rechargeSettingRepo.findTopByOrderByLatelyUpdateTime();
+		if (rechargeSetting != null) {
+			orderEffectiveDuration = rechargeSetting.getOrderEffectiveDuration();
+		}
+
+		RechargeOrder rechargeOrder = param.convertToPo(orderEffectiveDuration);
 		String payUrl = Muspay.sendRequest(rechargeOrder.getOrderNo(), rechargeOrder.getRechargeAmount(),
 				rechargeOrder.getRechargeWayCode());
 		rechargeOrder.setPayUrl(payUrl);

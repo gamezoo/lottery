@@ -13,7 +13,6 @@ import cn.hutool.core.date.DateUtil;
 import lombok.Data;
 import me.zohar.lottery.common.utils.IdUtils;
 import me.zohar.lottery.constants.Constant;
-import me.zohar.lottery.dictconfig.ConfigHolder;
 import me.zohar.lottery.rechargewithdraw.domain.RechargeOrder;
 
 /**
@@ -29,29 +28,35 @@ public class RechargeOrderParam {
 	/**
 	 * 充值方式代码
 	 */
-	@NotBlank(message = "rechargeWayCode不能为空")
+	@NotBlank
 	private String rechargeWayCode;
 
 	/**
 	 * 充值金额
 	 */
-	@NotNull(message = "rechargeAmount不能为空")
-	@DecimalMin(value = "0", inclusive = false, message = "rechargeAmount不能少于或等于0")
+	@NotNull
+	@DecimalMin(value = "0", inclusive = false)
 	private Double rechargeAmount;
 
 	/**
 	 * 用户账号id
 	 */
-	@NotBlank(message = "userAccountId不能为空")
+	@NotBlank
 	private String userAccountId;
 
-	public RechargeOrder convertToPo() {
+	/**
+	 * 构建充值订单
+	 * 
+	 * @param orderEffectiveDuration
+	 *            订单有效时长
+	 * @return
+	 */
+	public RechargeOrder convertToPo(Integer orderEffectiveDuration) {
 		RechargeOrder po = new RechargeOrder();
 		BeanUtils.copyProperties(this, po);
 		po.setId(IdUtils.getId());
 		po.setSubmitTime(new Date());
-		po.setUsefulTime(DateUtil.offset(po.getSubmitTime(), DateField.SECOND,
-				Integer.parseInt(ConfigHolder.getConfigValue("recharge.effectiveDuration"))));
+		po.setUsefulTime(DateUtil.offset(po.getSubmitTime(), DateField.MINUTE, orderEffectiveDuration));
 		po.setOrderNo(po.getId());
 		po.setOrderState(Constant.充值订单状态_待支付);
 		return po;
