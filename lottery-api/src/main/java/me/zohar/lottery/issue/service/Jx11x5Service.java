@@ -18,8 +18,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import me.zohar.lottery.common.utils.ThreadPoolUtils;
@@ -92,17 +90,13 @@ public class Jx11x5Service {
 			String result = HttpUtil.post("https://kjh.55128.cn/k/Template/_getKjData", paramMap);
 			JSONObject resultJsonObject = JSON.parseObject(result);
 			long issueNum = Long.parseLong("20" + resultJsonObject.getString("Term"));
-			String lotteryDateFormat = DateUtil.format(
-					DateUtil.parse(String.valueOf(issueNum).substring(0, 8), DatePattern.PURE_DATE_PATTERN),
-					DatePattern.NORM_DATE_PATTERN);
 			List<String> lotteryNums = new ArrayList<>();
-
 			JSONArray jsonArray = resultJsonObject.getJSONArray("RedBall");
 			for (int i = 0; i < jsonArray.size(); i++) {
 				lotteryNums.add(String.format("%02d", Integer.parseInt(jsonArray.getString(i))));
 			}
 			String lotteryNum = String.join(",", lotteryNums);
-			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(lotteryDateFormat)
+			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(null)
 					.lotteryNum(lotteryNum).build();
 			return lotteryResult;
 		} catch (Exception e) {

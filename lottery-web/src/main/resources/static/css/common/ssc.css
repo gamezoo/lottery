@@ -21,6 +21,11 @@
 	margin-right: 18px;
 }
 
+.lottery-logo img {
+	height: 102px;
+	width: 102px;
+}
+
 .lately-issue {
 	margin: 0 2px;
 	font-weight: normal;

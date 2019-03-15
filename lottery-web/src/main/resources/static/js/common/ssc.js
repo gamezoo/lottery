@@ -366,6 +366,13 @@ var ssc = new Vue({
 		},
 
 		/**
+		 * 阶乘
+		 */
+		factorial : function(e) {
+			return e <= 1 ? 1 : e * this.factorial(e - 1);
+		},
+
+		/**
 		 * 计算选中号码的注数和投注的金额
 		 */
 		calcBettingCountAndAmount : function() {
@@ -429,6 +436,11 @@ var ssc = new Vue({
 					}
 				}
 				break;
+			// case 'ZUX120':
+			// ballJoins[0].length > 4 && (bettingCount = 5 ===
+			// ballJoins[0].length ? 1 : this.factorial(ballJoins[0].length) /
+			// (120 * this.factorial(ballJoins[0].length - 5)));
+			// break;
 			default:
 				throw 'unknown play ' + this.selectedPlayCode
 			}
@@ -464,7 +476,7 @@ var ssc = new Vue({
 		 */
 		addToPreBettingOrder : function() {
 			var preBettingRecords = this.generatePreBettingRecords();
-			if (preBettingRecords.length == 0) {
+			if (preBettingRecords == null || preBettingRecords.length == 0) {
 				return;
 			}
 			this.preBettingRecords = this.preBettingRecords.concat(preBettingRecords);
@@ -487,10 +499,21 @@ var ssc = new Vue({
 		},
 
 		/**
+		 * 一键下单
+		 */
+		onekeyPlaceOrder : function() {
+			this.addToPreBettingOrder();
+			this.placeOrder();
+		},
+
+		/**
 		 * 下单
 		 */
 		placeOrder : function() {
 			var that = this;
+			if (that.preBettingRecords == null || that.preBettingRecords.length == 0) {
+				return;
+			}
 			var placeOrderParam = {
 				gameCode : that.selectedPlay.gameCode,
 				issueNum : that.currentIssue.issueNum,

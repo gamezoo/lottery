@@ -29,27 +29,27 @@ public class PlaceOrderParam {
 	/**
 	 * 游戏代码
 	 */
-	@NotBlank(message = "gameCode不能为空")
+	@NotBlank
 	private String gameCode;
 
 	/**
 	 * 期号
 	 */
-	@NotNull(message = "issueNum不能为空")
+	@NotNull
 	private Long issueNum;
 
 	/**
 	 * 投注底数金额
 	 */
-	@NotNull(message = "baseAmount不能为空")
-	@DecimalMin(value = "0", inclusive = false, message = "baseAmount不能少于或等于0")
+	@NotNull
+	@DecimalMin(value = "0", inclusive = false)
 	private Double baseAmount;
 
 	/**
 	 * 倍数
 	 */
-	@NotNull(message = "multiple不能为空")
-	@DecimalMin(value = "1", inclusive = true, message = "multiple不能小于1")
+	@NotNull
+	@DecimalMin(value = "1", inclusive = true)
 	private Double multiple;
 
 	/**

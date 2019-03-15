@@ -48,10 +48,6 @@ public class CqsscService {
 		issueService.syncLotteryNum(Constant.游戏_重庆时时彩, latestWithInterface.getIssueNum(),
 				latestWithInterface.getLotteryNum());
 	}
-	
-	public void test() {
-		
-	}
 
 	public IssueVO getLatestLotteryResultWithApi() {
 		List<IssueVO> issues = new ArrayList<>();
@@ -136,11 +132,8 @@ public class CqsscService {
 			List<org.dom4j.Element> elements = document.getRootElement().elements("row");
 			org.dom4j.Element element = elements.get(0);
 			long issueNum = Long.parseLong(element.attributeValue("expect"));
-			String lotteryDateFormat = DateUtil.format(
-					DateUtil.parse(String.valueOf(issueNum).substring(0, 8), DatePattern.PURE_DATE_PATTERN),
-					DatePattern.NORM_DATE_PATTERN);
 			String lotteryNum = element.attributeValue("opencode");
-			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(lotteryDateFormat)
+			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(null)
 					.lotteryNum(lotteryNum).build();
 			return lotteryResult;
 		} catch (Exception e) {
@@ -160,11 +153,8 @@ public class CqsscService {
 			JSONArray jsonArray = resultJsonObject.getJSONArray("data");
 			JSONObject jsonObject = jsonArray.getJSONObject(0);
 			long issueNum = Long.parseLong(jsonObject.getString("expect"));
-			String lotteryDateFormat = DateUtil.format(
-					DateUtil.parse(String.valueOf(issueNum).substring(0, 8), DatePattern.PURE_DATE_PATTERN),
-					DatePattern.NORM_DATE_PATTERN);
 			String lotteryNum = jsonObject.getString("opencode");
-			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(lotteryDateFormat)
+			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(null)
 					.lotteryNum(lotteryNum).build();
 			return lotteryResult;
 		} catch (Exception e) {

@@ -10,10 +10,10 @@ import cn.hutool.core.collection.CollectionUtil;
 import lombok.Data;
 import me.zohar.lottery.betting.domain.BettingRecord;
 import me.zohar.lottery.dictconfig.DictHolder;
-import me.zohar.lottery.issue.enums.GamePlay;
 
 /**
  * 投注记录
+ * 
  * @author zohar
  * @date 2019年1月19日
  *
@@ -35,7 +35,7 @@ public class BettingRecordVO {
 	 * 注数
 	 */
 	private Long bettingCount;
-	
+
 	/**
 	 * 游戏玩法代码
 	 */
@@ -88,9 +88,8 @@ public class BettingRecordVO {
 		}
 		BettingRecordVO vo = new BettingRecordVO();
 		BeanUtils.copyProperties(bettingRecord, vo);
-		vo.setGamePlayName(GamePlay
-				.getPlay(bettingRecord.getBettingOrder().getGameCode() + "_" + bettingRecord.getGamePlayCode())
-				.getName().split("_")[1]);
+		vo.setGamePlayName(DictHolder.getDictItemName("gamePlay",
+				bettingRecord.getBettingOrder().getGameCode() + "_" + bettingRecord.getGamePlayCode()));
 		vo.setIssueNum(bettingRecord.getBettingOrder().getIssueNum());
 		vo.setStateName(DictHolder.getDictItemName("bettingOrderState", bettingRecord.getBettingOrder().getState()));
 		return vo;

@@ -65,7 +65,8 @@
 	<div id="game-manage" v-cloak>
 		<div v-show="showGameManageFlag">
 			<form class="form-inline common-query-cond-form float-right">
-				<button type="button" class="btn btn-info btn-sm" v-on:click="openAddGameModal">新增游戏</button>
+				<button type="button" class="btn btn-info btn-sm" style="margin-right: 4px;" v-on:click="openAddGameModal">新增游戏</button>
+				<button type="button" class="btn btn-primary btn-sm" v-on:click="openDictSyncModal">字典同步</button>
 			</form>
 			<table class="table table-hover common-table game-manage-table">
 				<thead>
@@ -171,7 +172,7 @@
 										<td>{{numLocate.maxSelected}}</td>
 										<td>{{numLocate.hasFilterBtnFlag ? '显示': '不显示'}}</td>
 									</tr>
-									<tr v-for="optionalNum in numLocate.optionalNums" v-if="!selectedGamePlay.hasFixedOddsFlag">
+									<tr v-for="optionalNum in numLocate.optionalNums" v-if="selectedGamePlay.oddsMode != '1'">
 										<td colspan="4">
 											<div class="row">
 												<div class="offset-md-2 col-sm-4">
@@ -309,6 +310,46 @@
 							<div class="modal-footer">
 								<button type="button" class="btn btn-success btn-sm" v-on:click="addOrUpdateGame">保存</button>
 								<button type="button" class="btn btn-sm" v-on:click="addOrUpdateGameFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div v-if="dictSyncFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog dict-sync-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">字典同步</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="dictSyncFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<form>
+									<div class="row">
+										<div class="col-sm-9 offset-md-3">
+											<div class="custom-control custom-checkbox mb-3 custom-control-inline">
+												<input id="syncGameDict" class="custom-control-input" type="checkbox" v-model="syncGameDict"> <label for="syncGameDict" class="custom-control-label">游戏</label>
+											</div>
+											<div class="custom-control custom-checkbox mb-3 custom-control-inline">
+												<input id="syncGamePlayDict" class="custom-control-input" type="checkbox" v-model="syncGamePlayDict"> <label for="syncGamePlayDict" class="custom-control-label">游戏玩法</label>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-sm-9 offset-md-3">
+											<label style="color: red;">*</label><span>勾选要同步的字典数据</span>
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="dictSync">同步</button>
+								<button type="button" class="btn btn-sm" v-on:click="dictSyncFlag = false">取消</button>
 							</div>
 						</div>
 					</div>

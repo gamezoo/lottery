@@ -21,28 +21,22 @@ import me.zohar.lottery.common.utils.IdUtils;
 public class BettingRecordParam {
 
 	/**
-	 * 游戏玩法类别代码
-	 */
-	@NotBlank(message = "gamePlayCategoryCode不能为空")
-	private String gamePlayCategoryCode;
-
-	/**
 	 * 游戏玩法代码
 	 */
-	@NotBlank(message = "gamePlayCode不能为空")
+	@NotBlank
 	private String gamePlayCode;
 
 	/**
 	 * 所选号码
 	 */
-	@NotBlank(message = "selectedNo不能为空")
+	@NotBlank
 	private String selectedNo;
 
 	/**
 	 * 注数
 	 */
-	@NotNull(message = "bettingCount不能为空")
-	@DecimalMin(value = "1", inclusive = true, message = "bettingCount不能小于1")
+	@NotNull
+	@DecimalMin(value = "1", inclusive = true)
 	private Long bettingCount;
 
 	public BettingRecord convertToPo(Double bettingAmount, Double odds) {

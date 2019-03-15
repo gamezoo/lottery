@@ -20,6 +20,13 @@ public class GameController {
 
 	@Autowired
 	private GameService gameService;
+	
+	@GetMapping("/dictSync")
+	@ResponseBody
+	public Result dictSync(Boolean syncGameDict, Boolean syncGamePlayDict) {
+		gameService.dictSync(syncGameDict, syncGamePlayDict);
+		return Result.success();
+	}
 
 	@GetMapping("/findAllGame")
 	@ResponseBody

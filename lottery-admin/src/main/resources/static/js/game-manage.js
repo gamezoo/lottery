@@ -2,17 +2,36 @@ var gameManage = new Vue({
 	el : '#game-manage',
 	data : {
 		games : [],
+		showGameManageFlag : true,
+		selectedGame : {},
+
+		/**
+		 * 新增/编辑游戏start
+		 */
 		editGame : {},
 		addOrUpdateGameFlag : false,
 		gameActionTitle : '',
+
+		/**
+		 * 字典同步start
+		 */
+		dictSyncFlag : false,
+		syncGameDict : true,
+		syncGamePlayDict : true,
+
+		/**
+		 * 期号设置start
+		 */
 		issueSettingFlag : false,
 		issueSettingDetails : {},
-		showGameManageFlag : true,
-		selectedGame : {},
+
+		/**
+		 * 游戏玩法start
+		 */
 		selectedGamePlay : {},
 		editGamePlay : {},
 		addOrUpdateGamePlayFlag : false,
-		gamePlayActionTitle : '',
+		gamePlayActionTitle : ''
 	},
 	computed : {},
 	created : function() {
@@ -131,6 +150,30 @@ var gameManage = new Vue({
 					shade : false
 				});
 				that.issueSettingFlag = false;
+				that.initGameManageTable();
+			});
+		},
+
+		openDictSyncModal : function() {
+			this.dictSyncFlag = true;
+			this.syncGameDict = true;
+			this.syncGamePlayDict = true;
+		},
+
+		dictSync : function() {
+			var that = this;
+			that.$http.get('/game/dictSync', {
+				params : {
+					syncGameDict : that.syncGameDict,
+					syncGamePlayDict : that.syncGamePlayDict
+				}
+			}).then(function(res) {
+				layer.alert('操作成功!', {
+					icon : 1,
+					time : 3000,
+					shade : false
+				});
+				that.dictSyncFlag = false;
 				that.initGameManageTable();
 			});
 		},

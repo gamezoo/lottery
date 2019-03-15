@@ -1,7 +1,9 @@
 package me.zohar.lottery.issue.service;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,8 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import me.zohar.lottery.common.utils.ThreadPoolUtils;
@@ -29,7 +33,7 @@ import me.zohar.lottery.issue.vo.IssueVO;
 
 @Service
 @Slf4j
-public class XjsscService {
+public class TjsscService {
 
 	@Autowired
 	private IssueService issueService;
@@ -42,21 +46,25 @@ public class XjsscService {
 		if (latestWithInterface == null) {
 			return;
 		}
-		issueService.syncLotteryNum(Constant.游戏_新疆时时彩, latestWithInterface.getIssueNum(),
+		issueService.syncLotteryNum(Constant.游戏_天津时时彩, latestWithInterface.getIssueNum(),
 				latestWithInterface.getLotteryNum());
 	}
 
 	public IssueVO getLatestLotteryResultWithApi() {
 		List<IssueVO> issues = new ArrayList<>();
-		CountDownLatch countlatch = new CountDownLatch(2);
+		CountDownLatch countlatch = new CountDownLatch(3);
 		List<Future<IssueVO>> futures = new ArrayList<>();
-		futures.add(ThreadPoolUtils.getSyncLotteryThreadPool().submit(() -> {
-			return getLatestLotteryResultWith06kj77();
-		}));
-		futures.add(ThreadPoolUtils.getSyncLotteryThreadPool().submit(() -> {
-			return getLatestLotteryResultWithCaim8();
-		}));
 		
+		futures.add(ThreadPoolUtils.getSyncLotteryThreadPool().submit(() -> {
+			return getLatestLotteryResultWithBowangcai();
+		}));
+		futures.add(ThreadPoolUtils.getSyncLotteryThreadPool().submit(() -> {
+			return getLatestLotteryResultWithSsqzj();
+		}));
+		futures.add(ThreadPoolUtils.getSyncLotteryThreadPool().submit(() -> {
+			return getLatestLotteryResultWithCjcp();
+		}));
+
 		for (Future<IssueVO> future : futures) {
 			try {
 				IssueVO issueVO = future.get(3, TimeUnit.SECONDS);
@@ -90,40 +98,70 @@ public class XjsscService {
 		return issues.isEmpty() ? null : issues.get(0);
 	}
 
-	public IssueVO getLatestLotteryResultWith06kj77() {
+	public IssueVO getLatestLotteryResultWithBowangcai() {
+		String currentDateFormat = DateUtil.format(new Date(), DatePattern.NORM_DATE_PATTERN);
 		try {
 			Map<String, Object> paramMap = new HashMap<>();
-			paramMap.put("code", "xj_ssc");
-			String result = HttpUtil.get("https://06kj77.com/api/newest", paramMap);
-			JSONObject resultJsonObject = JSON.parseObject(result).getJSONObject("data").getJSONObject("newest");
-			long issueNum = Long.parseLong(resultJsonObject.getString("issue"));
-			String lotteryNum = resultJsonObject.getString("code");
-			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(null)
-					.lotteryNum(lotteryNum).build();
-			return lotteryResult;
-		} catch (Exception e) {
-			log.error("通过开奖助手获取新疆时时彩最新开奖结果发生异常", e);
-		}
-		return null;
-	}
-
-	public IssueVO getLatestLotteryResultWithCaim8() {
-		try {
-			String url = "https://www.caim8.com/xjcai/open.html";
-			Document document = Jsoup.connect(url).get();
-
-			List<String> lotteryNums = new ArrayList<>();
-			Elements lotteryNumElements = document.getElementsByClass("lottery-open-points").get(0).children();
-			for (Element lotteryNumElement : lotteryNumElements) {
-				lotteryNums.add(lotteryNumElement.text());
-			}
-			String lotteryNum = String.join(",", lotteryNums);
-			long issueNum = Long.parseLong(document.getElementsByClass("open-fresh-qihao").get(0).text());
+			paramMap.put("typeid", "35");
+			paramMap.put("dates", currentDateFormat);
+			String url = "http://www.bowangcai.com/lottery/s/tid/37/times/{0}";
+			url = MessageFormat.format(url, currentDateFormat);
+			String result = HttpUtil.post(url, paramMap);
+			JSONObject resultJsonObject = JSON.parseObject(result);
+			JSONObject jsonObject = resultJsonObject.getJSONObject("rsm").getJSONObject("info").getJSONArray("list")
+					.getJSONObject(0);
+			
+			String lotteryNum = jsonObject.getString("lottery_numbers");
+			long issueNum = jsonObject.getLong("lottery_issue");
 			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(null).lotteryNum(lotteryNum)
 					.build();
 			return lotteryResult;
 		} catch (Exception e) {
-			log.error("通过开奖助手获取新疆时时彩最新开奖结果发生异常", e);
+			log.error("通过bowangcai.com获取天津时时彩最新开奖结果发生异常", e);
+		}
+		return null;
+	}
+
+	public IssueVO getLatestLotteryResultWithCjcp() {
+		try {
+			String url = "https://shishicai.cjcp.com.cn/tianjin/kaijiang/";
+			Document document = Jsoup.connect(url).get();
+			Element tr = document.getElementsByClass("kjjg_table").get(0).getElementsByTag("tr").get(1);
+			Elements tds = tr.getElementsByTag("td");
+
+			List<String> lotteryNums = new ArrayList<>();
+			Elements lotteryNumElements = tds.get(2).getElementsByClass("hm_bg");
+			for (Element lotteryNumElement : lotteryNumElements) {
+				lotteryNums.add(lotteryNumElement.text());
+			}
+			String lotteryNum = String.join(",", lotteryNums);
+			long issueNum = Long.parseLong(tds.get(0).text().substring(0, 11));
+			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(null).lotteryNum(lotteryNum)
+					.build();
+			return lotteryResult;
+		} catch (Exception e) {
+			log.error("通过shishicai.cjcp.com.cn获取天津时时彩最新开奖结果发生异常", e);
+		}
+		return null;
+	}
+
+	public IssueVO getLatestLotteryResultWithSsqzj() {
+		try {
+			String url = "https://www.ssqzj.com/ssc/tjssc/";
+			Document document = Jsoup.connect(url).get();
+
+			List<String> lotteryNums = new ArrayList<>();
+			Elements lotteryNumElements = document.getElementById("kjnum").getElementsByTag("em");
+			for (Element lotteryNumElement : lotteryNumElements) {
+				lotteryNums.add(lotteryNumElement.text());
+			}
+			String lotteryNum = String.join(",", lotteryNums);
+			long issueNum = Long.parseLong(document.getElementById("kjqs").text());
+			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(null).lotteryNum(lotteryNum)
+					.build();
+			return lotteryResult;
+		} catch (Exception e) {
+			log.error("通过ssqzj.com获取天津时时彩最新开奖结果发生异常", e);
 		}
 		return null;
 	}

@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import javax.validation.constraints.NotNull;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import cn.hutool.core.util.StrUtil;
 import me.zohar.lottery.common.exception.BizError;
@@ -16,6 +19,10 @@ import me.zohar.lottery.common.exception.BizException;
 import me.zohar.lottery.common.utils.IdUtils;
 import me.zohar.lottery.common.valid.ParamValid;
 import me.zohar.lottery.constants.Constant;
+import me.zohar.lottery.dictconfig.domain.DictItem;
+import me.zohar.lottery.dictconfig.domain.DictType;
+import me.zohar.lottery.dictconfig.repo.DictItemRepo;
+import me.zohar.lottery.dictconfig.repo.DictTypeRepo;
 import me.zohar.lottery.game.domain.Game;
 import me.zohar.lottery.game.domain.GamePlay;
 import me.zohar.lottery.game.domain.NumLocate;
@@ -31,6 +38,7 @@ import me.zohar.lottery.game.repo.OptionalNumRepo;
 import me.zohar.lottery.game.vo.GamePlayVO;
 import me.zohar.lottery.game.vo.GameVO;
 
+@Validated
 @Service
 public class GameService {
 
@@ -46,7 +54,48 @@ public class GameService {
 	@Autowired
 	private OptionalNumRepo optionalNumRepo;
 
-	
+	@Autowired
+	private DictItemRepo dictItemRepo;
+
+	@Autowired
+	private DictTypeRepo dictTypeRepo;
+
+	@Transactional
+	public void dictSync(@NotNull Boolean syncGameDict, @NotNull Boolean syncGamePlayDict) {
+		if (syncGameDict) {
+			DictType dictType = dictTypeRepo.findByDictTypeCode("game");
+			dictItemRepo.deleteAll(dictType.getDictItems());
+			double orderNo = 1;
+			List<Game> games = gameRepo.findAll();
+			for (Game game : games) {
+				DictItem dictItem = new DictItem();
+				dictItem.setId(IdUtils.getId());
+				dictItem.setDictItemCode(game.getGameCode());
+				dictItem.setDictItemName(game.getGameName());
+				dictItem.setDictTypeId(dictType.getId());
+				dictItem.setOrderNo(orderNo);
+				dictItemRepo.save(dictItem);
+				orderNo++;
+			}
+		}
+		if (syncGamePlayDict) {
+			DictType dictType = dictTypeRepo.findByDictTypeCode("gamePlay");
+			dictItemRepo.deleteAll(dictType.getDictItems());
+			double orderNo = 1;
+			List<GamePlay> gamePlays = gamePlayRepo.findAll();
+			for (GamePlay gamePlay : gamePlays) {
+				DictItem dictItem = new DictItem();
+				dictItem.setId(IdUtils.getId());
+				dictItem.setDictItemCode(gamePlay.getGameCode() + "_" + gamePlay.getGamePlayCode());
+				dictItem.setDictItemName(gamePlay.getGamePlayName());
+				dictItem.setDictTypeId(dictType.getId());
+				dictItem.setOrderNo(orderNo);
+				dictItemRepo.save(dictItem);
+				orderNo++;
+			}
+		}
+	}
+
 	@Transactional(readOnly = true)
 	public List<GameVO> findAllGame() {
 		List<Game> games = gameRepo.findAll(Sort.by(Sort.Order.asc("orderNo")));

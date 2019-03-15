@@ -5,10 +5,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateField;
@@ -43,6 +47,7 @@ import me.zohar.lottery.useraccount.domain.UserAccount;
 import me.zohar.lottery.useraccount.repo.AccountChangeLogRepo;
 import me.zohar.lottery.useraccount.repo.UserAccountRepo;
 
+@Validated
 @Service
 @Slf4j
 public class IssueService {
@@ -76,7 +81,7 @@ public class IssueService {
 	 * @param lotteryNum
 	 */
 	@Transactional
-	public void syncLotteryNum(String gameCode, Long issueNum, String lotteryNum) {
+	public void syncLotteryNum(@NotBlank String gameCode, @NotNull Long issueNum, @NotBlank String lotteryNum) {
 		Issue latestIssue = issueRepo.findByGameCodeAndIssueNum(gameCode, issueNum);
 		if (latestIssue == null) {
 			log.error("当前期号没有生成,请检查定时任务是否发生了异常.gameCode:{},issueNum:{}", gameCode, issueNum);
@@ -97,7 +102,7 @@ public class IssueService {
 			log.error("当前期号没有没有设置自动结算,结算失败.gameCode:{},issueNum:{}", gameCode, issueNum);
 			return;
 		}
-		
+
 		ThreadPoolUtils.getLotterySettlementPool().schedule(() -> {
 			redisTemplate.opsForList().leftPush(Constant.当前开奖期号ID, latestIssue.getId());
 		}, 1, TimeUnit.SECONDS);
