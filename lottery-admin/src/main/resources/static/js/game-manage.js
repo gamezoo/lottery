@@ -55,16 +55,16 @@ var gameManage = new Vue({
 		openIssueSettingModal : function(game) {
 			var that = this;
 			that.issueSettingFlag = true;
-			that.$http.get('/issue/getIssueSettingDetailsByGameCode', {
+			that.$http.get('/issue/getIssueSettingDetailsByGameId', {
 				params : {
-					gameCode : game.gameCode
+					gameId : game.id
 				}
 			}).then(function(res) {
 				if (res.body.data != null) {
 					that.issueSettingDetails = res.body.data;
 				} else {
 					that.issueSettingDetails = {
-						gameCode : game.gameCode,
+						gameId : game.id,
 						dateFormat : '',
 						issueFormat : '',
 						issueGenerateRules : []

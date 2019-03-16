@@ -87,6 +87,12 @@ public class Constant {
 	public static final String 游戏_广东11选5 = "GD11X5";
 
 	public static final String 游戏_江西11选5 = "JX11X5";
+	
+	public static final String 游戏_江苏11选5 = "JS11X5";
+	
+	public static final String 游戏_上海11选5 = "SH11X5";
+	
+	public static final String 游戏_浙江11选5 = "ZJ11X5";
 
 	public static final String 游戏_重庆时时彩 = "CQSSC";
 

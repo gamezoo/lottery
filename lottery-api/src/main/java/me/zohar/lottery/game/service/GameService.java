@@ -37,6 +37,9 @@ import me.zohar.lottery.game.repo.NumLocateRepo;
 import me.zohar.lottery.game.repo.OptionalNumRepo;
 import me.zohar.lottery.game.vo.GamePlayVO;
 import me.zohar.lottery.game.vo.GameVO;
+import me.zohar.lottery.issue.domain.IssueSetting;
+import me.zohar.lottery.issue.repo.IssueGenerateRuleRepo;
+import me.zohar.lottery.issue.repo.IssueSettingRepo;
 
 @Validated
 @Service
@@ -53,6 +56,12 @@ public class GameService {
 
 	@Autowired
 	private OptionalNumRepo optionalNumRepo;
+
+	@Autowired
+	private IssueSettingRepo issueSettingRepo;
+
+	@Autowired
+	private IssueGenerateRuleRepo issueGenerateRuleRepo;
 
 	@Autowired
 	private DictItemRepo dictItemRepo;
@@ -115,6 +124,9 @@ public class GameService {
 		for (GamePlay gamePlay : gamePlays) {
 			delGamePlayInner(gamePlay);
 		}
+		IssueSetting issueSetting = issueSettingRepo.findByGameId(game.getId());
+		issueGenerateRuleRepo.deleteAll(issueSetting.getIssueGenerateRules());
+		issueSettingRepo.delete(issueSetting);
 		gameRepo.delete(game);
 	}
 

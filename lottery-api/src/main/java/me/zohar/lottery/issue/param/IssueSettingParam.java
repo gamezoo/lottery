@@ -20,10 +20,10 @@ public class IssueSettingParam {
 	private String id;
 
 	/**
-	 * 所属游戏代码
+	 * 所属游戏id
 	 */
 	@NotBlank
-	private String gameCode;
+	private String gameId;
 
 	/**
 	 * 日期格式

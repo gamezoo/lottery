@@ -7,6 +7,6 @@ import me.zohar.lottery.issue.domain.IssueSetting;
 
 public interface IssueSettingRepo extends JpaRepository<IssueSetting, String>, JpaSpecificationExecutor<IssueSetting> {
 
-	IssueSetting findByGameCode(String gameCode);
+	IssueSetting findByGameId(String gameId);
 
 }

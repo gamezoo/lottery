@@ -30,10 +30,10 @@ public class IssueController {
 	@Autowired
 	private LotterySituationService lotterySituationService;
 
-	@GetMapping("/getIssueSettingDetailsByGameCode")
+	@GetMapping("/getIssueSettingDetailsByGameId")
 	@ResponseBody
-	public Result getIssueSettingDetailsByGameCode(String gameCode) {
-		return Result.success().setData(issueSettingService.getIssueSettingDetailsByGameCode(gameCode));
+	public Result getIssueSettingDetailsByGameId(String gameId) {
+		return Result.success().setData(issueSettingService.getIssueSettingDetailsByGameId(gameId));
 	}
 
 	@PostMapping("/addOrUpdateIssueSetting")

@@ -249,7 +249,7 @@ public class IssueService {
 			for (int i = 0; i < 5; i++) {
 				Date lotteryDate = DateUtil.offset(DateUtil.beginOfDay(currentDate), DateField.DAY_OF_MONTH, i);
 				List<Issue> issues = issueRepo
-						.findByGameCodeAndLotteryDateOrderByLotteryTimeDesc(issueSetting.getGameCode(), lotteryDate);
+						.findByGameCodeAndLotteryDateOrderByLotteryTimeDesc(issueSetting.getGame().getGameCode(), lotteryDate);
 				if (CollectionUtil.isNotEmpty(issues)) {
 					continue;
 				}
@@ -268,7 +268,7 @@ public class IssueService {
 						Date endTime = DateUtil.offset(startTime, DateField.MINUTE,
 								issueGenerateRule.getTimeInterval());
 
-						Issue issue = Issue.builder().id(IdUtils.getId()).gameCode(issueSetting.getGameCode())
+						Issue issue = Issue.builder().id(IdUtils.getId()).gameCode(issueSetting.getGame().getGameCode())
 								.lotteryDate(lotteryDate).lotteryTime(endTime).issueNum(issueNum).startTime(startTime)
 								.endTime(endTime).state(Constant.期号状态_未开奖).automaticLottery(true)
 								.automaticSettlement(true).build();

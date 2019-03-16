@@ -21,8 +21,8 @@ public class GenerateIssueTask {
 	/**
 	 * 每天零点10分执行一次
 	 */
-//	@Scheduled(cron = "0 10 0 * * ?")
-	@Scheduled(fixedRate = 6000)
+	@Scheduled(cron = "0 10 0 * * ?")
+//	@Scheduled(fixedRate = 6000)
 	public void execute() {
 		try {
 			log.info("执行生成期号数据定时任务start");

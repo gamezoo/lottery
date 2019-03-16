@@ -27,8 +27,8 @@ public class IssueSettingService {
 	@Autowired
 	private IssueGenerateRuleRepo issueGenerateRuleRepo;
 
-	public IssueSettingDetailsVO getIssueSettingDetailsByGameCode(String gameCode) {
-		IssueSetting issueSetting = issueSettingRepo.findByGameCode(gameCode);
+	public IssueSettingDetailsVO getIssueSettingDetailsByGameId(String gameId) {
+		IssueSetting issueSetting = issueSettingRepo.findByGameId(gameId);
 		return IssueSettingDetailsVO.convertFor(issueSetting);
 	}
 
@@ -37,7 +37,7 @@ public class IssueSettingService {
 	public void addOrUpdateIssueSetting(IssueSettingParam issueSettingParam) {
 		// 新增
 		if (StrUtil.isBlank(issueSettingParam.getId())) {
-			IssueSetting existIssueSetting = issueSettingRepo.findByGameCode(issueSettingParam.getGameCode());
+			IssueSetting existIssueSetting = issueSettingRepo.findByGameId(issueSettingParam.getGameId());
 			if (existIssueSetting != null) {
 				throw new BizException(BizError.期号设置已存在);
 			}

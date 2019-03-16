@@ -21,6 +21,7 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.HttpUtil;
 import me.zohar.lottery.issue.vo.IssueVO;
+import net.bytebuddy.build.Plugin.Engine.PoolStrategy.Eager;
 
 public class SpelTest {
 
@@ -32,20 +33,21 @@ public class SpelTest {
 	}
 
 	public IssueVO getLatestLotteryResultWith06kj77() {
-		String currentDateFormat = DateUtil.format(new Date(), DatePattern.NORM_DATE_PATTERN);
 		try {
 			Map<String, Object> paramMap = new HashMap<>();
-			paramMap.put("typeid", "37");
-			paramMap.put("dates", currentDateFormat);
-			String url = "http://www.bowangcai.com/lottery/s/tid/37/times/{0}";
-			url = MessageFormat.format(url, currentDateFormat);
-			String result = HttpUtil.post(url, paramMap);
+			paramMap.put("lType", "26");
+			String result = HttpUtil.post("https://c8.cn/News/GetLastBetInfo", paramMap);
 			JSONObject resultJsonObject = JSON.parseObject(result);
-			JSONObject jsonObject = resultJsonObject.getJSONObject("rsm").getJSONObject("info").getJSONArray("list")
-					.getJSONObject(0);
 
-			String lotteryNum = jsonObject.getString("lottery_numbers");
-			long issueNum = jsonObject.getLong("lottery_issue");
+			long issueNum = Long.parseLong(resultJsonObject.getString("Issue"));
+
+			List<String> lotteryNums = new ArrayList<>();
+			Document document = Jsoup.parse(resultJsonObject.getString("NumHtml"));
+			Elements lotteryNumElements = document.getElementsByTag("span");
+			for (Element lotteryNumElement : lotteryNumElements) {
+				lotteryNums.add(lotteryNumElement.text());
+			}
+			String lotteryNum = String.join(",", lotteryNums);
 			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(null).lotteryNum(lotteryNum)
 					.build();
 			return lotteryResult;
