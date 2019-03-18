@@ -24,6 +24,7 @@
 		<module>lottery-api</module>
 		<module>lottery-task</module>
 		<module>lottery-web</module>
+		<module>lottery-mobile</module>
 		<module>lottery-admin</module>
 	</modules>
 </project>

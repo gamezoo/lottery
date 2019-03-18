@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>盛大彩票</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<style type="text/css">
+.fixed-top {
+	color: white;
+	display: block;
+	text-align: center;
+	height: 2.5rem;
+}
+
+.page-body {
+	padding-top: 2.5rem;
+}
+
+.quick-nav-icon {
+	width: 43px;
+	height: 43px;
+	display: block;
+	background-size: 100%;
+}
+
+.login-icon {
+	background-image: url(/images/login.png)
+}
+
+.register-icon {
+	background-image: url(/images/register.png)
+}
+
+.service-icon {
+	background-image: url(/images/service.png)
+}
+
+.navbar {
+	padding-top: 0.3rem;
+	padding-bottom: 0.3rem;
+}
+
+.navbar-brand {
+	text-align: center;
+	color: #838793;
+}
+
+.navbar-brand {
+	padding-top: 0rem;
+	padding-bottom: 0rem;
+}
+
+.selected-navbar-brand {
+	color: #d22018 !important;
+}
+
+.navbar-brand span {
+	font-size: 1rem;
+}
+
+.navbar-brand .fa {
+	display: block;
+	font-size: 2rem;
+}
+</style>
+</head>
+
+<body>
+	<div id="index" v-cloak>
+		<nav class="navbar fixed-top bg-danger">
+			<a class="navbar-brand">盛大彩票</a>
+		</nav>
+		<div class="page-body">
+			<nav class="navbar bg-light">
+				<a class="navbar-brand" href="#"><i class="quick-nav-icon login-icon"></i> <span>登录</span> </a> <a class="navbar-brand" href="#"><i class="quick-nav-icon register-icon"></i><span>注册</span></a> <a class="navbar-brand" href="#"><i class="quick-nav-icon service-icon"></i><span>客服</span></a>
+			</nav>
+		</div>
+		<nav class="navbar fixed-bottom bg-light">
+			<a class="navbar-brand selected-navbar-brand" href="#"><i class="fa fa-home" aria-hidden="true"></i> <span>首页</span> </a> <a class="navbar-brand" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i><span>购彩</span></a> <a class="navbar-brand" href="#"><i class="fa fa-hourglass" aria-hidden="true"></i><span>开奖</span></a> <a class="navbar-brand" href="#"><i class="fa fa-gift" aria-hidden="true"></i><span>优惠</span></a> <a class="navbar-brand" href="#"><i class="fa fa-user" aria-hidden="true"></i><span>我的</span></a>
+		</nav>
+	</div>
+	<script type="text/javascript">
+		var indexVM = new Vue({
+			el : '#index',
+			data : {
+				rechargeAmount : ''
+			},
+			computed : {},
+			created : function() {
+			},
+			mounted : function() {
+			},
+			methods : {
+				chooseRechargeWay : function(rechargeWay) {
+					this.selectedRechargeWay = rechargeWay;
+				}
+			}
+		});
+	</script>
+</body>
+</html>

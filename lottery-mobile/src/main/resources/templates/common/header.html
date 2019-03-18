@@ -1,0 +1,240 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<script src="https://cdn.bootcss.com/layer/2.3/layer.js"></script>
+<style>
+@charset "UTF-8";
+
+[v-cloak] {
+	display: none;
+}
+
+.personal-tabs {
+	border-bottom: 0;
+	float: right;
+}
+
+.personal-tabs .nav-link:focus, .personal-tabs .nav-link:hover {
+	border-color: #fff #fff #fff;
+}
+
+.personal-tabs a {
+	color: #282828;
+	font-size: 14px;
+	padding-left: 0px;
+}
+
+.personal-tabs a:hover {
+	color: #f34649;
+}
+
+.personal-tabs img {
+	height: 16px;
+	padding-right: 4px;
+	margin-top: -3px;
+}
+
+.homepage-navbar {
+	margin-top: 8px;
+	margin-bottom: 8px;
+	padding-top: 0;
+	padding-bottom: 0;
+	justify-content: center;
+}
+
+.homepage-navbar .dropdown-item {
+	color: #737373;
+}
+
+.homepage-navbar li {
+	padding-bottom: 4px;
+	padding-top: 4px;
+	min-width: 150px;
+	text-align: center;
+}
+
+.homepage-navbar li:hover {
+	background-color: #ce1515;
+}
+
+.homepage-navbar a {
+	color: #fff;
+	font-size: 15px;
+}
+
+.login-form {
+	padding-top: 18px;
+	margin-bottom: 0;
+}
+
+.login-form input {
+	margin-right: 18px;
+	height: 30px;
+}
+
+.login-form button {
+	margin-right: 18px;
+}
+</style>
+</head>
+<body>
+	<div id="header" v-cloak>
+		<div class="row">
+			<div class="col-sm-4">
+				<img src="/images/personal-tabs-icons/logo.png">
+			</div>
+			<div class="col-sm-8">
+				<div v-show="currentPathName != '/register' && !isLoggedInFlag">
+					<form class="form-inline login-form">
+						<input type="text" class="form-control" placeholder="用户名" v-model="userName"><input type="password" class="form-control" placeholder="密码" v-model="password" v-on:keyup.enter="login">
+						<button type="button" class="btn btn-danger btn-sm" v-on:click="login">登录</button>
+						<button type="button" class="btn btn-dark btn-sm" v-on:click="gotoRegisterPage">免费注册</button>
+					</form>
+				</div>
+				<div v-show="currentPathName != '/register' && isLoggedInFlag">
+					<div class="clearfix">
+						<div class="float-right">
+							<span>您好,</span> <span style="color: red;">{{userName}}</span> <span> 可用余额:</span> <span style="color: red;">{{balance}}</span>
+						</div>
+					</div>
+					<div>
+						<ul class="nav nav-tabs personal-tabs">
+							<li class="nav-item" v-on:click="goTo('/personal-center')"><a class="nav-link" href="#"><img src="/images/personal-tabs-icons/personal-center.png"><span>个人中心</span></a></li>
+							<li class="nav-item" v-on:click="goTo('/recharge')"><a class="nav-link" href="#"><img src="/images/personal-tabs-icons/top-up.png"><span>充值</span></a></li>
+							<li class="nav-item" v-on:click="goTo('/withdraw')"><a class="nav-link" href="#"><img src="/images/personal-tabs-icons/withdrawal.png"><span>提现</span></a></li>
+							<li class="nav-item" v-on:click="goTo('/betting-record')"><a class="nav-link" href="#"><img src="/images/personal-tabs-icons/betting-record.png"><span>投注记录</span></a></li>
+							<li class="nav-item"><a class="nav-link" href="#"><img src="/images/personal-tabs-icons/message.png"><span>站内信</span></a></li>
+							<li class="nav-item" v-on:click="logout"><a class="nav-link" href="#"><img src="/images/personal-tabs-icons/exit.png"><span>安全退出</span></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-12">
+				<nav class="navbar navbar-expand-sm bg-danger homepage-navbar">
+					<ul class="navbar-nav">
+						<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">请选择彩票种类</a>
+							<div class="dropdown-menu">
+								<a class="dropdown-item" href="#" v-for="game in games" v-on:click="goTo('/' + game.gameCode.toLowerCase())">{{game.gameName}}</a>
+							</div></li>
+						<li class="nav-item" v-on:click="goTo('/')"><a class="nav-link" href="#">首页</a></li>
+						<li class="nav-item"><a class="nav-link" href="#">购彩大厅</a></li>
+						<li class="nav-item"><a class="nav-link" href="#">开奖结果</a></li>
+						<li class="nav-item"><a class="nav-link" href="#">手机购彩</a></li>
+						<li class="nav-item"><a class="nav-link" href="#">优惠活动</a></li>
+						<li class="nav-item"><a class="nav-link" href="#">客服</a></li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Vue.http.interceptors.push(function(request) {
+			return function(response) {
+				if (response.body.code != 200) {
+					response.ok = false;
+					layer.alert(response.body.msg, {
+						title : '提示',
+						icon : 7,
+						time : 3000
+					});
+				}
+			};
+		});
+		var header = new Vue({
+			el : '#header',
+			data : {
+				currentPathName : '',
+				isLoggedInFlag : true,
+				userName : '',
+				password : '',
+				balance : '',
+				accountType : '',
+				games : []
+			},
+			computed : {},
+			created : function() {
+				this.currentPathName = window.location.pathname;
+				this.getUserAccountInfo();
+				this.findAllOpenGame();
+			},
+			methods : {
+
+				findAllOpenGame : function() {
+					var that = this;
+					that.$http.get('/game/findAllOpenGame').then(function(res) {
+						that.games = res.body.data;
+					});
+				},
+
+				goTo : function(url) {
+					window.location.href = url;
+				},
+				logout : function() {
+					this.$http.post('/logout').then(function(res) {
+						layer.open({
+							title : '提示',
+							icon : '1',
+							closeBtn : 0,
+							btn : [],
+							content : '退出成功!',
+							time : 2000,
+							end : function() {
+								window.location.href = '/';
+							}
+						});
+					});
+				},
+				login : function() {
+					var that = this;
+					if (that.userName == null || that.userName == '') {
+						layer.alert('请输入用户名');
+						return;
+					}
+					if (that.password == null || that.password == '') {
+						layer.alert('请输入密码');
+						return;
+					}
+					that.$http.post('/login', {
+						username : that.userName,
+						password : that.password
+					}, {
+						emulateJSON : true
+					}).then(function(res) {
+						window.location.href = '/';
+					});
+				},
+
+				gotoRegisterPage : function() {
+					window.location.href = '/register';
+				},
+
+				/**
+				 * 获取用户账号信息
+				 */
+				getUserAccountInfo : function() {
+					var that = this;
+					that.$http.get('/userAccount/getUserAccountInfo').then(function(res) {
+						if (res.body.data == null) {
+							that.isLoggedInFlag = false;
+						} else {
+							that.userName = res.body.data.userName;
+							that.balance = '￥' + res.body.data.balance;
+							that.accountType = res.body.data.accountType;
+						}
+					});
+				},
+
+				/**
+				 * 刷新余额
+				 */
+				refreshBalance : function() {
+					this.$http.get('/userAccount/getUserAccountInfo').then(function(res) {
+						this.balance = '￥' + res.body.data.balance;
+					});
+				},
+			}
+		});
+	</script>
+</body>
+</html>
