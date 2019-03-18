@@ -11,19 +11,15 @@
 <script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
 <script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
 <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <style type="text/css">
-.fixed-top {
-	color: white;
-	display: block;
-	text-align: center;
-	height: 2.5rem;
+.quick-navbar {
+	margin-bottom: 0.5rem;
+	padding-top: 0.2rem;
+	padding-bottom: 0.2rem;
 }
 
-.page-body {
-	padding-top: 2.5rem;
-}
-
-.quick-nav-icon {
+.quick-navbar i {
 	width: 43px;
 	height: 43px;
 	display: block;
@@ -31,75 +27,141 @@
 }
 
 .login-icon {
-	background-image: url(/images/login.png)
+	background-image: url(/images/index/login.png)
 }
 
 .register-icon {
-	background-image: url(/images/register.png)
+	background-image: url(/images/index/register.png)
+}
+
+.recharge-icon {
+	background-image: url(/images/index/recharge.png)
+}
+
+.withdraw-icon {
+	background-image: url(/images/index/withdraw.png)
 }
 
 .service-icon {
-	background-image: url(/images/service.png)
+	background-image: url(/images/index/service.png)
 }
 
-.navbar {
-	padding-top: 0.3rem;
-	padding-bottom: 0.3rem;
+.hot-game {
+	height: 7rem;
+	background-color: #f2f2f2;
+	margin-bottom: 1rem;
+	display: flex;
+	padding-left: 0.2rem;
+	padding-right: 0.2rem;
 }
 
-.navbar-brand {
+.hot-game-logo {
+	flex: 1.5;
+	display: flex;
+	align-items: center;
+}
+
+.hot-game-logo img {
+	border-radius: 4rem;
+}
+
+.hot-game-body {
+	flex: 3;
+	display: flex;
+	flex-direction: column;
+}
+
+.hot-game-body-item {
+	padding-bottom: 0.7rem;
+}
+
+.hot-game-body-item .progress {
+	height: 0.3rem;
+}
+
+.hot-game-body-item .current-issue-num {
+	float: right;
+}
+
+.onekey-place-order-item {
 	text-align: center;
-	color: #838793;
-}
-
-.navbar-brand {
-	padding-top: 0rem;
-	padding-bottom: 0rem;
-}
-
-.selected-navbar-brand {
-	color: #d22018 !important;
-}
-
-.navbar-brand span {
-	font-size: 1rem;
-}
-
-.navbar-brand .fa {
-	display: block;
-	font-size: 2rem;
 }
 </style>
 </head>
 
 <body>
+	<div th:replace="common/header::html"></div>
 	<div id="index" v-cloak>
-		<nav class="navbar fixed-top bg-danger">
-			<a class="navbar-brand">盛大彩票</a>
-		</nav>
 		<div class="page-body">
-			<nav class="navbar bg-light">
-				<a class="navbar-brand" href="#"><i class="quick-nav-icon login-icon"></i> <span>登录</span> </a> <a class="navbar-brand" href="#"><i class="quick-nav-icon register-icon"></i><span>注册</span></a> <a class="navbar-brand" href="#"><i class="quick-nav-icon service-icon"></i><span>客服</span></a>
+			<nav class="navbar bg-light quick-navbar">
+				<a class="navbar-brand" v-show="!isLoggedInFlag" v-on:click="goTo('/login')"><i class="login-icon"></i> <span>登录</span> </a> <a class="navbar-brand" v-show="!isLoggedInFlag" v-on:click="goTo('/register')"><i class="register-icon"></i><span>注册</span></a> <a class="navbar-brand" v-show="isLoggedInFlag" v-on:click="goTo('/login')"><i class="recharge-icon"></i> <span>充值</span> </a> <a class="navbar-brand" v-show="isLoggedInFlag" v-on:click="goTo('/login')"><i class="withdraw-icon"></i> <span>提现</span> </a> <a class="navbar-brand"><i class="service-icon"></i><span>客服</span></a>
 			</nav>
+			<div class="card">
+				<div class="card-header">
+					<span>热门游戏</span><span class="float-right">更多&gt;</span>
+				</div>
+				<div class="card-body">
+					<div class="hot-game" v-for="hotGame in hotGames">
+						<div class="hot-game-logo">
+							<img v-bind:src="'/images/lottery-logo/' + hotGame.gameCode.toLowerCase() + '.png'" />
+						</div>
+						<div class="hot-game-body">
+							<div class="hot-game-body-item">{{hotGame.gameName}}</div>
+							<div class="hot-game-body-item">
+								<div class="progress">
+									<div class="progress-bar bg-warning" v-bind:style="{width: (hotGame.currentIssueInner/hotGame.issueCount) * 100 + '%'}"></div>
+								</div>
+								<div>
+									<span>全天{{hotGame.issueCount}}期</span><span class="current-issue-num">{{hotGame.currentIssue != null ? '第' + hotGame.currentIssue + '期' : '休市中...'}}</span>
+								</div>
+							</div>
+							<div class="hot-game-body-item onekey-place-order-item">
+								<button type="button" class="btn btn-danger btn-sm">一键下注</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
-		<nav class="navbar fixed-bottom bg-light">
-			<a class="navbar-brand selected-navbar-brand" href="#"><i class="fa fa-home" aria-hidden="true"></i> <span>首页</span> </a> <a class="navbar-brand" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i><span>购彩</span></a> <a class="navbar-brand" href="#"><i class="fa fa-hourglass" aria-hidden="true"></i><span>开奖</span></a> <a class="navbar-brand" href="#"><i class="fa fa-gift" aria-hidden="true"></i><span>优惠</span></a> <a class="navbar-brand" href="#"><i class="fa fa-user" aria-hidden="true"></i><span>我的</span></a>
-		</nav>
 	</div>
+	<div th:replace="common/footer::html"></div>
 	<script type="text/javascript">
 		var indexVM = new Vue({
 			el : '#index',
 			data : {
-				rechargeAmount : ''
+				isLoggedInFlag : true,
+				hotGames : []
 			},
 			computed : {},
 			created : function() {
 			},
 			mounted : function() {
+				headerVM.title = '盛大彩票';
+				this.getUserAccountInfo();
+				this.loadHotGame();
 			},
 			methods : {
-				chooseRechargeWay : function(rechargeWay) {
-					this.selectedRechargeWay = rechargeWay;
+				goTo : function(url) {
+					window.location.href = url;
+				},
+
+				/**
+				 * 获取用户账号信息
+				 */
+				getUserAccountInfo : function() {
+					var that = this;
+					that.$http.get('/userAccount/getUserAccountInfo').then(function(res) {
+						if (res.body.data == null) {
+							that.isLoggedInFlag = false;
+						}
+					});
+				},
+
+				loadHotGame : function() {
+					var that = this;
+					that.$http.get('/game/findTop5HotGame').then(function(res) {
+						that.hotGames = res.body.data;
+					});
 				}
 			}
 		});

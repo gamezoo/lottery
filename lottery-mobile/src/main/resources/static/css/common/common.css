@@ -1,0 +1,14 @@
+@charset "UTF-8";
+
+[v-cloak] {
+	display: none;
+}
+
+a {
+	cursor: pointer;
+}
+
+.page-body {
+	padding-top: 2.5rem;
+	padding-bottom: 4.5rem;
+}

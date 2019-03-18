@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>注册</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<script src="https://cdn.bootcss.com/layer/2.3/layer.js"></script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<script src="/js/common/common.js"></script>
+<style type="text/css">
+.register-container {
+	padding-top: 2rem;
+}
+</style>
+</head>
+
+<body>
+	<div th:replace="common/header::html"></div>
+	<div id="register" v-cloak>
+		<div class="page-body">
+			<div class="container register-container">
+				<form>
+					<div class="form-group" v-if="inviteRegisterFlag">
+						<label>邀请码:</label> <input type="text" class="form-control" v-model="inviteCode">
+					</div>
+					<div class="form-group">
+						<label>用户名:</label> <input type="text" class="form-control" placeholder="以字母开头,长度为6-12个字母和数字!" v-model="userName">
+					</div>
+					<div class="form-group">
+						<label>真实姓名:</label> <input type="text" class="form-control" placeholder="必须与提款银行卡姓名一致,否则无法出款" v-model="realName">
+					</div>
+					<div class="form-group">
+						<label>登录密码:</label> <input type="password" class="form-control" placeholder="6-15位字母数字混合,且不能全为字母或数字!" v-model="password">
+					</div>
+					<div class="form-group">
+						<label>确认密码:</label> <input type="password" class="form-control" placeholder="确认密码" v-model="confirmPassword">
+					</div>
+					<button type="button" class="btn btn-danger btn-lg btn-block" v-on:click="registerAndLogin">注册并登录</button>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div th:replace="common/footer::html"></div>
+	<script type="text/javascript">
+		var registerVM = new Vue({
+			el : '#register',
+			data : {
+				inviteRegisterFlag : false,
+				inviteCode : '',
+				userName : '',
+				realName : '',
+				password : '',
+				confirmPassword : ''
+			},
+			computed : {},
+			created : function() {
+			},
+			mounted : function() {
+				headerVM.title = '注册';
+				this.loadInviteRegisterSetting();
+			},
+			methods : {
+				loadInviteRegisterSetting : function() {
+					var that = this;
+					that.$http.get('/masterControl/getInviteRegisterSetting').then(function(res) {
+						if (res.body.data != null) {
+							that.inviteRegisterFlag = res.body.data.enabled;
+						}
+					});
+				},
+
+				/**
+				 * 注册并登录
+				 */
+				registerAndLogin : function() {
+					var that = this;
+					if (that.inviteRegisterFlag && (that.inviteCode == null || that.inviteCode == '')) {
+						layer.alert('请输入邀请码');
+						return;
+					}
+					if (that.userName == null || that.userName == '') {
+						layer.alert('请输入用户名');
+						return;
+					}
+					if (that.realName == null || that.realName == '') {
+						layer.alert('请输入真实姓名');
+						return;
+					}
+					if (that.password == null || that.password == '') {
+						layer.alert('请输入登录密码');
+						return;
+					}
+					if (that.confirmPassword == null || that.confirmPassword == '') {
+						layer.alert('请输入确认密码');
+						return;
+					}
+					if (that.password != that.confirmPassword) {
+						layer.alert('密码不一致');
+						return;
+					}
+					that.$http.post('/userAccount/register', {
+						inviteCode : that.inviteCode,
+						userName : that.userName,
+						realName : that.realName,
+						loginPwd : that.password
+					}, {
+						emulateJSON : true
+					}).then(function(res) {
+						that.$http.post('/login', {
+							username : that.userName,
+							password : that.password
+						}, {
+							emulateJSON : true
+						}).then(function(res) {
+							window.location.href = '/';
+						});
+					});
+				}
+			}
+		});
+	</script>
+</body>
+</html>

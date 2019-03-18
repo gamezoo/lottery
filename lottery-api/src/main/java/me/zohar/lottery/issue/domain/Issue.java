@@ -45,6 +45,11 @@ public class Issue {
 	 * 期数
 	 */
 	private Long issueNum;
+	
+	/**
+	 * 期数(内部用)
+	 */
+	private Long issueNumInner;
 
 	/**
 	 * 开奖日期,0点整

@@ -25,6 +25,7 @@ import me.zohar.lottery.dictconfig.repo.DictItemRepo;
 import me.zohar.lottery.dictconfig.repo.DictTypeRepo;
 import me.zohar.lottery.game.domain.Game;
 import me.zohar.lottery.game.domain.GamePlay;
+import me.zohar.lottery.game.domain.HotGame;
 import me.zohar.lottery.game.domain.NumLocate;
 import me.zohar.lottery.game.domain.OptionalNum;
 import me.zohar.lottery.game.param.GameParam;
@@ -33,10 +34,12 @@ import me.zohar.lottery.game.param.NumLocateParam;
 import me.zohar.lottery.game.param.OptionalNumParam;
 import me.zohar.lottery.game.repo.GamePlayRepo;
 import me.zohar.lottery.game.repo.GameRepo;
+import me.zohar.lottery.game.repo.HotGameRepo;
 import me.zohar.lottery.game.repo.NumLocateRepo;
 import me.zohar.lottery.game.repo.OptionalNumRepo;
 import me.zohar.lottery.game.vo.GamePlayVO;
 import me.zohar.lottery.game.vo.GameVO;
+import me.zohar.lottery.game.vo.HotGameVO;
 import me.zohar.lottery.issue.domain.IssueSetting;
 import me.zohar.lottery.issue.repo.IssueGenerateRuleRepo;
 import me.zohar.lottery.issue.repo.IssueSettingRepo;
@@ -47,6 +50,9 @@ public class GameService {
 
 	@Autowired
 	private GameRepo gameRepo;
+
+	@Autowired
+	private HotGameRepo hotGameRepo;
 
 	@Autowired
 	private GamePlayRepo gamePlayRepo;
@@ -68,6 +74,12 @@ public class GameService {
 
 	@Autowired
 	private DictTypeRepo dictTypeRepo;
+
+	@Transactional(readOnly = true)
+	public List<HotGameVO> findTop5HotGame() {
+		List<HotGame> hotGames = hotGameRepo.findTop5By();
+		return HotGameVO.convertFor(hotGames);
+	}
 
 	@Transactional
 	public void dictSync(@NotNull Boolean syncGameDict, @NotNull Boolean syncGamePlayDict) {

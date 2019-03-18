@@ -28,15 +28,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		http.csrf().disable()
 		.authorizeRequests()
 		.antMatchers("/").permitAll()
-//		.antMatchers("/register").permitAll()
-//		.antMatchers("/masterControl/getInviteRegisterSetting").permitAll()
-//		.antMatchers("/userAccount/register").permitAll()
-//		.antMatchers("/userAccount/getUserAccountInfo").permitAll()
+		.antMatchers("/register").permitAll()
+		.antMatchers("/game-hall").permitAll()
+		.antMatchers("/game/findTop5HotGame").permitAll()
+		.antMatchers("/masterControl/getInviteRegisterSetting").permitAll()
+		.antMatchers("/userAccount/register").permitAll()
+		.antMatchers("/userAccount/getUserAccountInfo").permitAll()
+		
 //		.antMatchers("/game/findAllOpenGame").permitAll()
 //		.antMatchers("/recharge/muspayCallback").permitAll()
 //		.antMatchers("/pay-success").permitAll()
 		.anyRequest().authenticated()
-		.and().formLogin().loginProcessingUrl("/login")
+		.and().formLogin().loginPage("/login").loginProcessingUrl("/login")
 		.successHandler(successHandler).failureHandler(failHandler).permitAll()
 		.and().logout().logoutUrl("/logout").logoutSuccessHandler(logoutHandler).permitAll();
 	}

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>游戏大厅</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+.quick-navbar {
+	margin-bottom: 0.5rem;
+	padding-top: 0.2rem;
+	padding-bottom: 0.2rem;
+}
+
+.quick-navbar i {
+	width: 43px;
+	height: 43px;
+	display: block;
+	background-size: 100%;
+}
+
+.login-icon {
+	background-image: url(/images/index/login.png)
+}
+
+.register-icon {
+	background-image: url(/images/index/register.png)
+}
+
+.recharge-icon {
+	background-image: url(/images/index/recharge.png)
+}
+
+.withdraw-icon {
+	background-image: url(/images/index/withdraw.png)
+}
+
+.service-icon {
+	background-image: url(/images/index/service.png)
+}
+
+.hot-game {
+	height: 4.5rem;
+	background-color: #f2f2f2;
+	margin-bottom: 1rem;
+	display: flex;
+	padding-left: 0.2rem;
+	padding-right: 0.2rem;
+}
+
+.hot-game-logo {
+	flex: 1.2;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.hot-game-logo img {
+	border-radius: 4rem;
+	height: 4rem;
+}
+
+.hot-game-body {
+	flex: 4;
+	display: flex;
+	flex-direction: column;
+}
+
+.game-name-body-item {
+	color: #d22018;
+}
+
+.lottery-closed-body-item {
+	color: orange;
+}
+
+.current-issue-body-item {
+	color: #838793;
+}
+</style>
+</head>
+
+<body>
+	<div th:replace="common/header::html"></div>
+	<div id="gameHall" v-cloak>
+		<div class="page-body">
+			<div>
+				<div class="hot-game" v-for="hotGame in hotGames">
+					<div class="hot-game-logo">
+						<img v-bind:src="'/images/lottery-logo/' + hotGame.gameCode.toLowerCase() + '.png'" />
+					</div>
+					<div class="hot-game-body">
+						<div class="hot-game-body-item game-name-body-item">{{hotGame.gameName}}</div>
+						<div class="hot-game-body-item lottery-num-body-item">{{hotGame.gameName}}</div>
+						<div class="hot-game-body-item lottery-closed-body-item">休市中...</div>
+						<div class="hot-game-body-item current-issue-body-item">
+							<span style="padding-right: 1.2rem;">第{{hotGame.currentIssue}}期</span><span class="">截至</span><span class="">00:00:54</span>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+	</div>
+	<div th:replace="common/footer::html"></div>
+	<script type="text/javascript">
+		var gameHallVM = new Vue({
+			el : '#gameHall',
+			data : {
+				hotGames : [ {
+					gameCode : 'CQSSC',
+					gameName : '重庆时时彩',
+					currentIssue : 20190319001
+				}, {
+					gameCode : 'XJSSC',
+					gameName : '新疆时时彩',
+					currentIssue : 20190319002
+				} ]
+
+			},
+			computed : {},
+			created : function() {
+			},
+			mounted : function() {
+				headerVM.title = '游戏大厅';
+			},
+			methods : {
+				goTo : function(url) {
+					window.location.href = url;
+				}
+
+			}
+		});
+	</script>
+</body>
+</html>

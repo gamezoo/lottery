@@ -248,8 +248,8 @@ public class IssueService {
 		for (IssueSetting issueSetting : issueSettings) {
 			for (int i = 0; i < 5; i++) {
 				Date lotteryDate = DateUtil.offset(DateUtil.beginOfDay(currentDate), DateField.DAY_OF_MONTH, i);
-				List<Issue> issues = issueRepo
-						.findByGameCodeAndLotteryDateOrderByLotteryTimeDesc(issueSetting.getGame().getGameCode(), lotteryDate);
+				List<Issue> issues = issueRepo.findByGameCodeAndLotteryDateOrderByLotteryTimeDesc(
+						issueSetting.getGame().getGameCode(), lotteryDate);
 				if (CollectionUtil.isNotEmpty(issues)) {
 					continue;
 				}
@@ -262,6 +262,7 @@ public class IssueService {
 					for (int j = 0; j < issueCount; j++) {
 						long issueNum = Long.parseLong(
 								lotteryDateFormat + String.format(issueSetting.getIssueFormat(), count + j + 1));
+						long issueNumInner = count + j + 1;
 						DateTime dateTime = DateUtil.parse(issueGenerateRule.getStartTime(), "hh:mm");
 						Date startTime = DateUtil.offset(lotteryDate, DateField.MINUTE,
 								dateTime.hour(true) * 60 + dateTime.minute() + j * issueGenerateRule.getTimeInterval());
@@ -269,9 +270,9 @@ public class IssueService {
 								issueGenerateRule.getTimeInterval());
 
 						Issue issue = Issue.builder().id(IdUtils.getId()).gameCode(issueSetting.getGame().getGameCode())
-								.lotteryDate(lotteryDate).lotteryTime(endTime).issueNum(issueNum).startTime(startTime)
-								.endTime(endTime).state(Constant.期号状态_未开奖).automaticLottery(true)
-								.automaticSettlement(true).build();
+								.lotteryDate(lotteryDate).lotteryTime(endTime).issueNum(issueNum)
+								.issueNumInner(issueNumInner).startTime(startTime).endTime(endTime)
+								.state(Constant.期号状态_未开奖).automaticLottery(true).automaticSettlement(true).build();
 						issueRepo.save(issue);
 					}
 					count += issueCount;

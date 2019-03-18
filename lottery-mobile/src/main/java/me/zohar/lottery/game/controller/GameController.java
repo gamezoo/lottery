@@ -15,6 +15,12 @@ public class GameController {
 
 	@Autowired
 	private GameService gameService;
+	
+	@GetMapping("/findTop5HotGame")
+	@ResponseBody
+	public Result findTop5HotGame() {
+		return Result.success().setData(gameService.findTop5HotGame());
+	}
 
 	@GetMapping("/findAllOpenGame")
 	@ResponseBody
