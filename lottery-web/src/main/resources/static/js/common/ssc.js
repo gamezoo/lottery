@@ -779,7 +779,7 @@ var ssc = new Vue({
 					var lotteryNum = res.body.data[i].lotteryNum;
 					var lotteryResult = {
 						issueNum : res.body.data[i].issueNum,
-						lotteryNums : lotteryNum != null ? lotteryNum.split(",") : []
+						lotteryNums : lotteryNum != null ? lotteryNum.split(',') : []
 					};
 					latelyThe5TimeLotteryResults.push(lotteryResult);
 				}

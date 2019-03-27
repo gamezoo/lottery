@@ -203,6 +203,16 @@ public class IssueService {
 		List<Issue> issues = issueRepo.findTop5ByGameCodeAndEndTimeLessThanOrderByIssueNumDesc(gameCode, new Date());
 		return IssueVO.convertFor(issues);
 	}
+	
+	/**
+	 * 获取最近50次的开奖期号数据
+	 * 
+	 * @return
+	 */
+	public List<IssueVO> findLatelyThe50TimeIssue(String gameCode) {
+		List<Issue> issues = issueRepo.findTop50ByGameCodeAndEndTimeLessThanOrderByIssueNumDesc(gameCode, new Date());
+		return IssueVO.convertFor(issues);
+	}
 
 	/**
 	 * 获取下一期

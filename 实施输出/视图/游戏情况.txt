@@ -1,0 +1,70 @@
+create view v_game_situation as
+select 
+game.*,
+(
+select 
+sum(rule.issue_count)
+from issue_setting setting
+left join issue_generate_rule rule
+on setting.id = rule.issue_setting_id
+where setting.game_id = game.id
+) issue_count,
+issue.issue_num current_issue,
+issue.issue_num_inner current_issue_inner,
+issue.end_time current_issue_end_time,
+(
+select 
+pre_issue.issue_num
+from issue pre_issue
+where pre_issue.game_code = game.game_code
+and pre_issue.issue_num < issue.issue_num
+order by pre_issue.issue_num desc
+limit 1
+) pre_issue,
+(
+select 
+pre_issue.lottery_num
+from issue pre_issue
+where pre_issue.game_code = game.game_code
+and pre_issue.issue_num < issue.issue_num
+order by pre_issue.issue_num desc
+limit 1
+) pre_issue_lottery_num,
+(
+select 
+next_issue.issue_num
+from issue next_issue
+where next_issue.game_code = game.game_code
+and next_issue.start_time > NOW()
+order by next_issue.lottery_time asc
+limit 1
+) next_issue,
+(
+select 
+next_issue.end_time
+from issue next_issue
+where next_issue.game_code = game.game_code
+and next_issue.start_time > NOW()
+order by next_issue.lottery_time asc
+limit 1
+) next_issue_end_time
+from game game
+left join 
+(select 
+game_code,order_num
+from(
+SELECT 
+bo.game_code, count(1) order_num
+FROM betting_order bo
+where bo.betting_time >= DATE_SUB(NOW(),INTERVAL 5 DAY)
+GROUP BY bo.game_code) tmp
+order by order_num desc) b
+on game.game_code = b.game_code
+left join 
+issue issue 
+on game.game_code = issue.game_code
+and issue.start_time <= NOW()
+and issue.end_time > NOW()
+order by b.order_num desc
+
+

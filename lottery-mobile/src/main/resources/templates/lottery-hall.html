@@ -14,42 +14,9 @@
 <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 <link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <style type="text/css">
-.quick-navbar {
-	margin-bottom: 0.5rem;
-	padding-top: 0.2rem;
-	padding-bottom: 0.2rem;
-}
-
-.quick-navbar i {
-	width: 43px;
-	height: 43px;
-	display: block;
-	background-size: 100%;
-}
-
-.login-icon {
-	background-image: url(/images/index/login.png)
-}
-
-.register-icon {
-	background-image: url(/images/index/register.png)
-}
-
-.recharge-icon {
-	background-image: url(/images/index/recharge.png)
-}
-
-.withdraw-icon {
-	background-image: url(/images/index/withdraw.png)
-}
-
-.service-icon {
-	background-image: url(/images/index/service.png)
-}
-
 .hot-game {
 	height: 4.5rem;
-	background-color: #f2f2f2;
+	background-color: #fff;;
 	margin-bottom: 1rem;
 	display: flex;
 	padding-left: 0.2rem;
@@ -72,10 +39,7 @@
 	flex: 4;
 	display: flex;
 	flex-direction: column;
-}
-
-.game-name-body-item {
-	color: #d22018;
+	margin-top: 0.5rem;
 }
 
 .lottery-closed-body-item, .lotterying-body-item {
@@ -107,15 +71,18 @@
 
 <body>
 	<div th:replace="common/header::html"></div>
-	<div id="gameHall" v-cloak>
-		<div class="page-body">
+	<div id="lotteryHall" v-cloak>
+		<div class="page-body" style="background: #f2f2f2;">
 			<div>
-				<div class="hot-game" v-for="gameSituation in gameSituations">
+				<div class="hot-game" v-for="gameSituation in gameSituations" v-on:click="showLatelyLotteryResult(gameSituation.gameCode)">
 					<div class="hot-game-logo">
 						<img v-bind:src="'/images/lottery-logo/' + gameSituation.gameCode.toLowerCase() + '.png'" />
 					</div>
 					<div class="hot-game-body">
-						<div class="hot-game-body-item game-name-body-item">{{gameSituation.gameName}}</div>
+						<div class="hot-game-body-item">
+							<span>{{gameSituation.gameName}}</span> <span style="float: right; font-size: 0.9rem; padding-right: 0.6rem; color: #838793;"> <label style="padding-right: 1rem;">第{{gameSituation.currentIssue != null ? gameSituation.currentIssue : gameSituation.nextIssue}}期</label> <label class="">{{gameSituation.countdownClock}}</label>
+							</span>
+						</div>
 						<div class="hot-game-body-item lottery-num-body-item" v-show="gameSituation.currentIssue != null">
 							<div class="hot-game-body-item lotterying-body-item" v-show="gameSituation.preIssueLotteryNum == null">正在开奖...</div>
 							<div class="lottery-num" v-show="gameSituation.preIssueLotteryNum != null">
@@ -123,9 +90,6 @@
 							</div>
 						</div>
 						<div class="hot-game-body-item lottery-closed-body-item" v-show="gameSituation.currentIssue == null">休市中...</div>
-						<div class="hot-game-body-item current-issue-body-item">
-							<span style="padding-right: 1.2rem;">第{{gameSituation.currentIssue != null ? gameSituation.currentIssue : gameSituation.nextIssue}}期</span><span class="">截至</span><span class="">{{gameSituation.countdownClock}}</span>
-						</div>
 					</div>
 				</div>
 			</div>
@@ -133,16 +97,17 @@
 	</div>
 	<div th:replace="common/footer::html"></div>
 	<script type="text/javascript">
-		var gameHallVM = new Vue({
-			el : '#gameHall',
+		var lotteryHallVM = new Vue({
+			el : '#lotteryHall',
 			data : {
-				gameSituations : []
+				gameSituations : [],
+				lotteryResults : []
 			},
 			computed : {},
 			created : function() {
 			},
 			mounted : function() {
-				headerVM.title = '游戏大厅';
+				headerVM.title = '开奖信息';
 				this.loadAllGameSituation();
 			},
 			methods : {
@@ -208,15 +173,22 @@
 					return countdownHour + ':' + countdownMinute + ':' + countdownSecond;
 				},
 
-				goTo : function(url) {
-					window.location.href = url;
-				},
-
 				splitlotteryNum : function(lotteryNum) {
 					if (lotteryNum == null || lotteryNum == '') {
 						return [];
 					}
 					return lotteryNum.split(',');
+				},
+
+				showLatelyLotteryResult : function(gameCode) {
+					var that = this;
+					that.$http.get('/issue/findLatelyThe50TimeIssue', {
+						params : {
+							gameCode : gameCode
+						}
+					}).then(function(res) {
+						that.lotteryResults = res.body.data;
+					});
 				}
 
 			}

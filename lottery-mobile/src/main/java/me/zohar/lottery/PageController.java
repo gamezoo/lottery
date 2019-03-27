@@ -26,9 +26,24 @@ public class PageController {
 		return "register";
 	}
 
+	/**
+	 * 游戏大厅
+	 * 
+	 * @return
+	 */
 	@GetMapping("/game-hall")
 	public String gameHall() {
 		return "game-hall";
+	}
+
+	/**
+	 * 开奖大厅
+	 * 
+	 * @return
+	 */
+	@GetMapping("/lottery-hall")
+	public String lotteryHall() {
+		return "lottery-hall";
 	}
 
 }

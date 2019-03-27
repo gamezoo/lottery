@@ -1,5 +1,7 @@
 package me.zohar.lottery.game.domain;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -14,11 +16,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "v_hot_game", schema = "lottery")
+@Table(name = "v_game_situation", schema = "lottery")
 @DynamicInsert(true)
 @DynamicUpdate(true)
-public class HotGame {
-	
+public class GameSituation {
+
 	/**
 	 * 主键id
 	 */
@@ -35,17 +37,42 @@ public class HotGame {
 	 * 游戏名称
 	 */
 	private String gameName;
-	
+
 	/**
 	 * 总期数
 	 */
 	private Long issueCount;
-	
+
 	/**
 	 * 当前期
 	 */
 	private Long currentIssue;
-	
+
 	private Long currentIssueInner;
+
+	/**
+	 * 当前期结束时间
+	 */
+	private Date currentIssueEndTime;
+
+	/**
+	 * 上一期
+	 */
+	private Long preIssue;
+
+	/**
+	 * 上一期开奖号码
+	 */
+	private String preIssueLotteryNum;
+
+	/**
+	 * 下一期
+	 */
+	private Long nextIssue;
+
+	/**
+	 * 下一期结束时间
+	 */
+	private Date nextIssueEndTime;
 
 }

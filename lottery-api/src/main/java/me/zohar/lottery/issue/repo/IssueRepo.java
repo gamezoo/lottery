@@ -27,6 +27,8 @@ public interface IssueRepo extends JpaRepository<Issue, String>, JpaSpecificatio
 	Issue findTopByGameCodeAndIssueNumLessThanOrderByIssueNumDesc(String gameCode, Long issueNum);
 
 	List<Issue> findTop5ByGameCodeAndEndTimeLessThanOrderByIssueNumDesc(String gameCode, Date endTime);
+	
+	List<Issue> findTop50ByGameCodeAndEndTimeLessThanOrderByIssueNumDesc(String gameCode, Date endTime);
 
 	/**
 	 * 获取下一期

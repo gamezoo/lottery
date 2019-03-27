@@ -16,10 +16,10 @@ public class IssueController {
 	@Autowired
 	private IssueService issueService;
 
-	@GetMapping("/findLatelyThe5TimeIssue")
+	@GetMapping("/findLatelyThe50TimeIssue")
 	@ResponseBody
-	public Result findLatelyThe5TimeIssue(String gameCode) {
-		return Result.success().setData(issueService.findLatelyThe5TimeIssue(gameCode));
+	public Result findLatelyThe50TimeIssue(String gameCode) {
+		return Result.success().setData(issueService.findLatelyThe50TimeIssue(gameCode));
 	}
 
 	@GetMapping("/getCurrentIssue")

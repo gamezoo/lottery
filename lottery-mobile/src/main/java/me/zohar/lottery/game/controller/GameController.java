@@ -21,11 +21,11 @@ public class GameController {
 	public Result findTop5HotGame() {
 		return Result.success().setData(gameService.findTop5HotGame());
 	}
-
-	@GetMapping("/findAllOpenGame")
+	
+	@GetMapping("/findAllGameSituation")
 	@ResponseBody
-	public Result findAllOpenGame() {
-		return Result.success().setData(gameService.findAllOpenGame());
+	public Result findAllGameSituation() {
+		return Result.success().setData(gameService.findAllGameSituation());
 	}
 
 	@GetMapping("/findGamePlayAndNumLocateByGameCode")
