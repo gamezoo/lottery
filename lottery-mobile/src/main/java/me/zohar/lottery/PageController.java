@@ -45,5 +45,14 @@ public class PageController {
 	public String lotteryHall() {
 		return "lottery-hall";
 	}
+	
+	/**
+	 * 我的主页
+	 * @return
+	 */
+	@GetMapping("/my-home-page")
+	public String myHomePage() {
+		return "my-home-page";
+	}
 
 }

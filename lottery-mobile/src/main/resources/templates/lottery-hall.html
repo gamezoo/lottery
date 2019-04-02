@@ -66,15 +66,62 @@
 	line-height: 1.54688rem;
 	border-radius: 100%;
 }
+
+.lottery-angle-right {
+	float: right;
+	padding-right: 1.5rem;
+}
+
+.lottery-angle-right i {
+	font-size: 1.8rem;
+	color: #838793;
+}
+
+.lately-lottery-result {
+	height: 4.5rem;
+	background-color: #fff;;
+	margin-bottom: 1rem;
+	display: flex;
+	padding-left: 0.2rem;
+	padding-right: 0.2rem;
+}
+
+.lately-lottery-result-body {
+	flex: 4;
+	display: flex;
+	flex-direction: column;
+	margin-top: 0.5rem;
+	padding-left: 1.2rem;
+}
+
+.betting-btn, .lottery-trend-btn {
+	width: 50%;
+	height: 100%;
+	border: 0;
+	padding: 0;
+}
+
+.betting-btn {
+	color: #d22018;
+	background: #f2f2f2;
+}
+
+.lottery-trend-btn {
+	color: #fff;
+	background: #d22018;
+}
 </style>
 </head>
 
 <body>
 	<div th:replace="common/header::html"></div>
 	<div id="lotteryHall" v-cloak>
+		<nav class="navbar fixed-top bg-danger header-navbar" v-show="showLatelyLotteryResultFlag">
+			<i class="fa fa-angle-left" aria-hidden="true" style="float: left; font-size: 1.8rem;" v-on:click="showGameSituation"></i><a class="navbar-brand">{{gameName}}</a>
+		</nav>
 		<div class="page-body" style="background: #f2f2f2;">
-			<div>
-				<div class="hot-game" v-for="gameSituation in gameSituations" v-on:click="showLatelyLotteryResult(gameSituation.gameCode)">
+			<div v-show="!showLatelyLotteryResultFlag">
+				<div class="hot-game" v-for="gameSituation in gameSituations" v-on:click="showLatelyLotteryResult(gameSituation)">
 					<div class="hot-game-logo">
 						<img v-bind:src="'/images/lottery-logo/' + gameSituation.gameCode.toLowerCase() + '.png'" />
 					</div>
@@ -84,16 +131,39 @@
 							</span>
 						</div>
 						<div class="hot-game-body-item lottery-num-body-item" v-show="gameSituation.currentIssue != null">
-							<div class="hot-game-body-item lotterying-body-item" v-show="gameSituation.preIssueLotteryNum == null">正在开奖...</div>
+							<div class="hot-game-body-item lotterying-body-item" v-show="gameSituation.preIssueLotteryNum == null">
+								<span>正在开奖...</span><label class="lottery-angle-right"><i class="fa fa-angle-right" aria-hidden="true"></i></label>
+							</div>
 							<div class="lottery-num" v-show="gameSituation.preIssueLotteryNum != null">
-								<span v-for="num in splitlotteryNum(gameSituation.preIssueLotteryNum)">{{num}}</span>
+								<span v-for="num in splitlotteryNum(gameSituation.preIssueLotteryNum)">{{num}}</span> <label class="lottery-angle-right"><i class="fa fa-angle-right" aria-hidden="true"></i></label>
 							</div>
 						</div>
-						<div class="hot-game-body-item lottery-closed-body-item" v-show="gameSituation.currentIssue == null">休市中...</div>
+						<div class="hot-game-body-item lottery-closed-body-item" v-show="gameSituation.currentIssue == null">
+							<span>休市中...</span> <label class="lottery-angle-right"><i class="fa fa-angle-right" aria-hidden="true"></i></label>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div v-show="showLatelyLotteryResultFlag">
+				<div class="hot-game lately-lottery-result" v-for="lotteryResult in lotteryResults">
+					<div class="lately-lottery-result-body">
+						<div>
+							<span style="font-size: 0.9rem; padding-right: 0.6rem; color: #838793;"> 第{{lotteryResult.issueNum}}期 </span> <span>{{lotteryResult.endTime}}</span>
+						</div>
+						<div>
+							<div class="lotterying-body-item" v-show="lotteryResult.lotteryNum == null">正在开奖...</div>
+							<div class="lottery-num" v-show="lotteryResult.lotteryNum != null">
+								<span v-for="num in splitlotteryNum(lotteryResult.lotteryNum)">{{num}}</span>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+		<nav class="navbar fixed-bottom bg-light footer-navbar" style="padding: 0;" v-show="showLatelyLotteryResultFlag">
+			<button type="button" class="btn btn-link betting-btn">立即投注</button>
+			<button type="button" class="btn btn-link lottery-trend-btn">走势图</button>
+		</nav>
 	</div>
 	<div th:replace="common/footer::html"></div>
 	<script type="text/javascript">
@@ -101,7 +171,9 @@
 			el : '#lotteryHall',
 			data : {
 				gameSituations : [],
-				lotteryResults : []
+				gameName : '',
+				lotteryResults : [],
+				showLatelyLotteryResultFlag : false
 			},
 			computed : {},
 			created : function() {
@@ -180,15 +252,25 @@
 					return lotteryNum.split(',');
 				},
 
-				showLatelyLotteryResult : function(gameCode) {
+				showLatelyLotteryResult : function(gameSituation) {
 					var that = this;
 					that.$http.get('/issue/findLatelyThe50TimeIssue', {
 						params : {
-							gameCode : gameCode
+							gameCode : gameSituation.gameCode
 						}
 					}).then(function(res) {
 						that.lotteryResults = res.body.data;
+						that.showLatelyLotteryResultFlag = true;
+						that.gameName = gameSituation.gameName;
+						headerVM.showHeaderFlag = false;
+						footerVM.showFooterFlag = false;
 					});
+				},
+
+				showGameSituation : function() {
+					this.showLatelyLotteryResultFlag = false;
+					headerVM.showHeaderFlag = true;
+					footerVM.showFooterFlag = true;
 				}
 
 			}

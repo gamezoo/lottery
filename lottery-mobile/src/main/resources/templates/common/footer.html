@@ -30,19 +30,16 @@
 </head>
 <body>
 	<div id="footer" v-cloak>
-		<nav class="navbar fixed-bottom bg-light footer-navbar">
-			<a class="navbar-brand footer-navbar-brand" v-on:click="goTo('/')" v-bind:class="{'selected-footer-navbar-brand': currentPathName == '/'}"><i class="fa fa-home" aria-hidden="true"></i> <span>首页</span> </a> 
-			<a class="navbar-brand footer-navbar-brand" v-on:click="goTo('/game-hall')" v-bind:class="{'selected-footer-navbar-brand': currentPathName == '/game-hall'}"><i class="fa fa-shopping-cart" aria-hidden="true"></i><span>游戏</span></a> 
-			<a class="navbar-brand footer-navbar-brand" v-on:click="goTo('/lottery-hall')" v-bind:class="{'selected-footer-navbar-brand': currentPathName == '/lottery-hall'}"><i class="fa fa-hourglass" aria-hidden="true"></i><span>开奖</span></a> 
-			<a class="navbar-brand footer-navbar-brand"><i class="fa fa-gift" aria-hidden="true"></i><span>优惠</span></a> 
-			<a class="navbar-brand footer-navbar-brand"><i class="fa fa-user" aria-hidden="true"></i><span>我的</span></a>
+		<nav class="navbar fixed-bottom bg-light footer-navbar" v-show="showFooterFlag">
+			<a class="navbar-brand footer-navbar-brand" v-on:click="goTo('/')" v-bind:class="{'selected-footer-navbar-brand': currentPathName == '/'}"><i class="fa fa-home" aria-hidden="true"></i> <span>首页</span> </a> <a class="navbar-brand footer-navbar-brand" v-on:click="goTo('/game-hall')" v-bind:class="{'selected-footer-navbar-brand': currentPathName == '/game-hall'}"><i class="fa fa-shopping-cart" aria-hidden="true"></i><span>游戏</span></a> <a class="navbar-brand footer-navbar-brand" v-on:click="goTo('/lottery-hall')" v-bind:class="{'selected-footer-navbar-brand': currentPathName == '/lottery-hall'}"><i class="fa fa-hourglass" aria-hidden="true"></i><span>开奖</span></a> <a class="navbar-brand footer-navbar-brand"><i class="fa fa-gift" aria-hidden="true"></i><span>优惠</span></a> <a class="navbar-brand footer-navbar-brand" v-on:click="goTo('/my-home-page')" v-bind:class="{'selected-footer-navbar-brand': currentPathName == '/my-home-page'}"><i class="fa fa-user" aria-hidden="true"></i><span>我的</span></a>
 		</nav>
 	</div>
 	<script type="text/javascript">
 		var footerVM = new Vue({
 			el : '#footer',
 			data : {
-				currentPathName : ''
+				currentPathName : '',
+				showFooterFlag : true
 			},
 			computed : {},
 			created : function() {

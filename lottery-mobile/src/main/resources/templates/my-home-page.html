@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>我的主页</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+.account-info {
+	display: flex;
+	background-color: #dc3545 !important;
+	border-top: 0.001rem solid #e64f5d;
+}
+
+.user-name-and-balance {
+	flex: 3.2;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	color: #fff;
+	margin-left: 4rem;
+}
+
+.user-name-and-balance div {
+	width: 100%;
+}
+
+.vip {
+	flex: 1.2;
+	line-height: 4rem;
+}
+
+.vip label {
+	background: #f19736;
+	border-radius: 10px;
+	display: inline;
+	font-size: 1.5rem;
+	color: #fff;
+}
+
+.personal-info {
+	flex: 1.2;
+}
+
+.personal-info i {
+	font-size: 3.4rem;
+	color: #fff;
+}
+
+.personal-nav {
+	display: flex;
+}
+
+.personal-nav div {
+	flex: 1;
+}
+</style>
+</head>
+
+<body>
+	<div th:replace="common/header::html"></div>
+	<div id="myHomePage" v-cloak>
+		<div class="page-body">
+			<div class="account-info">
+				<div class="user-name-and-balance">
+					<div>
+						<span>账号:</span><label>{{userName}}</label>
+					</div>
+					<div>
+						<span>余额:</span><label>{{balance != null ? balance : 0}}元</label>
+					</div>
+				</div>
+				<div class="vip">
+					<label>vip</label>
+				</div>
+				<div class="personal-info">
+					<label><i class="fa fa-angle-right" aria-hidden="true"></i></label>
+				</div>
+			</div>
+			<nav class="navbar bg-light footer-navbar">
+				<a class="navbar-brand footer-navbar-brand"><i class="fa fa-home" aria-hidden="true"></i> <span>充值</span> </a>
+				<a class="navbar-brand footer-navbar-brand"><i class="fa fa-home" aria-hidden="true"></i> <span>提现</span> </a>
+				<a class="navbar-brand footer-navbar-brand"><i class="fa fa-home" aria-hidden="true"></i> <span>投注记录</span> </a>
+			</nav>
+			<nav class="navbar bg-light footer-navbar">
+				<a class="navbar-brand footer-navbar-brand"><i class="fa fa-home" aria-hidden="true"></i> <span>个人帐变</span> </a>
+				<a class="navbar-brand footer-navbar-brand"><i class="fa fa-home" aria-hidden="true"></i> <span>代理中心</span> </a>
+				<a class="navbar-brand footer-navbar-brand"><i class="fa fa-home" aria-hidden="true"></i> <span>系统消息</span> </a>
+			</nav>
+		</div>
+	</div>
+	<div th:replace="common/footer::html"></div>
+	<script type="text/javascript">
+		var myHomePageVM = new Vue({
+			el : '#myHomePage',
+			data : {
+				isLoggedInFlag : false,
+				userName : '',
+				balance : ''
+			},
+			computed : {},
+			created : function() {
+			},
+			mounted : function() {
+				headerVM.title = '我的主页';
+				this.getUserAccountInfo();
+			},
+			methods : {
+				goTo : function(url) {
+					window.location.href = url;
+				},
+
+				/**
+				 * 获取用户账号信息
+				 */
+				getUserAccountInfo : function() {
+					var that = this;
+					that.$http.get('/userAccount/getUserAccountInfo').then(function(res) {
+						if (res.body.data != null) {
+							that.isLoggedInFlag = true;
+							that.userName = res.body.data.userName;
+							that.balance = res.body.data.balance;
+						}
+					});
+				}
+			}
+		});
+	</script>
+</body>
+</html>

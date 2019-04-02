@@ -12,7 +12,7 @@
 </head>
 <body>
 	<div id="header" v-cloak>
-		<nav class="navbar fixed-top bg-danger header-navbar">
+		<nav class="navbar fixed-top bg-danger header-navbar" v-show="showHeaderFlag">
 			<a class="navbar-brand">{{title}}</a>
 		</nav>
 	</div>
@@ -20,7 +20,8 @@
 		var headerVM = new Vue({
 			el : '#header',
 			data : {
-				title : ''
+				title : '',
+				showHeaderFlag : true
 			},
 			computed : {},
 			created : function() {
