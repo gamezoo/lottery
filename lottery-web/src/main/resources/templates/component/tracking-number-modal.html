@@ -1,0 +1,190 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<style>
+.tracking-number-dialog {
+	max-width: 100%;
+	width: 43%;
+}
+
+.tracking-number-dialog .modal-body {
+	height: 450px;
+	overflow: auto;
+}
+
+.generage-tracking-number-plan-form {
+	padding-bottom: 8px;
+}
+
+.generage-tracking-number-plan-form select {
+	width: 160px;
+}
+
+.generage-tracking-number-plan-form input {
+	width: 50px;
+}
+
+.generage-tracking-number-plan-form .form-group {
+	padding-right: 10px;
+}
+
+.generage-tracking-summary {
+	display: inline;
+}
+
+.generage-tracking-summary span {
+	color: #e4393c;
+	font-weight: bolder;
+}
+</style>
+</head>
+<body>
+	<div id="tracking-number-modal" v-cloak>
+		<div v-show="showTrackingNumberFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog tracking-number-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">追号</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="showTrackingNumberFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<div>
+									<label>第20190512-039期</label>
+									<div class="custom-control custom-checkbox custom-control-inline float-right">
+										<input type="checkbox" class="custom-control-input" id="winToStop" v-model="winToStop"> <label class="custom-control-label" for="winToStop">中奖即停</label>
+									</div>
+								</div>
+								<form class="form-inline generage-tracking-number-plan-form">
+									<div class="form-group">
+										<label>起始期数:</label> <select class="form-control-sm" v-model="startTrackingIssumNum">
+											<option value="">起始(默认当前期)</option>
+											<option v-for="issue in trackingNumberIssues" :value="issue.issueNum">{{issue.issueNum}}期</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label>倍数:</label><input type="text" class="form-control-sm" v-model="trackingNumberMultiple">
+									</div>
+									<div class="form-group">
+										<label>追:</label><input type="text" class="form-control-sm" v-model="trackingNumberIssueCount">期
+									</div>
+									<button type="button" class="btn btn-info btn-sm" v-on:click="generageTrackingNumberPlan">生成追号计划</button>
+								</form>
+								<table class="table table-sm common-table">
+									<thead>
+										<tr>
+											<th>期号</th>
+											<th>倍数</th>
+											<th>当前投入</th>
+											<th>累计投入</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr v-for="trackingNumberRecord in trackingNumberRecords">
+											<td>{{trackingNumberRecord.issueNum}}</td>
+											<td><input type="text" class="form-control-sm" v-model="trackingNumberRecord.multiple"></td>
+											<td>{{trackingNumberRecord.multiple}}</td>
+											<td>4</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="modal-footer">
+								<div class="generage-tracking-summary">
+									单倍注数<span>2</span>注，购买<span>2</span>期，合计<span>￥2</span>
+								</div>
+								<button type="button" class="btn btn-sm" v-on:click="">取消追号</button>
+								<button type="button" class="btn btn-danger btn-sm" v-on:click="">确认追号</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var trackingNumberModal = new Vue({
+			el : '#tracking-number-modal',
+			data : {
+				showTrackingNumberFlag : false,
+				winToStop : true,
+				trackingNumberIssues : [],
+				startTrackingIssumNum : '',
+				trackingNumberMultiple : '',
+				trackingNumberIssueCount : '',
+				trackingNumberRecords : []
+			},
+			computed : {},
+			created : function() {
+			},
+			methods : {
+				showTrackingNumberModal : function(gameCode) {
+					var that = this;
+					that.$http.get('/issue/findTodayTrackingNumberIssue', {
+						params : {
+							gameCode : gameCode
+						}
+					}).then(function(res) {
+						var trackingNumberIssues = res.body.data;
+						if (trackingNumberIssues == null || trackingNumberIssues.length == 0) {
+							return;
+						}
+						that.trackingNumberIssues = trackingNumberIssues;
+						that.showTrackingNumberFlag = true;
+						that.winToStop = true;
+						that.trackingNumberMultiple = 1;
+						that.trackingNumberIssueCount = 1;
+						that.trackingNumberRecords = [];
+						that.generageTrackingNumberPlan();
+					});
+				},
+
+				generageTrackingNumberPlan : function() {
+					if (this.trackingNumberMultiple == null || this.trackingNumberMultiple == '') {
+						layer.alert('请选择追号倍数', {
+							title : '提示',
+							icon : 7,
+							time : 3000
+						});
+						return;
+					}
+					if (this.trackingNumberIssueCount == null || this.trackingNumberIssueCount == '') {
+						layer.alert('请输入追多少期', {
+							title : '提示',
+							icon : 7,
+							time : 3000
+						});
+						return;
+					}
+					var startTrackingIssumNumIndex = 0;
+					for (var i = 0; i < this.trackingNumberIssues.length; i++) {
+						var trackingNumberIssue = this.trackingNumberIssues[i];
+						if (this.startTrackingIssumNum == '') {
+							break;
+						}
+						if (this.startTrackingIssumNum == trackingNumberIssue.issueNum) {
+							startTrackingIssumNumIndex = i;
+							break;
+						}
+					}
+					var trackingNumberRecords = [];
+					for (var i = startTrackingIssumNumIndex; i < this.trackingNumberIssues.length; i++) {
+						var trackingNumberIssue = this.trackingNumberIssues[i];
+						trackingNumberRecords.push({
+							issueNum : trackingNumberIssue.issueNum,
+							multiple : this.trackingNumberMultiple,
+							bettingTotalAmount : ''
+						});
+						if (this.trackingNumberIssueCount == i - startTrackingIssumNumIndex + 1) {
+							break;
+						}
+					}
+					this.trackingNumberRecords = trackingNumberRecords;
+				}
+			}
+		});
+	</script>
+</body>
+</html>

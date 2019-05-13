@@ -2,6 +2,7 @@
 <head>
 <style>
 </style>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <link href="/css/common/ssc.css" rel="stylesheet" type="text/css">
 </head>
 <body>
@@ -47,7 +48,7 @@
 		<div class="row play-row">
 			<div class="col-sm-12">
 				<ul class="nav nav-tabs play-tabs">
-					<li class="nav-item" v-for="gamePlayCategory in gamePlayCategorys" v-on:click="switchGamePlayCategory(gamePlayCategory)"><a class="nav-link" href="#" v-bind:class="{'active': gamePlayCategory == selectedGamePlayCategory}">{{gamePlayCategory.gamePlayCategoryName}}</a></li>
+					<li class="nav-item" v-for="gamePlayCategory in gamePlayCategorys" v-on:click="switchGamePlayCategory(gamePlayCategory)"><a class="nav-link" v-bind:class="{'active': gamePlayCategory == selectedGamePlayCategory}">{{gamePlayCategory.gamePlayCategoryName}}</a></li>
 				</ul>
 			</div>
 		</div>
@@ -110,7 +111,9 @@
 					</div>
 					<div class="col-sm-4 offset-md-2">
 						<div class="play-introduce-play-odds">
-							<i class="play-introduce" v-on:mouseenter="showPlayIntroduceDesc" v-on:mouseleave="hidePlayIntroduceDesc">玩法介绍<label>?</label>
+							<i class="clear-pre-betting-order-btn" v-on:click="clearPreBettingOrder"> <i class="fa fa-trash" aria-hidden="true"></i>清空
+							</i> 
+							<i class="play-introduce" v-on:mouseenter="showPlayIntroduceDesc" v-on:mouseleave="hidePlayIntroduceDesc"> <i class="fa fa-question-circle" aria-hidden="true"></i>玩法介绍
 								<div class="play-introduce-desc" style="display: none;">{{selectedPlay.gamePlayDesc}}</div>
 							</i> <i class="play-odds" v-if="selectedPlay.oddsMode == '1'"><label class="play-odds-label">赔率:</label><label class="play-odds-value">{{selectedPlay.odds}}</label></i>
 						</div>
@@ -148,10 +151,9 @@
 						</span>
 					</div>
 					<div class="col-sm-3 offset-md-3 betting-btn-operation">
-						<button type="button" class="btn btn-sm" v-on:click="clearPreBettingOrder">清空</button>
-						<button type="button" class="btn btn-success btn-sm" v-on:click="placeOrder">确认投注</button>
+						<button type="button" class="btn btn-secondary" v-on:click="showTrackingNumberModal">追号</button>
+						<button type="button" class="btn btn-danger" v-on:click="placeOrder">确认投注</button>
 					</div>
-
 				</div>
 			</div>
 			<div class="col-sm-3">

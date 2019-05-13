@@ -40,4 +40,10 @@ public class IssueController {
 		return Result.success().setData(issueService.getLatelyIssue(gameCode));
 	}
 
+	@GetMapping("/findTodayTrackingNumberIssue")
+	@ResponseBody
+	public Result findTodayTrackingNumberIssue(String gameCode) {
+		return Result.success().setData(issueService.findTodayTrackingNumberIssue(gameCode));
+	}
+
 }

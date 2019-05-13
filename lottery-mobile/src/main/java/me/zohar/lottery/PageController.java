@@ -54,5 +54,14 @@ public class PageController {
 	public String myHomePage() {
 		return "my-home-page";
 	}
+	
+	/**
+	 * 提现
+	 * @return
+	 */
+	@GetMapping("/withdraw")
+	public String withdraw() {
+		return "withdraw";
+	}
 
 }

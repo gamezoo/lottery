@@ -203,7 +203,7 @@ public class IssueService {
 		List<Issue> issues = issueRepo.findTop5ByGameCodeAndEndTimeLessThanOrderByIssueNumDesc(gameCode, new Date());
 		return IssueVO.convertFor(issues);
 	}
-	
+
 	/**
 	 * 获取最近50次的开奖期号数据
 	 * 
@@ -340,6 +340,21 @@ public class IssueService {
 		issue.setAutomaticLottery(param.getAutomaticLottery());
 		issue.setAutomaticSettlement(param.getAutomaticSettlement());
 		issueRepo.save(issue);
+	}
+
+	/**
+	 * 获取今日可追号的期号数据
+	 * 
+	 * @return
+	 */
+	public List<IssueVO> findTodayTrackingNumberIssue(String gameCode) {
+		IssueVO currentIssue = getCurrentIssue(gameCode);
+		if (currentIssue == null) {
+			return null;
+		}
+		List<Issue> issues = issueRepo.findByGameCodeAndLotteryDateAndLotteryTimeGreaterThanEqualOrderByLotteryTimeAsc(
+				gameCode, currentIssue.getLotteryDate(), currentIssue.getLotteryTime());
+		return IssueVO.convertFor(issues);
 	}
 
 }

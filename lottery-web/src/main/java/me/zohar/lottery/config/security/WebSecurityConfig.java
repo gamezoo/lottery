@@ -36,7 +36,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		.antMatchers("/recharge/muspayCallback").permitAll()
 		.antMatchers("/pay-success").permitAll()
 		.anyRequest().authenticated()
-		.and().formLogin().loginProcessingUrl("/login")
+		.and().formLogin().loginPage("/").loginProcessingUrl("/login")
 		.successHandler(successHandler).failureHandler(failHandler).permitAll()
 		.and().logout().logoutUrl("/logout").logoutSuccessHandler(logoutHandler).permitAll();
 	}

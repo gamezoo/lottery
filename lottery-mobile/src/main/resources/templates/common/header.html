@@ -13,7 +13,7 @@
 <body>
 	<div id="header" v-cloak>
 		<nav class="navbar fixed-top bg-danger header-navbar" v-show="showHeaderFlag">
-			<a class="navbar-brand">{{title}}</a>
+			<i class="fa fa-angle-left" aria-hidden="true" style="float: left; font-size: 1.8rem;" v-show="showBackFlag" v-on:click="window.history.back(-1);"></i><a class="navbar-brand">{{title}}</a>
 		</nav>
 	</div>
 	<script type="text/javascript">
@@ -21,7 +21,8 @@
 			el : '#header',
 			data : {
 				title : '',
-				showHeaderFlag : true
+				showHeaderFlag : true,
+				showBackFlag : false
 			},
 			computed : {},
 			created : function() {

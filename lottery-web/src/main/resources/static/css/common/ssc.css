@@ -503,23 +503,44 @@
 	float: right;
 }
 
+.clear-pre-betting-order-btn {
+	height: 20px;
+	line-height: 20px;
+	cursor: pointer;
+	color: #6286ca;
+	margin-right: 5px;
+	margin-top: 5px;
+	font-style: normal;
+	font-size: 14px;
+}
+
 .play-introduce {
 	height: 20px;
 	line-height: 20px;
 	cursor: pointer;
-	margin-left: 50px;
-	color: #d95e5e;
+	color: #6286ca;
 	margin-right: 5px;
 	margin-top: 5px;
 	font-style: normal;
-	font-size: 12px;
+	font-size: 14px;
+}
+
+.play-introduce {
+	height: 20px;
+	line-height: 20px;
+	cursor: pointer;
+	color: #6286ca;
+	margin-right: 5px;
+	margin-top: 5px;
+	font-style: normal;
+	font-size: 14px;
 }
 
 .play-introduce label {
 	width: 16px;
 	height: 16px;
 	border-radius: 8px;
-	border: 1px solid #d95e5e;
+	border: 1px solid #6286ca;
 	text-align: center;
 	line-height: 12px;
 	margin: 4px 0 0 4px;
@@ -530,11 +551,11 @@
 	height: 20px;
 	line-height: 20px;
 	cursor: pointer;
-	color: #666;
+	color: #6286ca;
 	margin-right: 5px;
 	margin-top: 5px;
 	font-style: normal;
-	font-size: 12px;
+	font-size: 14px;
 }
 
 .pre-betting-area {

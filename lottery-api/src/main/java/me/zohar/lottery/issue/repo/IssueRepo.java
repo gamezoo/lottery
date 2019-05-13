@@ -10,6 +10,9 @@ import me.zohar.lottery.issue.domain.Issue;
 
 public interface IssueRepo extends JpaRepository<Issue, String>, JpaSpecificationExecutor<Issue> {
 
+	List<Issue> findByGameCodeAndLotteryDateAndLotteryTimeGreaterThanEqualOrderByLotteryTimeAsc(String gameCode,
+			Date lotteryDate, Date lotteryTime);
+
 	List<Issue> findByGameCodeAndLotteryDateOrderByLotteryTimeDesc(String gameCode, Date lotteryDate);
 
 	/**
@@ -27,7 +30,7 @@ public interface IssueRepo extends JpaRepository<Issue, String>, JpaSpecificatio
 	Issue findTopByGameCodeAndIssueNumLessThanOrderByIssueNumDesc(String gameCode, Long issueNum);
 
 	List<Issue> findTop5ByGameCodeAndEndTimeLessThanOrderByIssueNumDesc(String gameCode, Date endTime);
-	
+
 	List<Issue> findTop50ByGameCodeAndEndTimeLessThanOrderByIssueNumDesc(String gameCode, Date endTime);
 
 	/**

@@ -81,3 +81,6 @@
 	text-align: start;
 }
 /*bootstrap table插件detailView样式end*/
+.nav-link {
+	cursor: pointer;
+}

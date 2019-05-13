@@ -6,14 +6,13 @@ import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.date.DateUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import me.zohar.lottery.common.utils.IdUtils;
 import me.zohar.lottery.dictconfig.DictHolder;
 import me.zohar.lottery.issue.domain.Issue;
 
@@ -44,34 +43,39 @@ public class IssueVO {
 	private Long issueNum;
 
 	/**
-	 * 开奖日期:yyyy-MM-dd
+	 * 开奖日期
 	 */
-	private String lotteryDate;
+	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+	private Date lotteryDate;
 
 	/**
-	 * 开奖时间:yyyy-MM-dd HH:mm:ss
+	 * 开奖时间
 	 */
-	private String lotteryTime;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+	private Date lotteryTime;
 
 	/**
-	 * 开始时间:yyyy-MM-dd HH:mm:ss
+	 * 开始时间
 	 */
-	private String startTime;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+	private Date startTime;
 
 	/**
-	 * 结束时间:yyyy-MM-dd HH:mm:ss
+	 * 结束时间
 	 */
-	private String endTime;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+	private Date endTime;
 
 	/**
 	 * 全部开奖号码,以逗号分隔
 	 */
 	private String lotteryNum;
-	
+
 	/**
-	 * 同步时间:yyyy-MM-dd HH:mm:ss
+	 * 同步时间
 	 */
-	private String syncTime;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+	private Date syncTime;
 
 	/**
 	 * 状态
@@ -98,22 +102,8 @@ public class IssueVO {
 		IssueVO vo = new IssueVO();
 		BeanUtils.copyProperties(issue, vo);
 		vo.setGameName(DictHolder.getDictItemName("game", vo.getGameCode()));
-		vo.setLotteryDate(DateUtil.format(issue.getLotteryDate(), DatePattern.NORM_DATE_PATTERN));
-		vo.setLotteryTime(DateUtil.format(issue.getLotteryTime(), DatePattern.NORM_DATETIME_PATTERN));
-		vo.setStartTime(DateUtil.format(issue.getStartTime(), DatePattern.NORM_DATETIME_PATTERN));
-		vo.setEndTime(DateUtil.format(issue.getEndTime(), DatePattern.NORM_DATETIME_PATTERN));
-		vo.setSyncTime(DateUtil.format(issue.getSyncTime(), DatePattern.NORM_DATETIME_PATTERN));
 		vo.setStateName(DictHolder.getDictItemName("issueState", vo.getState()));
 		return vo;
-	}
-
-	public Issue convertToPo() {
-		Issue po = new Issue();
-		BeanUtils.copyProperties(this, po);
-		po.setId(IdUtils.getId());
-		po.setLotteryDate(DateUtil.beginOfDay(DateUtil.parse(this.getLotteryDate(), DatePattern.NORM_DATE_PATTERN)));
-		po.setSyncTime(new Date());
-		return po;
 	}
 
 }

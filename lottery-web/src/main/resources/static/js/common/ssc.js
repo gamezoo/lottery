@@ -89,6 +89,17 @@ var ssc = new Vue({
 
 	},
 	methods : {
+		showTrackingNumberModal : function() {
+			if (this.preBettingRecords.length == 0) {
+				layer.alert('请先选择投注号码', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			trackingNumberModal.showTrackingNumberModal(this.gameCode);
+		},
 		showPlayIntroduceDesc : function() {
 			layer.tips($('.play-introduce-desc').text(), '.play-introduce', {
 				tips : [ 2, '#f13131' ],

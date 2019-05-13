@@ -13,6 +13,19 @@
 <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 <link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <style type="text/css">
+.login-or-register {
+	text-align: center;
+	background-color: #dc3545 !important; border-top : 0.001rem solid
+	#e64f5d; padding-top : 1rem;
+	padding-bottom: 1rem;
+	border-top: 0.001rem solid #e64f5d;
+	padding-top: 1rem;
+}
+
+.login-or-register button {
+	background-color: #DA5756;
+}
+
 .account-info {
 	display: flex;
 	background-color: #dc3545 !important;
@@ -62,6 +75,27 @@
 .personal-nav div {
 	flex: 1;
 }
+
+.home-page-nav {
+	height: 6rem !important;
+	background-color: #fff !important;
+}
+
+.home-page-nav a {
+	min-width: 4rem;
+}
+
+.list-group span {
+	float: right;
+}
+
+.list-group i {
+	font-size: 1.3rem;
+}
+
+.logout-group-item {
+	color: red;
+}
 </style>
 </head>
 
@@ -69,7 +103,10 @@
 	<div th:replace="common/header::html"></div>
 	<div id="myHomePage" v-cloak>
 		<div class="page-body">
-			<div class="account-info">
+			<div class="login-or-register" v-show="!isLoggedInFlag">
+				<button type="button" class="btn btn-danger" v-on:click="goTo('/login')">登录/注册</button>
+			</div>
+			<div class="account-info" v-show="isLoggedInFlag">
 				<div class="user-name-and-balance">
 					<div>
 						<span>账号:</span><label>{{userName}}</label>
@@ -85,16 +122,21 @@
 					<label><i class="fa fa-angle-right" aria-hidden="true"></i></label>
 				</div>
 			</div>
-			<nav class="navbar bg-light footer-navbar">
-				<a class="navbar-brand footer-navbar-brand"><i class="fa fa-home" aria-hidden="true"></i> <span>充值</span> </a>
-				<a class="navbar-brand footer-navbar-brand"><i class="fa fa-home" aria-hidden="true"></i> <span>提现</span> </a>
-				<a class="navbar-brand footer-navbar-brand"><i class="fa fa-home" aria-hidden="true"></i> <span>投注记录</span> </a>
-			</nav>
-			<nav class="navbar bg-light footer-navbar">
-				<a class="navbar-brand footer-navbar-brand"><i class="fa fa-home" aria-hidden="true"></i> <span>个人帐变</span> </a>
-				<a class="navbar-brand footer-navbar-brand"><i class="fa fa-home" aria-hidden="true"></i> <span>代理中心</span> </a>
-				<a class="navbar-brand footer-navbar-brand"><i class="fa fa-home" aria-hidden="true"></i> <span>系统消息</span> </a>
-			</nav>
+			<div>
+				<nav class="navbar bg-light footer-navbar home-page-nav">
+					<a class="navbar-brand footer-navbar-brand"><i class="fa fa-jpy" aria-hidden="true"></i> <span>充值</span> </a> <a class="navbar-brand footer-navbar-brand" v-on:click="goTo('/withdraw')"><i class="fa fa-money" aria-hidden="true"></i> <span>提款</span> </a> <a class="navbar-brand footer-navbar-brand"><i class="fa fa-list" aria-hidden="true"></i> <span>投注记录</span> </a>
+				</nav>
+				<nav class="navbar bg-light footer-navbar home-page-nav">
+					<a class="navbar-brand footer-navbar-brand"><i class="fa fa-book" aria-hidden="true"></i> <span>个人帐变</span> </a> <a class="navbar-brand footer-navbar-brand"><i class="fa fa-user-plus" aria-hidden="true"></i> <span>代理中心</span> </a> <a class="navbar-brand footer-navbar-brand"><i class="fa fa-rss" aria-hidden="true"></i> <span>系统消息</span> </a>
+				</nav>
+			</div>
+			<ul class="list-group">
+				<li class="list-group-item">在线客服 <span><i aria-hidden="true" class="fa fa-angle-right"></i></span>
+				</li>
+				<li class="list-group-item">活动中心<span><i aria-hidden="true" class="fa fa-angle-right"></i></span></li>
+				<li class="list-group-item">切换线路<span><i aria-hidden="true" class="fa fa-angle-right"></i></span></li>
+				<li class="list-group-item logout-group-item">退出登录<span><i aria-hidden="true" class="fa fa-angle-right"></i></span></li>
+			</ul>
 		</div>
 	</div>
 	<div th:replace="common/footer::html"></div>
