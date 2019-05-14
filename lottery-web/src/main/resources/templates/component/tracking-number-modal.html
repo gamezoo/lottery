@@ -52,7 +52,7 @@
 							</div>
 							<div class="modal-body">
 								<div>
-									<label>第20190512-039期</label>
+									<label>第{{trackingNumberRecords.length > 0 ? trackingNumberRecords[0].issueNum : ''}}期</label>
 									<div class="custom-control custom-checkbox custom-control-inline float-right">
 										<input type="checkbox" class="custom-control-input" id="winToStop" v-model="winToStop"> <label class="custom-control-label" for="winToStop">中奖即停</label>
 									</div>
@@ -82,21 +82,21 @@
 										</tr>
 									</thead>
 									<tbody>
-										<tr v-for="trackingNumberRecord in trackingNumberRecords">
+										<tr v-for="(trackingNumberRecord, index) in trackingNumberRecords">
 											<td>{{trackingNumberRecord.issueNum}}</td>
 											<td><input type="text" class="form-control-sm" v-model="trackingNumberRecord.multiple"></td>
-											<td>{{trackingNumberRecord.multiple}}</td>
-											<td>4</td>
+											<td>{{baseAmount * trackingNumberRecord.multiple * preBettingTotalCount}}</td>
+											<td>{{cumulativeBettingAmount(index)}}</td>
 										</tr>
 									</tbody>
 								</table>
 							</div>
 							<div class="modal-footer">
 								<div class="generage-tracking-summary">
-									单倍注数<span>2</span>注，购买<span>2</span>期，合计<span>￥2</span>
+									单倍注数<span>{{preBettingTotalCount}}</span>注，购买<span>{{trackingNumberRecords.length}}</span>期，合计<span>￥{{preBettingTotalAmount}}</span>
 								</div>
-								<button type="button" class="btn btn-sm" v-on:click="">取消追号</button>
-								<button type="button" class="btn btn-danger btn-sm" v-on:click="">确认追号</button>
+								<button type="button" class="btn btn-sm" v-on:click="showTrackingNumberFlag = false">取消追号</button>
+								<button type="button" class="btn btn-danger btn-sm" v-on:click="startTrackingNumber">确认追号</button>
 							</div>
 						</div>
 					</div>
@@ -109,6 +109,10 @@
 			el : '#tracking-number-modal',
 			data : {
 				showTrackingNumberFlag : false,
+				gameCode : '',
+				baseAmount : 0,
+				preBettingRecords : [],
+				trackingNumberCallBack : null,
 				winToStop : true,
 				trackingNumberIssues : [],
 				startTrackingIssumNum : '',
@@ -116,11 +120,37 @@
 				trackingNumberIssueCount : '',
 				trackingNumberRecords : []
 			},
-			computed : {},
+			computed : {
+				// 预投注的总投注金额
+				preBettingTotalAmount : {
+					get : function() {
+						var preBettingTotalAmount = 0;
+						var preBettingTotalCount = this.preBettingTotalCount;
+						for (var i = 0; i < this.trackingNumberRecords.length; i++) {
+							preBettingTotalAmount += this.baseAmount * this.trackingNumberRecords[i].multiple * preBettingTotalCount;
+						}
+						return preBettingTotalAmount;
+					}
+				},
+				// 预投注的总注数
+				preBettingTotalCount : {
+					get : function() {
+						var preBettingRecords = this.preBettingRecords;
+						if (preBettingRecords.length == 0) {
+							return 0;
+						}
+						var preBettingTotalCount = 0;
+						for (var i = 0; i < preBettingRecords.length; i++) {
+							preBettingTotalCount += preBettingRecords[i].bettingCount;
+						}
+						return preBettingTotalCount;
+					}
+				}
+			},
 			created : function() {
 			},
 			methods : {
-				showTrackingNumberModal : function(gameCode) {
+				showTrackingNumberModal : function(gameCode, baseAmount, preBettingRecords, trackingNumberCallBack) {
 					var that = this;
 					that.$http.get('/issue/findTodayTrackingNumberIssue', {
 						params : {
@@ -132,12 +162,16 @@
 							return;
 						}
 						that.trackingNumberIssues = trackingNumberIssues;
-						that.showTrackingNumberFlag = true;
+						that.gameCode = gameCode;
+						that.baseAmount = baseAmount;
+						that.preBettingRecords = preBettingRecords;
+						that.trackingNumberCallBack = trackingNumberCallBack;
 						that.winToStop = true;
 						that.trackingNumberMultiple = 1;
 						that.trackingNumberIssueCount = 1;
 						that.trackingNumberRecords = [];
 						that.generageTrackingNumberPlan();
+						that.showTrackingNumberFlag = true;
 					});
 				},
 
@@ -152,6 +186,14 @@
 					}
 					if (this.trackingNumberIssueCount == null || this.trackingNumberIssueCount == '') {
 						layer.alert('请输入追多少期', {
+							title : '提示',
+							icon : 7,
+							time : 3000
+						});
+						return;
+					}
+					if (this.trackingNumberIssueCount > this.trackingNumberIssues.length) {
+						layer.alert('今天最多可追' + this.trackingNumberIssues.length + '期,请重新输入', {
 							title : '提示',
 							icon : 7,
 							time : 3000
@@ -174,14 +216,49 @@
 						var trackingNumberIssue = this.trackingNumberIssues[i];
 						trackingNumberRecords.push({
 							issueNum : trackingNumberIssue.issueNum,
-							multiple : this.trackingNumberMultiple,
-							bettingTotalAmount : ''
+							multiple : this.trackingNumberMultiple
 						});
 						if (this.trackingNumberIssueCount == i - startTrackingIssumNumIndex + 1) {
 							break;
 						}
 					}
 					this.trackingNumberRecords = trackingNumberRecords;
+				},
+
+				cumulativeBettingAmount : function(index) {
+					var cumulativeBettingAmount = 0;
+					var preBettingTotalCount = this.preBettingTotalCount;
+					for (var i = 0; i < this.trackingNumberRecords.length; i++) {
+						cumulativeBettingAmount += this.baseAmount * this.trackingNumberRecords[i].multiple * preBettingTotalCount;
+						if (index == i) {
+							break;
+						}
+					}
+					return cumulativeBettingAmount;
+				},
+
+				startTrackingNumber : function() {
+					var that = this;
+					if (that.trackingNumberRecords == null || that.trackingNumberRecords.length == 0) {
+						return;
+					}
+					var startTrackingNumberParam = {
+						gameCode : that.gameCode,
+						baseAmount : that.baseAmount,
+						bettingRecords : that.preBettingRecords,
+						plans : that.trackingNumberRecords
+					};
+					that.$http.post('/betting/startTrackingNumber', startTrackingNumberParam).then(function(res) {
+						layer.alert('追号成功!', {
+							icon : 1,
+							time : 3000,
+							shade : false
+						});
+						that.showTrackingNumberFlag = false;
+						if (typeof that.trackingNumberCallBack === 'function') {
+							that.trackingNumberCallBack();
+						}
+					});
 				}
 			}
 		});

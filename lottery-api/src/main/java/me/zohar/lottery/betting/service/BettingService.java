@@ -23,10 +23,12 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import me.zohar.lottery.betting.domain.BettingOrder;
 import me.zohar.lottery.betting.domain.BettingRecord;
+import me.zohar.lottery.betting.param.BettingOrderQueryCondParam;
 import me.zohar.lottery.betting.param.BettingRecordParam;
 import me.zohar.lottery.betting.param.ChangeOrderParam;
-import me.zohar.lottery.betting.param.BettingOrderQueryCondParam;
 import me.zohar.lottery.betting.param.PlaceOrderParam;
+import me.zohar.lottery.betting.param.StartTrackingNumberParam;
+import me.zohar.lottery.betting.param.StartTrackingNumberParam.TrackingNumberPlanParam;
 import me.zohar.lottery.betting.repo.BettingOrderRepo;
 import me.zohar.lottery.betting.repo.BettingRecordRepo;
 import me.zohar.lottery.betting.vo.BettingOrderDetailsVO;
@@ -39,6 +41,8 @@ import me.zohar.lottery.common.vo.PageResult;
 import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.game.domain.GamePlay;
 import me.zohar.lottery.game.repo.GamePlayRepo;
+import me.zohar.lottery.issue.domain.Issue;
+import me.zohar.lottery.issue.repo.IssueRepo;
 import me.zohar.lottery.useraccount.domain.AccountChangeLog;
 import me.zohar.lottery.useraccount.domain.UserAccount;
 import me.zohar.lottery.useraccount.repo.AccountChangeLogRepo;
@@ -64,6 +68,9 @@ public class BettingService {
 
 	@Autowired
 	private GamePlayRepo gamePlayRepo;
+
+	@Autowired
+	private IssueRepo issueRepo;
 
 	@Transactional(readOnly = true)
 	public BettingOrderDetailsVO findMyBettingOrderDetails(String id, String userAccountId) {
@@ -155,19 +162,39 @@ public class BettingService {
 	@ParamValid
 	@Transactional
 	public void placeOrder(PlaceOrderParam placeOrderParam, String userAccountId) {
-		String gameState = template.opsForValue().get(placeOrderParam.getGameCode() + Constant.游戏当期状态);
-		if (Constant.游戏当期状态_休市中.equals(gameState)) {
+		Date now = new Date();
+		Issue currentIssue = issueRepo.findTopByGameCodeAndStartTimeLessThanEqualAndEndTimeGreaterThan(
+				placeOrderParam.getGameCode(), now, now);
+		if (currentIssue == null) {
 			throw new BizException(BizError.休市中);
 		}
-		if (Constant.游戏当期状态_已截止投注.equals(gameState)) {
-			throw new BizException(BizError.已截止投注);
-		}
-		String gameCurrentIssueNum = template.opsForValue().get(placeOrderParam.getGameCode() + Constant.游戏当前期号);
-		if (StrUtil.isEmpty(gameCurrentIssueNum)) {
-			throw new BizException(BizError.休市中);
-		}
-		if (Long.parseLong(gameCurrentIssueNum) != placeOrderParam.getIssueNum()) {
-			throw new BizException(BizError.投注期号不对);
+		if (currentIssue.getIssueNum() == placeOrderParam.getIssueNum()) {
+			String gameState = template.opsForValue().get(placeOrderParam.getGameCode() + Constant.游戏当期状态);
+			if (Constant.游戏当期状态_休市中.equals(gameState)) {
+				throw new BizException(BizError.休市中);
+			}
+			if (Constant.游戏当期状态_已截止投注.equals(gameState)) {
+				throw new BizException(BizError.已截止投注);
+			}
+			String gameCurrentIssueNum = template.opsForValue().get(placeOrderParam.getGameCode() + Constant.游戏当前期号);
+			if (StrUtil.isEmpty(gameCurrentIssueNum)) {
+				throw new BizException(BizError.休市中);
+			}
+		} else {
+			Issue bettingIssue = issueRepo.findByGameCodeAndIssueNum(placeOrderParam.getGameCode(),
+					placeOrderParam.getIssueNum());
+			if (bettingIssue == null) {
+				throw new BizException(BizError.期号非法);
+			}
+			if (bettingIssue.getLotteryDate().getTime() < currentIssue.getLotteryDate().getTime()) {
+				throw new BizException(BizError.期号非法);
+			}
+			if (bettingIssue.getLotteryDate().getTime() > currentIssue.getLotteryDate().getTime()) {
+				throw new BizException(BizError.只能追当天的号);
+			}
+			if (bettingIssue.getIssueNum() < currentIssue.getIssueNum()) {
+				throw new BizException(BizError.该期已封盘无法投注);
+			}
 		}
 
 		long totalBettingCount = 0;
@@ -232,6 +259,36 @@ public class BettingService {
 			bettingRecord.setOdds(gamePlay.getOdds());
 			bettingRecord.setSelectedNo(param.getSelectedNo());
 			bettingRecordRepo.save(bettingRecord);
+		}
+	}
+
+	@ParamValid
+	@Transactional
+	public void startTrackingNumber(StartTrackingNumberParam startTrackingNumberParam, String userAccountId) {
+		long totalBettingCount = 0;
+		double totalBettingAmount = 0;
+		for (BettingRecordParam bettingRecordParam : startTrackingNumberParam.getBettingRecords()) {
+			totalBettingCount += bettingRecordParam.getBettingCount();
+		}
+		for (TrackingNumberPlanParam planParam : startTrackingNumberParam.getPlans()) {
+			totalBettingAmount += startTrackingNumberParam.getBaseAmount() * planParam.getMultiple()
+					* totalBettingCount;
+		}
+		UserAccount userAccount = userAccountRepo.getOne(userAccountId);
+		double balance = NumberUtil.round(userAccount.getBalance() - totalBettingAmount, 4).doubleValue();
+		if (userAccount.getBalance() <= 0 || balance < 0) {
+			throw new BizException(BizError.余额不足);
+		}
+
+		// 下单
+		for (TrackingNumberPlanParam planParam : startTrackingNumberParam.getPlans()) {
+			PlaceOrderParam placeOrderParam = new PlaceOrderParam();
+			placeOrderParam.setGameCode(startTrackingNumberParam.getGameCode());
+			placeOrderParam.setIssueNum(planParam.getIssueNum());
+			placeOrderParam.setBaseAmount(startTrackingNumberParam.getBaseAmount());
+			placeOrderParam.setMultiple(planParam.getMultiple());
+			placeOrderParam.setBettingRecords(startTrackingNumberParam.getBettingRecords());
+			placeOrder(placeOrderParam, userAccountId);
 		}
 	}
 }

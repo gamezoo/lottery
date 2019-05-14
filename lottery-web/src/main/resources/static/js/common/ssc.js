@@ -98,8 +98,15 @@ var ssc = new Vue({
 				});
 				return;
 			}
-			trackingNumberModal.showTrackingNumberModal(this.gameCode);
+			trackingNumberModal.showTrackingNumberModal(this.gameCode, this.baseAmount, this.preBettingRecords, this.trackingNumberCallBack);
 		},
+
+		trackingNumberCallBack : function() {
+			this.clearPreBettingOrder();
+			this.refreshTodayLatestBettingRecord();
+			header.refreshBalance();
+		},
+
 		showPlayIntroduceDesc : function() {
 			layer.tips($('.play-introduce-desc').text(), '.play-introduce', {
 				tips : [ 2, '#f13131' ],

@@ -58,7 +58,7 @@ public class PlaceOrderParam {
 	@NotEmpty(message = "bettingRecords不能为空")
 	@Valid
 	private List<BettingRecordParam> bettingRecords;
-
+	
 	public BettingOrder convertToPo(Long totalBettingCount, Double totalBettingAmount, String userAccountId) {
 		BettingOrder po = new BettingOrder();
 		BeanUtils.copyProperties(this, po);

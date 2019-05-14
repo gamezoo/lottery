@@ -298,7 +298,7 @@ public class UserAccountService {
 			}
 		};
 		Page<AccountChangeLog> result = accountChangeLogRepo.findAll(spec, PageRequest.of(param.getPageNum() - 1,
-				param.getPageSize(), Sort.by(Sort.Order.desc("accountChangeTime"))));
+				param.getPageSize(), Sort.by(Sort.Order.desc("accountChangeTime"), Sort.Order.desc("issueNum"))));
 		PageResult<AccountChangeLogVO> pageResult = new PageResult<>(AccountChangeLogVO.convertFor(result.getContent()),
 				param.getPageNum(), param.getPageSize(), result.getTotalElements());
 		return pageResult;

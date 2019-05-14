@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import me.zohar.lottery.betting.param.BettingOrderQueryCondParam;
 import me.zohar.lottery.betting.param.PlaceOrderParam;
+import me.zohar.lottery.betting.param.StartTrackingNumberParam;
 import me.zohar.lottery.betting.service.BettingService;
 import me.zohar.lottery.common.vo.Result;
 import me.zohar.lottery.config.security.UserAccountDetails;
@@ -73,5 +74,21 @@ public class BettingController {
 		bettingService.placeOrder(placeOrderParam, user.getUserAccountId());
 		return Result.success();
 	}
+	
+	/**
+	 * 发起追号
+	 * 
+	 * @return
+	 */
+	@PostMapping("/startTrackingNumber")
+	@ResponseBody
+	public Result startTrackingNumber(@RequestBody StartTrackingNumberParam startTrackingNumberParam) {
+		UserAccountDetails user = (UserAccountDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		bettingService.startTrackingNumber(startTrackingNumberParam, user.getUserAccountId());
+		return Result.success();
+	}
+	
+	
 
 }
