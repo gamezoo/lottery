@@ -9,8 +9,8 @@ import me.zohar.lottery.common.vo.Result;
 import me.zohar.lottery.dictconfig.DictHolder;
 
 @Controller
-@RequestMapping("/dict")
-public class DictController {
+@RequestMapping("/dictconfig")
+public class DictConfigController {
 
 	@GetMapping("/findDictItemInCache")
 	@ResponseBody

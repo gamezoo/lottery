@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Data;
 import me.zohar.lottery.betting.domain.BettingOrder;
+import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.dictconfig.DictHolder;
 
 /**
@@ -77,7 +78,7 @@ public class BettingOrderDetailsVO {
 	 * 总投注金额
 	 */
 	private Double totalBettingAmount;
-	
+
 	/**
 	 * 总中奖金额
 	 */
@@ -108,6 +109,8 @@ public class BettingOrderDetailsVO {
 	 */
 	private String userName;
 
+	private Boolean cancelOrderFlag = false;
+
 	/**
 	 * 投注记录集合
 	 */
@@ -123,6 +126,13 @@ public class BettingOrderDetailsVO {
 		vo.setStateName(DictHolder.getDictItemName("bettingOrderState", vo.getState()));
 		if (bettingOrder.getUserAccount() != null) {
 			vo.setUserName(bettingOrder.getUserAccount().getUserName());
+		}
+		if (Constant.投注订单状态_未开奖.equals(bettingOrder.getState())) {
+			if (bettingOrder.getIssue() != null) {
+				if (new Date().getTime() < bettingOrder.getIssue().getEndTime().getTime()) {
+					vo.setCancelOrderFlag(true);
+				}
+			}
 		}
 		vo.setBettingRecords(BettingRecordVO.convertFor(bettingOrder.getBettingRecords()));
 		return vo;

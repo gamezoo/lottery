@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8">
-<title>投注记录</title>
+<title>追号记录</title>
 <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
 <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
@@ -34,8 +34,8 @@
 			<form class="form-inline common-query-cond-form" action="#">
 				<div class="form-group common-query-cond">
 					<label>游戏:</label> <select class="form-control" v-model="gameCode">
-						<option value="">全部游戏</option>
-						<option v-for="dictItem in gameDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
+						<option value="">请选择</option>
+						<option value="CQSSC">重庆时时彩</option>
 					</select>
 				</div>
 				<div class="form-group common-query-cond">
@@ -44,65 +44,40 @@
 				<div class="form-group common-query-cond">
 					<label>状态:</label> <select class="form-control" v-model="state">
 						<option value="">全部</option>
-						<option v-for="dictItem in bettingOrderStateDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
+						<option value="1">未开奖</option>
+						<option value="2">未中奖</option>
+						<option value="3">已中奖</option>
 					</select>
 				</div>
 				<button type="button" class="btn btn-danger" v-on:click="refreshTable">搜索</button>
 			</form>
 			<table class="common-table betting-record-table"></table>
 		</div>
-		<div th:replace="component/betting-order-details-modal::html"></div>
+		<div th:replace="component/tracking-number-order-details-modal::html"></div>
 	</div>
 	<script type="text/javascript">
 		var bettingRecord = new Vue({
 			el : '#betting-record',
 			data : {
 				gameCode : '',
-				gameDictItems : [],
 				startTime : dayjs().format('YYYY-MM-DD'),
 				endTime : dayjs().format('YYYY-MM-DD'),
 				state : '',
-				bettingOrderStateDictItems : [],
 				bettingRecords : []
 			},
 			computed : {},
 			created : function() {
 			},
 			mounted : function() {
-				this.loadGameDictItem();
-				this.loadBettingOrderStateDictItem();
 				this.initTable();
 			},
 			methods : {
-
-				loadGameDictItem : function() {
-					var that = this;
-					that.$http.get('/dictconfig/findDictItemInCache', {
-						params : {
-							dictTypeCode : 'game'
-						}
-					}).then(function(res) {
-						this.gameDictItems = res.body.data;
-					});
-				},
-
-				loadBettingOrderStateDictItem : function() {
-					var that = this;
-					that.$http.get('/dictconfig/findDictItemInCache', {
-						params : {
-							dictTypeCode : 'bettingOrderState'
-						}
-					}).then(function(res) {
-						this.bettingOrderStateDictItems = res.body.data;
-					});
-				},
-
 				initTable : function() {
 					var that = this;
 					$('.betting-record-table').bootstrapTable({
 						classes : 'table table-hover',
 						height : 540,
-						url : '/betting/findMyBettingOrderInfoByPage',
+						url : '/trackingNumber/findMyTrackingNumberSituationByPage',
 						pagination : true,
 						sidePagination : 'server',
 						pageNumber : 1,
@@ -133,42 +108,36 @@
 								classes : 'betting-record-order-no'
 							}
 						}, {
-							field : 'bettingTime',
-							title : '投注时间'
+							field : 'trackingNumberTime',
+							title : '追号时间'
 						}, {
 							field : 'gameName',
 							title : '游戏'
 						}, {
-							field : 'issueNum',
-							title : '期号'
+							field : 'startIssueNum',
+							title : '开始期号'
 						}, {
-							field : 'stateName',
-							title : '状态',
-							cellStyle : {
-								classes : 'betting-record-state'
-							}
+							field : 'totalIssueCount',
+							title : '追号期数',
 						}, {
 							field : 'totalBettingAmount',
-							title : '投注金额',
+							title : '总金额'
+						}, {
+							field : 'completedIssueCount',
+							title : '完成期数'
+						}, {
+							field : 'winToStop',
+							title : '中奖即停',
 							formatter : function(value) {
-								return value + '元';
+								return value ? '是' : '否';
 							}
 						}, {
-							field : 'totalWinningAmount',
-							title : '中奖金额',
-							formatter : function(value) {
-								return value + '元';
-							}
-						}, {
-							field : 'totalProfitAndLoss',
-							title : '盈亏',
-							formatter : function(value) {
-								return value + '元';
-							}
+							field : 'stateName',
+							title : '追号状态',
 						}, {
 							title : '操作',
 							formatter : function(value, row, index) {
-								if (row.cancelOrderFlag) {
+								if (row.uncompletedIssueCount > 0) {
 									return '<button type="button" class="cancel-order-btn btn btn-outline-danger btn-sm">撤单</button>';
 								}
 							},
@@ -180,7 +149,7 @@
 						} ],
 						onClickCell : function(field, value, row) {
 							if ('orderNo' == field) {
-								bettingOrderDetailsModal.loadAndShowBettingOrderDetails(row.id);
+								trackingNumberOrderDetailsModal.loadAndShowTrackingNumberOrderDetails(row.id);
 							}
 						}
 					});
@@ -198,7 +167,7 @@
 						title : '提示'
 					}, function(index) {
 						layer.close(index);
-						that.$http.get('/betting/cancelOrder', {
+						that.$http.get('/trackingNumber/cancelOrder', {
 							params : {
 								orderId : orderId
 							}

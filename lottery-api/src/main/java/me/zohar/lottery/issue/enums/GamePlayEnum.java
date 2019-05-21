@@ -16,7 +16,7 @@ import me.zohar.lottery.common.utils.BallUtils;
  */
 @Getter
 @AllArgsConstructor
-public enum GamePlay {
+public enum GamePlayEnum {
 
 	重庆时时彩_五星定位("CQSSC_5XDW", "重庆时时彩_五星定位") {
 
@@ -677,8 +677,8 @@ public enum GamePlay {
 	 * @param code
 	 * @return
 	 */
-	public static GamePlay getPlay(String code) {
-		for (GamePlay play : GamePlay.values()) {
+	public static GamePlayEnum getPlay(String code) {
+		for (GamePlayEnum play : GamePlayEnum.values()) {
 			if (play.getCode().equals(code)) {
 				return play;
 			}

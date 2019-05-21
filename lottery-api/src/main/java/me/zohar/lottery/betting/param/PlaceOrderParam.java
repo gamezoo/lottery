@@ -13,8 +13,8 @@ import org.springframework.beans.BeanUtils;
 
 import lombok.Data;
 import me.zohar.lottery.betting.domain.BettingOrder;
-import me.zohar.lottery.betting.enums.BettingOrderState;
 import me.zohar.lottery.common.utils.IdUtils;
+import me.zohar.lottery.constants.Constant;
 
 /**
  * 下单入参
@@ -58,18 +58,20 @@ public class PlaceOrderParam {
 	@NotEmpty(message = "bettingRecords不能为空")
 	@Valid
 	private List<BettingRecordParam> bettingRecords;
-	
-	public BettingOrder convertToPo(Long totalBettingCount, Double totalBettingAmount, String userAccountId) {
+
+	public BettingOrder convertToPo(String issueId, Long totalBettingCount, Double totalBettingAmount,
+			String userAccountId) {
 		BettingOrder po = new BettingOrder();
 		BeanUtils.copyProperties(this, po);
 		po.setId(IdUtils.getId());
 		po.setOrderNo(po.getGameCode() + po.getId());
 		po.setBettingTime(new Date());
+		po.setIssueId(issueId);
 		po.setTotalBettingAmount(totalBettingAmount);
 		po.setTotalBettingCount(totalBettingCount);
 		po.setTotalWinningAmount(0d);
 		po.setTotalProfitAndLoss(-totalBettingAmount);
-		po.setState(BettingOrderState.投注订单状态_未开奖.getCode());
+		po.setState(Constant.投注订单状态_未开奖);
 		po.setUserAccountId(userAccountId);
 		return po;
 	}

@@ -115,5 +115,15 @@ public class PageController {
 	public String withdraw() {
 		return "withdraw";
 	}
+	
+	/**
+	 * 追号记录
+	 * 
+	 * @return
+	 */
+	@GetMapping("/tracking-number-record")
+	public String trackingNumberRecord() {
+		return "tracking-number-record";
+	}
 
 }

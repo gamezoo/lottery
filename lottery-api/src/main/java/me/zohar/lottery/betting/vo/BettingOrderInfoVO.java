@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import cn.hutool.core.collection.CollectionUtil;
 import lombok.Data;
 import me.zohar.lottery.betting.domain.BettingOrder;
+import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.dictconfig.DictHolder;
 
 /**
@@ -80,6 +81,8 @@ public class BettingOrderInfoVO {
 	 */
 	private String stateName;
 
+	private Boolean cancelOrderFlag = false;
+
 	public static List<BettingOrderInfoVO> convertFor(Collection<BettingOrder> bettingOrders) {
 		if (CollectionUtil.isEmpty(bettingOrders)) {
 			return new ArrayList<>();
@@ -99,6 +102,13 @@ public class BettingOrderInfoVO {
 		BeanUtils.copyProperties(bettingOrder, vo);
 		vo.setGameName(DictHolder.getDictItemName("game", vo.getGameCode()));
 		vo.setStateName(DictHolder.getDictItemName("bettingOrderState", vo.getState()));
+		if (Constant.投注订单状态_未开奖.equals(bettingOrder.getState())) {
+			if (bettingOrder.getIssue() != null) {
+				if (new Date().getTime() < bettingOrder.getIssue().getEndTime().getTime()) {
+					vo.setCancelOrderFlag(true);
+				}
+			}
+		}
 		return vo;
 	}
 

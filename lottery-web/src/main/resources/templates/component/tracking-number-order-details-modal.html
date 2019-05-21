@@ -1,0 +1,280 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<style>
+#betting-order-details-modal .modal-mask {
+	position: fixed;
+	z-index: 9998;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: table;
+	transition: opacity .3s ease;
+}
+
+#betting-order-details-modal .modal-wrapper {
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.betting-order-details-dialog {
+	max-width: 100%;
+	width: 50%;
+}
+
+.betting-order-details-dialog .modal-body {
+	height: 450px;
+	overflow: auto;
+}
+
+.betting-order-details-dialog .modal-title span {
+	padding-left: 10px;
+	color: #E37D23;
+}
+
+.betting-summary-title {
+	margin-bottom: 20px;
+	padding-left: 10px;
+	border-left: 3px solid #3080fe;
+}
+
+.betting-order-details-item label {
+	color: #9a9898;
+	padding-right: 4px;
+}
+
+.betting-order-details-highlight {
+	color: #E37D23 !important;
+}
+
+.betting-order-details-table thead th {
+	border-top: 0;
+	border-bottom: 0;
+	text-align: center;
+	color: #666;
+	font-size: 14px;
+	font-weight: normal;
+	background-color: #dedede;
+}
+
+.betting-order-details-table tbody tr {
+	background-color: #EEEEEE;
+}
+
+.betting-order-details-table tr td {
+	text-align: center;
+	border-top: 0;
+	color: #666;
+	border-bottom: 0;
+	border-left: 0;
+}
+
+.tracking-number-custom-checkbox {
+	min-height: unset;
+	padding-left: 0;
+}
+
+.tracking-number-custom-checkbox .custom-control-label::before {
+	background-color: #0000004d;
+}
+
+.tracking-number-custom-checkbox .custom-control-input:checked ~.custom-control-label::before
+	{
+	background-color: #dc3545;
+}
+</style>
+</head>
+
+<body>
+	<div id="betting-order-details-modal" v-cloak>
+		<div v-show="showBettingOrderDetailsFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog betting-order-details-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">
+									追号订单详情<span>订单号:{{bettingOrderDetails.orderNo}}</span>
+								</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="showBettingOrderDetailsFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<div class="betting-summary-title">订单摘要</div>
+								<div class="row">
+									<div class="col-sm-6 betting-order-details-item">
+										<label>投注用户:</label> <span>{{bettingOrderDetails.userName}}</span>
+									</div>
+									<div class="col-sm-6 betting-order-details-item">
+										<label>游戏:</label> <span>{{bettingOrderDetails.gameName}}</span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-6 betting-order-details-item">
+										<label>投注模式:</label> <span>{{bettingOrderDetails.baseAmount}}元</span>
+									</div>
+									<div class="col-sm-6 betting-order-details-item">
+										<label>中奖即停:</label> <span>{{bettingOrderDetails.winToStop ? '是' : '否'}}</span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-6 betting-order-details-item">
+										<label>计划追号期数:</label> <span>{{bettingOrderDetails.totalIssueCount}}</span>
+									</div>
+									<div class="col-sm-6 betting-order-details-item">
+										<label>总投注金额:</label> <span>{{bettingOrderDetails.totalBettingAmount}}</span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-6 betting-order-details-item">
+										<label>追号状态:</label> <span>{{bettingOrderDetails.stateName}}</span>
+									</div>
+									<div class="col-sm-6 betting-order-details-item">
+										<label>追号时间:</label> <span class="betting-order-details-highlight">{{bettingOrderDetails.trackingNumberTime}}</span>
+									</div>
+								</div>
+								<div class="betting-summary-title" style="">订单明细</div>
+								<table class="table table-sm betting-order-details-table">
+									<thead>
+										<tr>
+											<th>玩法</th>
+											<th>投注内容</th>
+											<th>投注注数</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr v-for="trackingNumberContent in bettingOrderDetails.trackingNumberContents">
+											<td>{{trackingNumberContent.gamePlayName}}</td>
+											<td class="betting-order-details-highlight">{{trackingNumberContent.selectedNo}}</td>
+											<td>{{trackingNumberContent.bettingCount}}</td>
+										</tr>
+									</tbody>
+								</table>
+								<div class="betting-summary-title">各期追号明细</div>
+								<table class="table table-sm betting-order-details-table">
+									<thead>
+										<tr>
+											<th><div class="custom-control custom-checkbox tracking-number-custom-checkbox" v-show="bettingOrderDetails.uncompletedIssueCount > 0">
+													<input type="checkbox" class="custom-control-input" id="checkAllPlan" v-model="checkAllFlag" v-on:change="switchCheckAll"> <label class="custom-control-label" for="checkAllPlan"></label>
+												</div></th>
+											<th>追号期号</th>
+											<th>开奖号码</th>
+											<th>当期倍数</th>
+											<th>投注金额</th>
+											<th>中奖金额</th>
+											<th>订单状态</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr v-for="(trackingNumberPlan, index) in bettingOrderDetails.trackingNumberPlans">
+											<td>
+												<div class="custom-control custom-checkbox tracking-number-custom-checkbox" v-show="trackingNumberPlan.cancelOrderFlag">
+													<input type="checkbox" class="custom-control-input" :id="'trackingNumberCheckbox_' + trackingNumberPlan.id" v-model="checkCancelOrderFlags[index]" v-on:change="switchCheck"> <label class="custom-control-label" :for="'trackingNumberCheckbox_' + trackingNumberPlan.id"></label>
+												</div>
+											</td>
+											<td>{{trackingNumberPlan.issueNum}}</td>
+											<td>{{trackingNumberPlan.lotteryNum}}</td>
+											<td>{{trackingNumberPlan.multiple}}</td>
+											<td>{{trackingNumberPlan.totalBettingAmount}}</td>
+											<td class="betting-order-details-highlight">{{trackingNumberPlan.totalWinningAmount}}</td>
+											<td>{{trackingNumberPlan.stateName}}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-danger btn-sm" v-show="bettingOrderDetails.uncompletedIssueCount > 0" v-on:click="cancelOrder">撤单</button>
+								<button type="button" class="btn btn-sm" v-on:click="showBettingOrderDetailsFlag = false">返回</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var trackingNumberOrderDetailsModal = new Vue({
+			el : '#betting-order-details-modal',
+			data : {
+				showBettingOrderDetailsFlag : false,
+				bettingOrderDetails : {},
+				checkAllFlag : false,
+				checkCancelOrderFlags : []
+			},
+			computed : {},
+			created : function() {
+			},
+			methods : {
+				loadAndShowTrackingNumberOrderDetails : function(id) {
+					var that = this;
+					that.$http.get('/trackingNumber/findMyTrackingNumberOrderDetails', {
+						params : {
+							id : id
+						}
+					}).then(function(res) {
+						var checkCancelOrderFlags = [];
+						for (var i = 0; i < res.body.data.trackingNumberPlans.length; i++) {
+							checkCancelOrderFlags.push(false);
+						}
+						that.checkAllFlag = false;
+						that.checkCancelOrderFlags = checkCancelOrderFlags;
+						that.bettingOrderDetails = res.body.data;
+						that.showBettingOrderDetailsFlag = true;
+					});
+				},
+
+				cancelOrder : function() {
+					var that = this;
+					var bettingOrderIds = [];
+					var trackingNumberPlans = that.bettingOrderDetails.trackingNumberPlans;
+					for (var i = 0; i < that.checkCancelOrderFlags.length; i++) {
+						if (trackingNumberPlans[i].cancelOrderFlag && that.checkCancelOrderFlags[i]) {
+							bettingOrderIds.push(trackingNumberPlans[i].bettingOrderId);
+						}
+					}
+					if (bettingOrderIds.length == 0) {
+						layer.alert('请选择要撤单的记录', {
+							title : '提示',
+							icon : 7,
+							time : 3000
+						});
+						return;
+					}
+					layer.confirm('确定要撤单吗?', {
+						icon : 7,
+						title : '提示'
+					}, function(index) {
+						layer.close(index);
+						that.$http.post('/betting/batchCancelOrder', bettingOrderIds).then(function(res) {
+							layer.alert('撤单成功!', {
+								icon : 1,
+								time : 3000,
+								shade : false
+							});
+							that.loadAndShowTrackingNumberOrderDetails(that.bettingOrderDetails.id);
+						});
+					});
+				},
+
+				switchCheckAll : function() {
+					for (var i = 0; i < this.checkCancelOrderFlags.length; i++) {
+						this.$set(this.checkCancelOrderFlags, i, this.checkAllFlag);
+					}
+				},
+
+				switchCheck : function() {
+					var checkAllFlag = true;
+					var trackingNumberPlans = this.bettingOrderDetails.trackingNumberPlans;
+					for (var i = 0; i < this.checkCancelOrderFlags.length; i++) {
+						if (trackingNumberPlans[i].cancelOrderFlag && !this.checkCancelOrderFlags[i]) {
+							checkAllFlag = false;
+						}
+					}
+					this.checkAllFlag = checkAllFlag;
+				}
+			}
+		});
+	</script>
+</body>
+</html>

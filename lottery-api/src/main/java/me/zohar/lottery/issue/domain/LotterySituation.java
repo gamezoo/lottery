@@ -24,7 +24,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "v_lottery_situation", schema = "lottery")
+@Table(name = "v_lottery_situation")
 public class LotterySituation {
 
 	/**

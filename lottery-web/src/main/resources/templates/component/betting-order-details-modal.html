@@ -156,6 +156,7 @@
 								</table>
 							</div>
 							<div class="modal-footer">
+								<button type="button" class="btn btn-danger btn-sm" v-show="bettingOrderDetails.cancelOrderFlag" v-on:click="cancelOrder(bettingOrderDetails.id)">撤单</button>
 								<button type="button" class="btn btn-sm" v-on:click="showBettingOrderDetailsFlag = false">返回</button>
 							</div>
 						</div>
@@ -184,6 +185,28 @@
 					}).then(function(res) {
 						that.bettingOrderDetails = res.body.data;
 						that.showBettingOrderDetailsFlag = true;
+					});
+				},
+
+				cancelOrder : function(orderId) {
+					var that = this;
+					layer.confirm('确定要撤单吗?', {
+						icon : 7,
+						title : '提示'
+					}, function(index) {
+						layer.close(index);
+						that.$http.get('/betting/cancelOrder', {
+							params : {
+								orderId : orderId
+							}
+						}).then(function(res) {
+							layer.alert('操作成功!', {
+								icon : 1,
+								time : 3000,
+								shade : false
+							});
+							that.loadAndShowBettingOrderDetails(orderId);
+						});
 					});
 				}
 			}

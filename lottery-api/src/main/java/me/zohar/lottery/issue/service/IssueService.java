@@ -19,14 +19,9 @@ import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
-import me.zohar.lottery.betting.domain.BettingOrder;
-import me.zohar.lottery.betting.domain.BettingRecord;
-import me.zohar.lottery.betting.enums.BettingOrderState;
-import me.zohar.lottery.betting.repo.BettingOrderRepo;
-import me.zohar.lottery.betting.repo.BettingRecordRepo;
+import me.zohar.lottery.betting.service.BettingService;
 import me.zohar.lottery.common.exception.BizError;
 import me.zohar.lottery.common.exception.BizException;
 import me.zohar.lottery.common.utils.IdUtils;
@@ -36,16 +31,11 @@ import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.issue.domain.Issue;
 import me.zohar.lottery.issue.domain.IssueGenerateRule;
 import me.zohar.lottery.issue.domain.IssueSetting;
-import me.zohar.lottery.issue.enums.GamePlay;
 import me.zohar.lottery.issue.param.IssueEditParam;
 import me.zohar.lottery.issue.param.ManualLotteryParam;
 import me.zohar.lottery.issue.repo.IssueRepo;
 import me.zohar.lottery.issue.repo.IssueSettingRepo;
 import me.zohar.lottery.issue.vo.IssueVO;
-import me.zohar.lottery.useraccount.domain.AccountChangeLog;
-import me.zohar.lottery.useraccount.domain.UserAccount;
-import me.zohar.lottery.useraccount.repo.AccountChangeLogRepo;
-import me.zohar.lottery.useraccount.repo.UserAccountRepo;
 
 @Validated
 @Service
@@ -56,19 +46,10 @@ public class IssueService {
 	private StringRedisTemplate redisTemplate;
 
 	@Autowired
+	private BettingService bettingService;
+
+	@Autowired
 	private IssueRepo issueRepo;
-
-	@Autowired
-	private BettingOrderRepo bettingOrderRepo;
-
-	@Autowired
-	private BettingRecordRepo bettingRecordRepo;
-
-	@Autowired
-	private UserAccountRepo userAccountRepo;
-
-	@Autowired
-	private AccountChangeLogRepo accountChangeLogRepo;
 
 	@Autowired
 	private IssueSettingRepo issueSettingRepo;
@@ -155,43 +136,7 @@ public class IssueService {
 		}
 		issue.settlement();
 		issueRepo.save(issue);
-
-		List<BettingOrder> bettingOrders = bettingOrderRepo.findByGameCodeAndIssueNumAndState(issue.getGameCode(),
-				issue.getIssueNum(), BettingOrderState.投注订单状态_未开奖.getCode());
-		for (BettingOrder bettingOrder : bettingOrders) {
-			String state = BettingOrderState.投注订单状态_未中奖.getCode();
-			double totalWinningAmount = 0;
-			Set<BettingRecord> bettingRecords = bettingOrder.getBettingRecords();
-			for (BettingRecord bettingRecord : bettingRecords) {
-				GamePlay gamePlay = GamePlay
-						.getPlay(bettingOrder.getGameCode() + "_" + bettingRecord.getGamePlayCode());
-				int winningCount = gamePlay.calcWinningCount(issue.getLotteryNum(), bettingRecord.getSelectedNo());
-				if (winningCount > 0) {
-					double winningAmount = (bettingRecord.getBettingAmount() * bettingRecord.getOdds() * winningCount);
-					bettingRecord.setWinningAmount(NumberUtil.round(winningAmount, 4).doubleValue());
-					bettingRecord.setProfitAndLoss(
-							NumberUtil.round(winningAmount - bettingRecord.getBettingAmount(), 4).doubleValue());
-					bettingRecordRepo.save(bettingRecord);
-					state = BettingOrderState.投注订单状态_已中奖.getCode();
-					totalWinningAmount += winningAmount;
-				}
-			}
-			bettingOrder.setLotteryNum(issue.getLotteryNum());
-			bettingOrder.setState(state);
-			if (BettingOrderState.投注订单状态_未中奖.getCode().equals(state)) {
-				bettingOrderRepo.save(bettingOrder);
-			} else {
-				bettingOrder.setTotalWinningAmount(NumberUtil.round(totalWinningAmount, 4).doubleValue());
-				bettingOrder.setTotalProfitAndLoss(
-						NumberUtil.round(totalWinningAmount - bettingOrder.getTotalBettingAmount(), 4).doubleValue());
-				bettingOrderRepo.save(bettingOrder);
-				UserAccount userAccount = bettingOrder.getUserAccount();
-				double balance = userAccount.getBalance() + totalWinningAmount;
-				userAccount.setBalance(NumberUtil.round(balance, 4).doubleValue());
-				userAccountRepo.save(userAccount);
-				accountChangeLogRepo.save(AccountChangeLog.buildWithWinning(userAccount, bettingOrder));
-			}
-		}
+		bettingService.settlement(issueId);
 	}
 
 	/**

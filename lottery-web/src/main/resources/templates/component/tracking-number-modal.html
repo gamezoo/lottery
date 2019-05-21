@@ -245,10 +245,11 @@
 					var startTrackingNumberParam = {
 						gameCode : that.gameCode,
 						baseAmount : that.baseAmount,
+						winToStop : that.winToStop,
 						bettingRecords : that.preBettingRecords,
 						plans : that.trackingNumberRecords
 					};
-					that.$http.post('/betting/startTrackingNumber', startTrackingNumberParam).then(function(res) {
+					that.$http.post('/trackingNumber/startTrackingNumber', startTrackingNumberParam).then(function(res) {
 						layer.alert('追号成功!', {
 							icon : 1,
 							time : 3000,

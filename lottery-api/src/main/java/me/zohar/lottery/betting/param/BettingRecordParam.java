@@ -8,6 +8,7 @@ import org.springframework.beans.BeanUtils;
 
 import lombok.Data;
 import me.zohar.lottery.betting.domain.BettingRecord;
+import me.zohar.lottery.betting.domain.TrackingNumberContent;
 import me.zohar.lottery.common.utils.IdUtils;
 
 /**
@@ -47,6 +48,14 @@ public class BettingRecordParam {
 		po.setOdds(odds);
 		po.setWinningAmount(0d);
 		po.setProfitAndLoss(-bettingAmount);
+		return po;
+	}
+
+	public TrackingNumberContent convertToTrackingNumberContentPo(String trackingNumberOrderId) {
+		TrackingNumberContent po = new TrackingNumberContent();
+		BeanUtils.copyProperties(this, po);
+		po.setId(IdUtils.getId());
+		po.setTrackingNumberOrderId(trackingNumberOrderId);
 		return po;
 	}
 

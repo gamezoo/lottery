@@ -318,7 +318,7 @@ var personalCenter = new Vue({
 		 */
 		loadAccountChangeTypeDictItem : function() {
 			var that = this;
-			that.$http.get('/dict/findDictItemInCache', {
+			that.$http.get('/dictconfig/findDictItemInCache', {
 				params : {
 					dictTypeCode : 'accountChangeType'
 				}
@@ -419,7 +419,7 @@ var personalCenter = new Vue({
 		 */
 		loadRechargeWithdrawOrderTypeDictItem : function() {
 			var that = this;
-			that.$http.get('/dict/findDictItemInCache', {
+			that.$http.get('/dictconfig/findDictItemInCache', {
 				params : {
 					dictTypeCode : 'rechargeWithdrawLogOrderType'
 				}
@@ -484,7 +484,7 @@ var personalCenter = new Vue({
 
 		loadGameDictItem : function() {
 			var that = this;
-			that.$http.get('/dict/findDictItemInCache', {
+			that.$http.get('/dictconfig/findDictItemInCache', {
 				params : {
 					dictTypeCode : 'game'
 				}

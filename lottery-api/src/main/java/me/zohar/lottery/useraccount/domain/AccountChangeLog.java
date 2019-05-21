@@ -229,5 +229,26 @@ public class AccountChangeLog {
 		log.setUserAccountId(userAccount.getId());
 		return log;
 	}
+	
+	/**
+	 * 构建投注撤单账变日志
+	 * 
+	 * @param userAccount
+	 * @param bettingOrder
+	 * @return
+	 */
+	public static AccountChangeLog buildWithBettingCancelOrder(UserAccount userAccount, BettingOrder bettingOrder) {
+		AccountChangeLog log = new AccountChangeLog();
+		log.setId(IdUtils.getId());
+		log.setOrderNo(bettingOrder.getOrderNo());
+		log.setGameCode(bettingOrder.getGameCode());
+		log.setIssueNum(bettingOrder.getIssueNum());
+		log.setAccountChangeTime(new Date());
+		log.setAccountChangeTypeCode(Constant.账变日志类型_撤单返款);
+		log.setAccountChangeAmount(bettingOrder.getTotalBettingAmount());
+		log.setBalance(userAccount.getBalance());
+		log.setUserAccountId(userAccount.getId());
+		return log;
+	}
 
 }

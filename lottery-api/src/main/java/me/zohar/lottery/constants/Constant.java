@@ -2,6 +2,20 @@ package me.zohar.lottery.constants;
 
 public class Constant {
 
+	public static final String 投注订单状态_未开奖 = "1";
+
+	public static final String 投注订单状态_未中奖 = "2";
+
+	public static final String 投注订单状态_已中奖 = "3";
+
+	public static final String 投注订单状态_已撤单 = "4";
+
+	public static final String 追号订单状态_进行中 = "1";
+
+	public static final String 追号订单状态_已完成 = "2";
+
+	public static final String 追号订单状态_已取消 = "3";
+
 	public static final String 账号类型_管理员 = "admin";
 
 	public static final String 账号类型_代理 = "agent";
@@ -68,6 +82,8 @@ public class Constant {
 
 	public static final String 账变日志类型_活动礼金 = "6";
 
+	public static final String 账变日志类型_撤单返款 = "7";
+
 	public static final String 充提日志订单类型_充值 = "1";
 
 	public static final String 充提日志订单类型_提现 = "2";
@@ -87,11 +103,11 @@ public class Constant {
 	public static final String 游戏_广东11选5 = "GD11X5";
 
 	public static final String 游戏_江西11选5 = "JX11X5";
-	
+
 	public static final String 游戏_江苏11选5 = "JS11X5";
-	
+
 	public static final String 游戏_上海11选5 = "SH11X5";
-	
+
 	public static final String 游戏_浙江11选5 = "ZJ11X5";
 
 	public static final String 游戏_重庆时时彩 = "CQSSC";
@@ -99,7 +115,7 @@ public class Constant {
 	public static final String 游戏_新疆时时彩 = "XJSSC";
 
 	public static final String 游戏_云南时时彩 = "YNSSC";
-	
+
 	public static final String 游戏_天津时时彩 = "TJSSC";
 
 }

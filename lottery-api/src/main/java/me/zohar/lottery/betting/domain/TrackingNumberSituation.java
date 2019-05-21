@@ -12,34 +12,32 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
-import javax.persistence.Version;
 
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import me.zohar.lottery.constants.Constant;
-import me.zohar.lottery.issue.domain.Issue;
 import me.zohar.lottery.useraccount.domain.UserAccount;
 
 /**
- * 投注订单
+ * 追号情况
  * 
  * @author zohar
- * @date 2019年1月17日
+ * @date 2019年5月15日
  *
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
-@Table(name = "betting_order")
-@DynamicInsert(true)
-@DynamicUpdate(true)
-public class BettingOrder {
+@Table(name = "v_tracking_number_situation")
+public class TrackingNumberSituation {
 
 	/**
 	 * 主键id
@@ -54,14 +52,9 @@ public class BettingOrder {
 	private String orderNo;
 
 	/**
-	 * 投注时间
+	 * 追号时间
 	 */
-	private Date bettingTime;
-	
-	/**
-	 * 撤单时间
-	 */
-	private Date cancelOrderTime;
+	private Date trackingNumberTime;
 
 	/**
 	 * 游戏代码
@@ -69,29 +62,24 @@ public class BettingOrder {
 	private String gameCode;
 
 	/**
-	 * 期号
+	 * 开始期号
 	 */
-	private Long issueNum;
-
-	/**
-	 * 全部开奖号码,以逗号分隔
-	 */
-	private String lotteryNum;
-
+	private Long startIssueNum;
+	
 	/**
 	 * 投注底数金额
 	 */
 	private Double baseAmount;
 
 	/**
-	 * 倍数
+	 * 追号即停
 	 */
-	private Double multiple;
+	private Boolean winToStop;
 
 	/**
-	 * 总注数
+	 * 追号期数
 	 */
-	private Long totalBettingCount;
+	private Long totalIssueCount;
 
 	/**
 	 * 总投注金额
@@ -99,33 +87,19 @@ public class BettingOrder {
 	private Double totalBettingAmount;
 
 	/**
-	 * 总中奖金额
-	 */
-	private Double totalWinningAmount;
-
-	/**
-	 * 总盈亏
-	 */
-	private Double totalProfitAndLoss;
-
-	/**
 	 * 状态
 	 */
 	private String state;
 
 	/**
-	 * 乐观锁版本号
+	 * 完成期数
 	 */
-	@Version
-	private Long version;
-
-	@Column(name = "issue_id", length = 32)
-	private String issueId;
-
-	@NotFound(action = NotFoundAction.IGNORE)
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "issue_id", updatable = false, insertable = false, foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	private Issue issue;
+	private Integer completedIssueCount;
+	
+	/**
+	 * 未完成的期数(状态为未开奖且未到投注截至时间)
+	 */
+	private Integer uncompletedIssueCount;
 
 	/**
 	 * 投注人用户账号id
@@ -142,12 +116,12 @@ public class BettingOrder {
 	private UserAccount userAccount;
 
 	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(name = "betting_order_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	private Set<BettingRecord> bettingRecords;
-	
-	public void cancelOrder() {
-		this.setCancelOrderTime(new Date());
-		this.setState(Constant.投注订单状态_已撤单);
-	}
+	@JoinColumn(name = "tracking_number_order_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@OrderBy("issueNum ASC")
+	private Set<TrackingNumberPlan> trackingNumberPlans;
+
+	@OneToMany(fetch = FetchType.LAZY)
+	@JoinColumn(name = "tracking_number_order_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	private Set<TrackingNumberContent> trackingNumberContents;
 
 }

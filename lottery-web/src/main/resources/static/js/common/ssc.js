@@ -739,7 +739,7 @@ var ssc = new Vue({
 
 				if (residueSecond < 0) {
 					window.clearInterval(bettingCountdownInterval);
-					layer.alert(that.currentIssue.issue + '期销售已封盘....,请进入下一期购买', {
+					layer.alert(that.currentIssue.issueNum + '期销售已封盘....,请进入下一期购买', {
 						icon : 7,
 						time : 3000,
 						shade : false
