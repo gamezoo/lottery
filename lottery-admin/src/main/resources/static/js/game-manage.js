@@ -1,9 +1,25 @@
 var gameManage = new Vue({
 	el : '#game-manage',
 	data : {
+		tabWithGameCategoryId : '',
+		gameCategoryDicts : [],
 		games : [],
 		showGameManageFlag : true,
 		selectedGame : {},
+
+		/**
+		 * 游戏类别维护start
+		 */
+		gameCategorys : [],
+		showGameCategoryFlag : false,
+		selectedGameCategory : {},
+
+		/**
+		 * 新增/编辑游戏类别start
+		 */
+		editGameCategory : {},
+		addOrUpdateGameCategoryFlag : false,
+		gameCategoryActionTitle : '',
 
 		/**
 		 * 新增/编辑游戏start
@@ -28,6 +44,7 @@ var gameManage = new Vue({
 		/**
 		 * 游戏玩法start
 		 */
+		showGamePlayFlag : false,
 		selectedGamePlay : {},
 		editGamePlay : {},
 		addOrUpdateGamePlayFlag : false,
@@ -37,6 +54,7 @@ var gameManage = new Vue({
 	created : function() {
 	},
 	mounted : function() {
+		this.loadGameCategoryDict();
 		this.initGameManageTable();
 	},
 	methods : {
@@ -46,15 +64,130 @@ var gameManage = new Vue({
 		 */
 		initGameManageTable : function() {
 			var that = this;
-			that.$http.get('/game/findAllGame', {}).then(function(res) {
+			that.$http.get('/game/findGameByGameCategoryId', {
+				params : {
+					gameCategoryId : that.tabWithGameCategoryId
+				}
+			}).then(function(res) {
 				that.games = res.body.data;
 			});
+		},
 
+		switchGameCateogry : function(gameCategoryId) {
+			this.tabWithGameCategoryId = gameCategoryId;
+			this.initGameManageTable();
+		},
+
+		toGameCategoryPage : function() {
+			var that = this;
+			that.$http.get('/game/findAllGameCategory', {}).then(function(res) {
+				that.gameCategorys = res.body.data;
+				that.showGameManageFlag = false;
+				that.showGameCategoryFlag = true;
+			});
+		},
+
+		loadGameCategoryDict : function() {
+			var that = this;
+			that.$http.get('/game/findAllGameCategory', {}).then(function(res) {
+				that.gameCategoryDicts = res.body.data;
+			});
+		},
+
+		openAddGameCategoryModal : function() {
+			this.addOrUpdateGameCategoryFlag = true;
+			this.gameCategoryActionTitle = '新增游戏类别';
+			this.editGameCategory = {
+				gameCategoryName : '',
+				gameCategoryCode : '',
+				orderNo : ''
+			};
+		},
+
+		delGameCategory : function(gameCategory) {
+			var that = this;
+			layer.confirm('确定要删除吗?', {
+				icon : 7,
+				title : '提示'
+			}, function(index) {
+				layer.close(index);
+				that.$http.get('/game/delGameCategoryById', {
+					params : {
+						id : gameCategory.id
+					}
+				}).then(function(res) {
+					layer.alert('操作成功!', {
+						icon : 1,
+						time : 3000,
+						shade : false
+					});
+					that.toGameCategoryPage();
+				});
+			});
+		},
+
+		openEditGameCategoryModal : function(gameCategory) {
+			var that = this;
+			that.$http.get('/game/findGameCategoryById', {
+				params : {
+					id : gameCategory.id
+				}
+			}).then(function(res) {
+				that.editGameCategory = res.body.data;
+				that.addOrUpdateGameCategoryFlag = true;
+				that.gameCategoryActionTitle = '编辑游戏类别';
+			});
+		},
+
+		addOrUpdateGameCategory : function() {
+			var that = this;
+			var editGameCategory = that.editGameCategory;
+			if (editGameCategory.gameCategoryName == null || editGameCategory.gameCategoryName == '') {
+				layer.alert('请输入游戏类别', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			if (editGameCategory.gameCategoryCode == null || editGameCategory.gameCategoryCode == '') {
+				layer.alert('请输入游戏类别code', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			if (editGameCategory.orderNo == null || editGameCategory.orderNo == 0) {
+				layer.alert('请输入排序号', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+
+			that.$http.post('/game/addOrUpdateGameCategory', editGameCategory).then(function(res) {
+				layer.alert('操作成功!', {
+					icon : 1,
+					time : 3000,
+					shade : false
+				});
+				that.addOrUpdateGameCategoryFlag = false;
+				that.toGameCategoryPage();
+			});
+		},
+
+		backToGameManageWithGameCategory : function() {
+			this.showGameCategoryFlag = false;
+			this.showGameManageFlag = true;
+			this.tabWithGameCategoryId = '';
+			this.loadGameCategoryDict();
+			this.initGameManageTable();
 		},
 
 		openIssueSettingModal : function(game) {
 			var that = this;
-			that.issueSettingFlag = true;
 			that.$http.get('/issue/getIssueSettingDetailsByGameId', {
 				params : {
 					gameId : game.id
@@ -70,6 +203,7 @@ var gameManage = new Vue({
 						issueGenerateRules : []
 					};
 				}
+				that.issueSettingFlag = true;
 			});
 		},
 
@@ -182,9 +316,11 @@ var gameManage = new Vue({
 			this.addOrUpdateGameFlag = true;
 			this.gameActionTitle = '新增游戏';
 			this.editGame = {
+				gameCategoryId : '',
 				gameName : '',
 				gameCode : '',
 				gameDesc : '',
+				hotGameFlag : false,
 				state : '1',
 				orderNo : '',
 				copyGameCode : ''
@@ -215,14 +351,14 @@ var gameManage = new Vue({
 
 		openEditGameModal : function(game) {
 			var that = this;
-			that.addOrUpdateGameFlag = true;
-			that.gameActionTitle = '编辑游戏';
 			that.$http.get('/game/findGameById', {
 				params : {
 					id : game.id
 				}
 			}).then(function(res) {
 				that.editGame = res.body.data;
+				that.addOrUpdateGameFlag = true;
+				that.gameActionTitle = '编辑游戏';
 			});
 		},
 
@@ -232,6 +368,14 @@ var gameManage = new Vue({
 		addOrUpdateGame : function() {
 			var that = this;
 			var editGame = that.editGame;
+			if (editGame.gameCategoryId == null || editGame.gameCategoryId == '') {
+				layer.alert('请选择游戏类别', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
 			if (editGame.gameName == null || editGame.gameName == '') {
 				layer.alert('请输入游戏名称', {
 					title : '提示',
@@ -242,6 +386,14 @@ var gameManage = new Vue({
 			}
 			if (editGame.gameCode == null || editGame.gameCode == '') {
 				layer.alert('请输入游戏代码', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			if (editGame.hotGameFlag == null) {
+				layer.alert('请选择是否作为热门游戏', {
 					title : '提示',
 					icon : 7,
 					time : 3000
@@ -344,6 +496,7 @@ var gameManage = new Vue({
 				});
 
 				that.showGameManageFlag = false;
+				that.showGamePlayFlag = true;
 				$.fn.zTree.init($('#gamePlayTree'), {
 					callback : {
 						onClick : function(event, treeId, treeNode, clickFlag) {
@@ -356,7 +509,8 @@ var gameManage = new Vue({
 			});
 		},
 
-		backToGameManage : function() {
+		backToGameManageWithGamePlay : function() {
+			this.showGamePlayFlag = false;
 			this.showGameManageFlag = true;
 			this.selectedGamePlay = {};
 		},

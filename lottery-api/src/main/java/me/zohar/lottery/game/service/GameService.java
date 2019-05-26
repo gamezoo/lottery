@@ -24,19 +24,23 @@ import me.zohar.lottery.dictconfig.domain.DictType;
 import me.zohar.lottery.dictconfig.repo.DictItemRepo;
 import me.zohar.lottery.dictconfig.repo.DictTypeRepo;
 import me.zohar.lottery.game.domain.Game;
+import me.zohar.lottery.game.domain.GameCategory;
 import me.zohar.lottery.game.domain.GamePlay;
 import me.zohar.lottery.game.domain.GameSituation;
 import me.zohar.lottery.game.domain.NumLocate;
 import me.zohar.lottery.game.domain.OptionalNum;
+import me.zohar.lottery.game.param.GameCategoryParam;
 import me.zohar.lottery.game.param.GameParam;
 import me.zohar.lottery.game.param.GamePlayParam;
 import me.zohar.lottery.game.param.NumLocateParam;
 import me.zohar.lottery.game.param.OptionalNumParam;
+import me.zohar.lottery.game.repo.GameCategoryRepo;
 import me.zohar.lottery.game.repo.GamePlayRepo;
 import me.zohar.lottery.game.repo.GameRepo;
 import me.zohar.lottery.game.repo.GameSituationRepo;
 import me.zohar.lottery.game.repo.NumLocateRepo;
 import me.zohar.lottery.game.repo.OptionalNumRepo;
+import me.zohar.lottery.game.vo.GameCategoryVO;
 import me.zohar.lottery.game.vo.GamePlayVO;
 import me.zohar.lottery.game.vo.GameSituationVO;
 import me.zohar.lottery.game.vo.GameVO;
@@ -47,6 +51,9 @@ import me.zohar.lottery.issue.repo.IssueSettingRepo;
 @Validated
 @Service
 public class GameService {
+
+	@Autowired
+	private GameCategoryRepo gameCategoryRepo;
 
 	@Autowired
 	private GameRepo gameRepo;
@@ -77,13 +84,19 @@ public class GameService {
 
 	@Transactional(readOnly = true)
 	public List<GameSituationVO> findTop5HotGame() {
-		List<GameSituation> gameSituations = gameSituationRepo.findTop5By();
+		List<GameSituation> gameSituations = gameSituationRepo.findTop5ByOrderByHotGameFlagDesc();
 		return GameSituationVO.convertFor(gameSituations);
 	}
 
 	@Transactional(readOnly = true)
 	public List<GameSituationVO> findAllGameSituation() {
-		List<GameSituation> gameSituations = gameSituationRepo.findAll();
+		List<GameSituation> gameSituations = gameSituationRepo.findByOrderByHotGameFlagDesc();
+		return GameSituationVO.convertFor(gameSituations);
+	}
+	
+	@Transactional(readOnly = true)
+	public List<GameSituationVO> findGameSituationByGameCategoryId(String gameCategoryId) {
+		List<GameSituation> gameSituations = gameSituationRepo.findByGameCategoryIdOrderByHotGameFlagDesc(gameCategoryId);
 		return GameSituationVO.convertFor(gameSituations);
 	}
 
@@ -130,6 +143,14 @@ public class GameService {
 	}
 
 	@Transactional(readOnly = true)
+	public List<GameVO> findGameByGameCategoryId(String gameCategoryId) {
+		if (StrUtil.isBlank(gameCategoryId)) {
+			return findAllGame();
+		}
+		return GameVO.convertFor(gameRepo.findByGameCategoryIdOrderByOrderNoAsc(gameCategoryId));
+	}
+
+	@Transactional(readOnly = true)
 	public List<GameVO> findAllOpenGame() {
 		List<Game> games = gameRepo.findByStateOrderByOrderNo(Constant.游戏状态_启用);
 		return GameVO.convertFor(games);
@@ -143,8 +164,10 @@ public class GameService {
 			delGamePlayInner(gamePlay);
 		}
 		IssueSetting issueSetting = issueSettingRepo.findByGameId(game.getId());
-		issueGenerateRuleRepo.deleteAll(issueSetting.getIssueGenerateRules());
-		issueSettingRepo.delete(issueSetting);
+		if (issueSetting != null) {
+			issueGenerateRuleRepo.deleteAll(issueSetting.getIssueGenerateRules());
+			issueSettingRepo.delete(issueSetting);
+		}
 		gameRepo.delete(game);
 	}
 
@@ -341,6 +364,52 @@ public class GameService {
 				}
 			}
 		}
+	}
+
+	public List<GameCategoryVO> findAllGameCategory() {
+		return GameCategoryVO.convertFor(gameCategoryRepo.findByOrderByOrderNo());
+	}
+
+	@ParamValid
+	@Transactional
+	public void addOrUpdateGameCategory(GameCategoryParam gameCategoryParam) {
+		// 新增
+		if (StrUtil.isBlank(gameCategoryParam.getId())) {
+			GameCategory existGameCategory = gameCategoryRepo
+					.findByGameCategoryCode(gameCategoryParam.getGameCategoryCode());
+			if (existGameCategory != null) {
+				throw new BizException(BizError.游戏类别代码已存在);
+			}
+			GameCategory gameCategory = gameCategoryParam.convertToPo();
+			gameCategoryRepo.save(gameCategory);
+		}
+		// 修改
+		else {
+			GameCategory existGameCategory = gameCategoryRepo
+					.findByGameCategoryCode(gameCategoryParam.getGameCategoryCode());
+			if (existGameCategory != null && !existGameCategory.getId().equals(gameCategoryParam.getId())) {
+				throw new BizException(BizError.游戏类别代码已存在);
+			}
+			GameCategory gameCategory = gameCategoryRepo.getOne(gameCategoryParam.getId());
+			BeanUtils.copyProperties(gameCategoryParam, gameCategory);
+			gameCategoryRepo.save(gameCategory);
+		}
+	}
+
+	@Transactional
+	public void delGameCategoryById(String id) {
+		GameCategory gameCategory = gameCategoryRepo.getOne(id);
+		for (Game game : gameCategory.getGames()) {
+			game.setGameCategoryId(null);
+			gameRepo.save(game);
+		}
+		gameCategoryRepo.delete(gameCategory);
+	}
+
+	@Transactional(readOnly = true)
+	public GameCategoryVO findGameCategoryById(String id) {
+		GameCategory gameCategory = gameCategoryRepo.getOne(id);
+		return GameCategoryVO.convertFor(gameCategory);
 	}
 
 }

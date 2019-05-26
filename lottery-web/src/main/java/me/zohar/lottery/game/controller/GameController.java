@@ -28,4 +28,22 @@ public class GameController {
 		return Result.success().setData(gameService.findGamePlayDetailsByGameCode(gameCode));
 	}
 
+	@GetMapping("/findAllGameCategory")
+	@ResponseBody
+	public Result findAllGameCategory() {
+		return Result.success().setData(gameService.findAllGameCategory());
+	}
+
+	@GetMapping("/findAllGameSituation")
+	@ResponseBody
+	public Result findAllGameSituation() {
+		return Result.success().setData(gameService.findAllGameSituation());
+	}
+
+	@GetMapping("/findGameSituationByGameCategoryId")
+	@ResponseBody
+	public Result findGameSituationByGameCategoryId(String gameCategoryId) {
+		return Result.success().setData(gameService.findGameSituationByGameCategoryId(gameCategoryId));
+	}
+
 }

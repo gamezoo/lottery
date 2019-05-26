@@ -27,7 +27,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "dict_item", schema = "lottery")
+@Table(name = "dict_item")
 @DynamicInsert(true)
 @DynamicUpdate(true)
 public class DictItem {

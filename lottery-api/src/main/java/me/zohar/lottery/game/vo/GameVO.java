@@ -28,23 +28,32 @@ public class GameVO {
 	 * 游戏名称
 	 */
 	private String gameName;
-	
+
 	/**
 	 * 游戏说明
 	 */
 	private String gameDesc;
+	
+	private Boolean hotGameFlag;
 
 	/**
 	 * 状态
 	 */
 	private String state;
-	
+
 	private String stateName;
 
 	/**
 	 * 排序号
 	 */
 	private Double orderNo;
+
+	/**
+	 * 游戏类别id
+	 */
+	private String gameCategoryId;
+
+	private String gameCategoryName;
 
 	public static List<GameVO> convertFor(Collection<Game> games) {
 		if (CollectionUtil.isEmpty(games)) {
@@ -64,6 +73,9 @@ public class GameVO {
 		GameVO vo = new GameVO();
 		BeanUtils.copyProperties(game, vo);
 		vo.setStateName(DictHolder.getDictItemName("gameState", vo.getState()));
+		if (game.getGameCategory() != null) {
+			vo.setGameCategoryName(game.getGameCategory().getGameCategoryName());
+		}
 		return vo;
 	}
 

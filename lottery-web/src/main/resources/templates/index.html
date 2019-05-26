@@ -9,33 +9,148 @@
 <script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
 <script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
 <script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <style type="text/css">
-.handle-result {
+.carousel-indicators li {
+	cursor: pointer;
+}
+
+.carousel-item img {
+	width: 100%;
+	height: 240px;
+}
+
+.latest-notice {
+	height: 60px;
+	overflow: hidden;
+	line-height: 60px;
+	margin-bottom: 10px;
+}
+
+.latest-notice .latest-notice-label>span {
+	float: left;
+	line-height: 60px;
+	color: #e4393c;
+	font-size: 16px;
+	font-weight: 700;
+}
+
+.latest-notice .latest-notice-summary {
+	float: left;
+	cursor: pointer;
+	width: 90%;
+	height: 60px;
+	line-height: 60px;
+	font-size: 14px;
+	color: #666;
+}
+
+.lottery-information-card .card-body {
+	height: 300px;
+	overflow: hidden;
+}
+
+.lottery-information-card .card-header {
+	background-color: unset;
+}
+
+.latest-lottery-information label {
+	padding-right: 20px;
+	color: red;
+}
+
+.latest-lottery-information span {
+	cursor: pointer;
+}
+
+.latest-lottery-information span:hover {
+	color: red;
+}
+
+.lottery-information-title {
+	padding-bottom: 16px;
+	cursor: pointer;
+}
+
+.lottery-information-title:hover {
+	color: red;
+}
+
+.winning-rank-card .card-header {
+	background-color: unset;
+}
+
+.winning-rank-card .card-body {
+	height: 300px;
+	overflow: hidden;
+}
+
+.winning-rank-marquee {
+	height: 260px;
+}
+
+.winning-rank {
+	display: flex;
+	flex-flow: column;
+	border-bottom: 1px solid #dedede;
+}
+
+.game-name-and-issue-num {
+	flex: 1;
+	display: flex;
+}
+
+.game-name {
+	flex: 1;
+}
+
+.issue-num {
+	flex: 1;
+}
+
+.user-name-and-winning-amount {
+	flex: 1;
+	display: flex;
+}
+
+.user-name {
+	flex: 1;
+}
+
+.winning-amount {
+	flex: 1;
+}
+
+.winning-rank-highlight {
+	color: red;
+}
+
+.advantage {
 	text-align: center;
-	padding-top: 8%;
+	padding-top: 30px;
+	padding-bottom: 30px;
 }
 
-.handle-result-icon {
-	margin-bottom: 24px;
+.advantage div {
+	display: inline-block;
+	padding-right: 30px;
 }
 
-.handle-result-icon i {
-	font-size: 100px;
-	color: #52c41a;
+.advantage img {
+	padding-right: 20px;
 }
 
-.handle-result-title {
-	font-size: 42px;
-	color: #000000d9;
-	font-weight: 500;
-	line-height: 32px;
-	margin-bottom: 24px;
+.notice-title {
+	background-color: #dedede;
+	border-radius: 30px;
+	text-align: center;
+	margin-bottom: 12px;
+	color: #fff;
+	cursor: pointer;
 }
 
-.handle-result-desc {
-	font-size: 21px;
-	line-height: 22px;
-	color: #2b2a2a73;
+.selected-system-notice {
+	background-color: #ce1515;
 }
 </style>
 </head>
@@ -43,80 +158,169 @@
 <body style="height: 100%;">
 	<div class="container">
 		<div th:replace="common/header::html"></div>
-		<div id="recharge" v-cloak>
-			<div class="handle-result">
-				<div class="handle-result-icon">
-					<i><svg viewBox="64 64 896 896" data-icon="check-circle" width="1em" height="1em" fill="currentColor" aria-hidden="true">
-							<path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm193.5 301.7l-210.6 292a31.8 31.8 0 0 1-51.7 0L318.5 484.9c-3.8-5.3 0-12.7 6.5-12.7h46.9c10.2 0 19.9 4.9 25.9 13.3l71.2 98.8 157.2-218c6-8.3 15.6-13.3 25.9-13.3H699c6.5 0 10.3 7.4 6.5 12.7z"></path></svg></i>
+		<div id="index" v-cloak>
+			<div id="demo" class="carousel slide" data-ride="carousel">
+
+				<!-- 指示符 -->
+				<ul class="carousel-indicators">
+					<li data-target="#demo" data-slide-to="0" class="active"></li>
+					<li data-target="#demo" data-slide-to="1"></li>
+					<li data-target="#demo" data-slide-to="2"></li>
+				</ul>
+
+				<!-- 轮播图片 -->
+				<div class="carousel-inner">
+					<div class="carousel-item active">
+						<img src="https://static.runoob.com/images/mix/img_fjords_wide.jpg">
+					</div>
+					<div class="carousel-item">
+						<img src="https://static.runoob.com/images/mix/img_nature_wide.jpg">
+					</div>
+					<div class="carousel-item">
+						<img src="https://static.runoob.com/images/mix/img_mountains_wide.jpg">
+					</div>
 				</div>
-				<div class="handle-result-title">首页</div>
+			</div>
+			<div class="latest-notice">
+				<div class="latest-notice-label">
+					<span>最新公告：</span>
+				</div>
+				<div class="latest-notice-summary" v-on:click="showLatestNoticeModal">
+					<marquee>
+						<div>
+							<label v-for="systemNotice in systemNotices" style="padding-right: 26px;"><span style="padding-right: 6px;">{{systemNotice.noticeTitle}}</span><span>{{systemNotice.publishDate}}</span></label>
+						</div>
+					</marquee>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-8">
+					<div class="card lottery-information-card">
+						<div class="card-header">彩票资讯</div>
+						<div class="card-body">
+							<div class="latest-lottery-information">
+								<label>.NEW</label><span>汉中146人合买双色球中得1049万元大奖</span>
+							</div>
+							<div class=row>
+								<div class="col-sm-6 lottery-information-title">汉中146人合买双色球中得1049万元大奖</div>
+								<div class="col-sm-6 lottery-information-title">汉中146人合买双色球中得1049万元大奖</div>
+								<div class="col-sm-6 lottery-information-title">汉中146人合买双色球中得1049万元大奖</div>
+								<div class="col-sm-6 lottery-information-title">汉中146人合买双色球中得1049万元大奖</div>
+								<div class="col-sm-6 lottery-information-title">汉中146人合买双色球中得1049万元大奖</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-4">
+					<div class="card winning-rank-card">
+						<div class="card-header">中奖排行</div>
+						<div class="card-body">
+							<marquee class="winning-rank-marquee" direction="up" behavior="scroll" scrollamount="5" onmouseover="stop()" onmouseout="start()">
+								<div class="winning-rank" v-for="winningRank in winningRanks">
+									<div class="game-name-and-issue-num">
+										<div class="game-name">{{winningRank.gameName}}</div>
+										<div class="issue-num">{{winningRank.issueNum}}期</div>
+									</div>
+									<div class="user-name-and-winning-amount">
+										<div class="user-name">
+											恭喜<span class="winning-rank-highlight">{{winningRank.userName}}</span>
+										</div>
+										<div class="winning-amount">
+											喜中<span class="winning-rank-highlight">{{winningRank.totalWinningAmount}}</span>
+										</div>
+									</div>
+								</div>
+							</marquee>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="advantage">
+				<div>
+					<img src="/images/index/safety.png" /><span>账户安全</span>
+				</div>
+				<div>
+					<img src="/images/index/quick.png" /><span>购彩便捷</span>
+				</div>
+				<div>
+					<img src="/images/index/exchange.png" /><span>兑换简单</span>
+				</div>
+				<div>
+					<img src="/images/index/drawing.png" /><span>提款迅速</span>
+				</div>
+			</div>
+
+			<div v-show="showLatestNoticeModalFlag">
+				<div class="modal-mask">
+					<div class="modal-wrapper">
+						<div class="modal-dialog">
+							<div class="modal-content" style="width: 640px;">
+								<div class="modal-header">
+									<h5 class="modal-title">
+										<span style="color: #B3544F;">公告</span>
+									</h5>
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="showLatestNoticeModalFlag = false">
+										<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+								<div class="modal-body" style="height: 310px;">
+									<div class="row" style="height: 100%;">
+										<div class="col-sm-4">
+											<div class="notice-title" v-for="systemNotice in systemNotices" v-bind:class="{'selected-system-notice': selectedSystemNotice == systemNotice}" v-on:click="selectedSystemNotice = systemNotice;">
+												<span>{{systemNotice.noticeTitle}}</span>
+											</div>
+										</div>
+										<div class="col-sm-8">
+											<div style="border: 1px solid #ced4da; height: 100%; border-radius: 7px; padding-left: 10px;">
+												<div v-html="selectedSystemNotice.noticeContent"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
 	<script type="text/javascript">
-		var recharge = new Vue({
-			el : '#recharge',
+		var indexVM = new Vue({
+			el : '#index',
 			data : {
-				selectedRechargeWay : '',
-				rechargeWays : [ {
-					rechargeWayCode : 'zfbsm',
-					rechargeWayName : '支付宝',
-					icon : '/images/recharge/alipay.png'
-				}, {
-					rechargeWayCode : 'wxsm',
-					rechargeWayName : '微信',
-					icon : '/images/recharge/wechat.png'
-				} ],
-				rechargeAmount : ''
+				systemNotices : [],
+				showLatestNoticeModalFlag : false,
+				selectedSystemNotice : {},
+				
+				winningRanks : []
 			},
 			computed : {},
 			created : function() {
 			},
 			mounted : function() {
+				this.loadTop5PublishedSystemNotice();
+				this.loadTop50WinningRank();
 			},
 			methods : {
-				chooseRechargeWay : function(rechargeWay) {
-					this.selectedRechargeWay = rechargeWay;
-				},
-				confirmPay : function() {
+				loadTop5PublishedSystemNotice : function() {
 					var that = this;
-					if (that.selectedRechargeWay == null || that.selectedRechargeWay == '') {
-						layer.alert('请选择支付方式');
-						return;
-					}
-					if (that.rechargeAmount == null || that.rechargeAmount == '') {
-						layer.alert('请输入充值金额');
-						return;
-					}
-					if (that.btnClickFlag) {
-						return;
-					}
-					layer.open({
-						title : '提示',
-						icon : 7,
-						closeBtn : 0,
-						btn : [],
-						content : '正在创建充值订单...',
-						time : 2000
+					that.$http.get('/systemNotice/findTop5PublishedSystemNotice', ).then(function(res) {
+						that.systemNotices = res.body.data;
 					});
-					that.$http.post('/recharge/generateRechargeOrder', {
-						rechargeWayCode : that.selectedRechargeWay.rechargeWayCode,
-						rechargeAmount : that.rechargeAmount
-					}, {
-						emulateJSON : true
-					}).then(function(res) {
-						layer.open({
-							title : '提示',
-							icon : '1',
-							closeBtn : 0,
-							btn : [],
-							content : '充值订单创建成功,正在跳转到支付页面!',
-							time : 2000,
-							end : function() {
-								window.location.href = res.body.data.payUrl;
-							}
-						});
+				},
+				
+				loadTop50WinningRank : function() {
+					var that = this;
+					that.$http.get('/betting/findTop50WinningRank', ).then(function(res) {
+						that.winningRanks = res.body.data;
 					});
+				},
+
+				showLatestNoticeModal : function() {
+					this.showLatestNoticeModalFlag = true;
+					if (this.systemNotices.length > 0) {
+						this.selectedSystemNotice = this.systemNotices[0];
+					}
 				}
 			}
 		});

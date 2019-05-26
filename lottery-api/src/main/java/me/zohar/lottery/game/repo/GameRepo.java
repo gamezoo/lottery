@@ -12,5 +12,7 @@ public interface GameRepo extends JpaRepository<Game, String>, JpaSpecificationE
 	Game findByGameCode(String gameCode);
 
 	List<Game> findByStateOrderByOrderNo(String state);
+	
+	List<Game> findByGameCategoryIdOrderByOrderNoAsc(String gameCategoryId);
 
 }

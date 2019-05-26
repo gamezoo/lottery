@@ -38,6 +38,7 @@ import me.zohar.lottery.betting.repo.BettingRecordRepo;
 import me.zohar.lottery.betting.vo.BettingOrderDetailsVO;
 import me.zohar.lottery.betting.vo.BettingOrderInfoVO;
 import me.zohar.lottery.betting.vo.BettingRecordVO;
+import me.zohar.lottery.betting.vo.WinningRankVO;
 import me.zohar.lottery.common.exception.BizError;
 import me.zohar.lottery.common.exception.BizException;
 import me.zohar.lottery.common.valid.ParamValid;
@@ -82,6 +83,17 @@ public class BettingService {
 
 	@Autowired
 	private IssueRepo issueRepo;
+
+	@Transactional(readOnly = true)
+	public List<WinningRankVO> findTop50WinningRank() {
+		List<BettingOrder> bettingOrders = bettingOrderRepo
+				.findTop50ByBettingTimeGreaterThanAndStateOrderByTotalWinningAmountDesc(DateUtil.beginOfDay(new Date()),
+						Constant.投注订单状态_已中奖);
+		if (bettingOrders.size() < 50) {
+			bettingOrders = bettingOrderRepo.findTop50ByStateOrderByTotalWinningAmountDesc(Constant.投注订单状态_已中奖);
+		}
+		return WinningRankVO.convertFor(bettingOrders);
+	}
 
 	@Transactional(readOnly = true)
 	public BettingOrderDetailsVO findMyBettingOrderDetails(String id, String userAccountId) {

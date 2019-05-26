@@ -89,7 +89,6 @@ public class ConfigService {
 		}
 	}
 
-	@ParamValid
 	@Transactional
 	public void delConfigById(@NotBlank String id) {
 		configItemRepo.deleteById(id);

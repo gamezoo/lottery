@@ -30,6 +30,10 @@ public class GameSituationVO {
 	 * 游戏名称
 	 */
 	private String gameName;
+	
+	private String gameCategoryId;
+	
+	private Boolean hotGameFlag;
 
 	/**
 	 * 总期数

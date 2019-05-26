@@ -9,5 +9,9 @@ import me.zohar.lottery.game.domain.GameSituation;
 
 public interface GameSituationRepo extends JpaRepository<GameSituation, String>, JpaSpecificationExecutor<GameSituation> {
 
-	List<GameSituation> findTop5By();
+	List<GameSituation> findByOrderByHotGameFlagDesc();
+	
+	List<GameSituation> findTop5ByOrderByHotGameFlagDesc();
+	
+	List<GameSituation> findByGameCategoryIdOrderByHotGameFlagDesc(String gameCategoryId);
 }

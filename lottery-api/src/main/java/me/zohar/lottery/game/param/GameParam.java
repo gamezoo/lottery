@@ -17,34 +17,43 @@ public class GameParam {
 	 * 主键id
 	 */
 	private String id;
+	
+	/**
+	 * 游戏类别id
+	 */
+	@NotBlank
+	private String gameCategoryId;
 
 	/**
 	 * 游戏代码
 	 */
-	@NotBlank(message = "gameCode不能为空")
+	@NotBlank
 	private String gameCode;
 
 	/**
 	 * 游戏名称
 	 */
-	@NotBlank(message = "gameName不能为空")
+	@NotBlank
 	private String gameName;
 	
 	/**
 	 * 游戏说明
 	 */
 	private String gameDesc;
+	
+	@NotNull
+	private Boolean hotGameFlag;
 
 	/**
 	 * 状态,启用:1;禁用:0
 	 */
-	@NotBlank(message = "state不能为空")
+	@NotBlank
 	private String state;
 
 	/**
 	 * 排序号
 	 */
-	@NotNull(message = "orderNo不能为空")
+	@NotNull
 	@DecimalMin(value = "0", inclusive = true, message = "orderNo不能少于0")
 	private Double orderNo;
 

@@ -50,14 +50,15 @@
 	padding-top: 4px;
 	min-width: 150px;
 	text-align: center;
+	cursor: pointer;
 }
 
 .homepage-navbar li:hover {
 	background-color: #ce1515;
 }
 
-.homepage-navbar a {
-	color: #fff;
+.homepage-navbar .nav-item .nav-link {
+	color: #fff !important;
 	font-size: 15px;
 }
 
@@ -115,14 +116,14 @@
 					<ul class="navbar-nav">
 						<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">请选择彩票种类</a>
 							<div class="dropdown-menu">
-								<a class="dropdown-item" href="#" v-for="game in games" v-on:click="goTo('/' + game.gameCode.toLowerCase())">{{game.gameName}}</a>
+								<a class="dropdown-item" v-for="game in games" v-on:click="goTo('/' + game.gameCode.toLowerCase())">{{game.gameName}}</a>
 							</div></li>
-						<li class="nav-item" v-on:click="goTo('/')"><a class="nav-link" href="#">首页</a></li>
-						<li class="nav-item"><a class="nav-link" href="#">购彩大厅</a></li>
-						<li class="nav-item"><a class="nav-link" href="#">开奖结果</a></li>
-						<li class="nav-item"><a class="nav-link" href="#">手机购彩</a></li>
-						<li class="nav-item"><a class="nav-link" href="#">优惠活动</a></li>
-						<li class="nav-item"><a class="nav-link" href="#">客服</a></li>
+						<li class="nav-item" v-on:click="goTo('/')"><a class="nav-link">首页</a></li>
+						<li class="nav-item" v-on:click="goTo('/game-hall')"><a class="nav-link">购彩大厅</a></li>
+						<li class="nav-item" v-on:click="goTo('/lottery-result')"><a class="nav-link">开奖结果</a></li>
+						<li class="nav-item"><a class="nav-link">手机购彩</a></li>
+						<li class="nav-item"><a class="nav-link">优惠活动</a></li>
+						<li class="nav-item"><a class="nav-link">客服</a></li>
 					</ul>
 				</nav>
 			</div>

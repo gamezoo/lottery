@@ -121,4 +121,14 @@ public class PageController {
 		return "master-control-room";
 	}
 
+	/**
+	 * 系统公告
+	 * 
+	 * @return
+	 */
+	@GetMapping("/system-notice")
+	public String systemNotice() {
+		return "system-notice";
+	}
+
 }

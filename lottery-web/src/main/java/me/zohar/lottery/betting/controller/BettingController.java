@@ -24,6 +24,12 @@ public class BettingController {
 	@Autowired
 	private BettingService bettingService;
 
+	@GetMapping("/findTop50WinningRank")
+	@ResponseBody
+	public Result findTop50WinningRank() {
+		return Result.success().setData(bettingService.findTop50WinningRank());
+	}
+
 	/**
 	 * 获取投注信息详情
 	 * 

@@ -1,5 +1,6 @@
 package me.zohar.lottery.betting.repo;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,11 +12,17 @@ public interface BettingOrderRepo extends JpaRepository<BettingOrder, String>, J
 
 	/**
 	 * 根据游戏代码,期号,状态获取投注订单
+	 * 
 	 * @param gameCode
 	 * @param issue
 	 * @param state
 	 * @return
 	 */
 	List<BettingOrder> findByGameCodeAndIssueNumAndState(String gameCode, Long issueNum, String state);
+
+	List<BettingOrder> findTop50ByBettingTimeGreaterThanAndStateOrderByTotalWinningAmountDesc(Date bettingTime,
+			String state);
+
+	List<BettingOrder> findTop50ByStateOrderByTotalWinningAmountDesc(String state);
 
 }

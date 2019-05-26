@@ -57,16 +57,6 @@ public class PageController {
 	}
 
 	/**
-	 * 江西11选5
-	 * 
-	 * @return
-	 */
-	@GetMapping("/jx11x5")
-	public String jx11x5() {
-		return "jx11x5";
-	}
-
-	/**
 	 * 个人中心
 	 * 
 	 * @return
@@ -115,7 +105,7 @@ public class PageController {
 	public String withdraw() {
 		return "withdraw";
 	}
-	
+
 	/**
 	 * 追号记录
 	 * 
@@ -124,6 +114,26 @@ public class PageController {
 	@GetMapping("/tracking-number-record")
 	public String trackingNumberRecord() {
 		return "tracking-number-record";
+	}
+
+	/**
+	 * 开奖结果
+	 * 
+	 * @return
+	 */
+	@GetMapping("/lottery-result")
+	public String lotteryResult() {
+		return "lottery-result";
+	}
+
+	/**
+	 * 游戏大厅
+	 * 
+	 * @return
+	 */
+	@GetMapping("/game-hall")
+	public String gameHall() {
+		return "game-hall";
 	}
 
 }

@@ -5,7 +5,7 @@
 <title>游戏管理</title>
 <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
 <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
-<script src="http://code.jquery.com/jquery-migrate-1.1.1.js"></script>
+<script src="https://cdn.bootcss.com/jquery-migrate/1.1.1/jquery-migrate.min.js"></script>
 <script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
 <script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
 <script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
@@ -19,6 +19,10 @@
 
 <link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <style type="text/css">
+.hot-game-logo {
+	position: absolute;
+}
+
 .issue-setting-modal-dialog {
 	max-width: 100%;
 	width: 45%;
@@ -57,6 +61,29 @@
 .optional-num-label {
 	margin-bottom: 0;
 }
+
+.game-category-nav {
+	display: inline-flex;
+	height: 47px;
+	line-height: 29px;
+}
+
+.game-category-nav .nav-item {
+	min-width: 105px;
+	text-align: center;
+}
+
+.game-category-nav a {
+	color: #666;
+}
+
+.selected-game-category-nav-item {
+	border-bottom: 2px solid #5584ff;
+}
+
+.selected-game-category-nav-item a {
+	color: #007bff;
+}
 </style>
 </head>
 
@@ -64,13 +91,19 @@
 	<div th:replace="common/header::html"></div>
 	<div id="game-manage" v-cloak>
 		<div v-show="showGameManageFlag">
+			<ul class="nav game-category-nav">
+				<li class="nav-item" v-bind:class="{'selected-game-category-nav-item': '' == tabWithGameCategoryId}" v-on:click="switchGameCateogry('')"><a class="nav-link">全部</a></li>
+				<li class="nav-item" v-for="gameCategoryDict in gameCategoryDicts" v-bind:class="{'selected-game-category-nav-item': gameCategoryDict.id == tabWithGameCategoryId}" v-on:click="switchGameCateogry(gameCategoryDict.id)"><a class="nav-link">{{gameCategoryDict.gameCategoryName}}</a></li>
+			</ul>
 			<form class="form-inline common-query-cond-form float-right">
+				<button type="button" class="btn btn-secondary btn-sm" style="margin-right: 4px;" v-on:click="toGameCategoryPage">游戏类别维护</button>
 				<button type="button" class="btn btn-info btn-sm" style="margin-right: 4px;" v-on:click="openAddGameModal">新增游戏</button>
 				<button type="button" class="btn btn-primary btn-sm" v-on:click="openDictSyncModal">字典同步</button>
 			</form>
-			<table class="table table-hover common-table game-manage-table">
+			<table class="table table-hover common-table">
 				<thead>
 					<tr>
+						<th>游戏类别</th>
 						<th>游戏名称</th>
 						<th>游戏代码</th>
 						<th>游戏状态</th>
@@ -80,7 +113,8 @@
 				</thead>
 				<tbody>
 					<tr v-for="game in games">
-						<td>{{game.gameName}}</td>
+						<td>{{game.gameCategoryName}}</td>
+						<td><span>{{game.gameName}}</span><img class="hot-game-logo" src="/images/hot-game.png" v-show="game.hotGameFlag" /></td>
 						<td>{{game.gameCode}}</td>
 						<td>{{game.stateName}}</td>
 						<td>{{game.orderNo}}</td>
@@ -94,11 +128,41 @@
 				</tbody>
 			</table>
 		</div>
-		<div v-show="!showGameManageFlag">
+		<!-- 游戏类别维护页面start -->
+		<div v-show="showGameCategoryFlag">
+			<form class="form-inline common-query-cond-form float-right">
+				<button type="button" class="btn btn-info btn-sm" style="margin-right: 4px;" v-on:click="openAddGameCategoryModal">新增游戏类别</button>
+				<button type="button" class="btn btn-sm" v-on:click="backToGameManageWithGameCategory">返回</button>
+			</form>
+			<table class="table table-hover common-table">
+				<thead>
+					<tr>
+						<th>游戏类别</th>
+						<th>游戏类别代码</th>
+						<th>排序号</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="gameCategory in gameCategorys">
+						<td>{{gameCategory.gameCategoryName}}</td>
+						<td>{{gameCategory.gameCategoryCode}}</td>
+						<td>{{gameCategory.orderNo}}</td>
+						<td>
+							<button type="button" class="btn btn-outline-success btn-sm" v-on:click="openEditGameCategoryModal(gameCategory)">编辑</button>
+							<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="delGameCategory(gameCategory)">删除</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<!-- 游戏类别维护页面end -->
+
+		<div v-show="showGamePlayFlag">
 			<div style="padding-left: 14px; padding-top: 10px; padding-bottom: 14px; padding-right: 10px;">
 				<span>{{selectedGame.gameName}}</span> <span style="float: right;">
 					<button type="button" class="btn btn-info btn-sm" v-on:click="openAddGamePlayModal">新增玩法</button>
-					<button type="button" class="btn btn-sm" v-on:click="backToGameManage">返回</button>
+					<button type="button" class="btn btn-sm" v-on:click="backToGameManageWithGamePlay">返回</button>
 				</span>
 			</div>
 			<div class="row" style="margin-left: 0; margin-right: 0;">
@@ -198,6 +262,46 @@
 			</div>
 		</div>
 
+		<div v-if="addOrUpdateGameCategoryFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">{{gameCategoryActionTitle}}</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="addOrUpdateGameCategoryFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<form>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>游戏类别:</label> <input type="text" class="form-control" v-model="editGameCategory.gameCategoryName">
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>游戏类别code:</label> <input type="text" class="form-control" v-model="editGameCategory.gameCategoryCode">
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>排序号:</label> <input type="number" class="form-control" v-model="editGameCategory.orderNo">
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="addOrUpdateGameCategory">保存</button>
+								<button type="button" class="btn btn-sm" v-on:click="addOrUpdateGameCategoryFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<div v-if="issueSettingFlag">
 			<div class="modal-mask">
 				<div class="modal-wrapper">
@@ -267,16 +371,25 @@
 							<div class="modal-body">
 								<form>
 									<div class="form-group row">
-										<div class="col-sm-6">
+										<div class="col-sm-4">
+											<label>游戏类别:</label> <select class="form-control" v-model="editGame.gameCategoryId">
+												<option value="">请选择</option>
+												<option v-for="gameCategoryDict in gameCategoryDicts" :value="gameCategoryDict.id">{{gameCategoryDict.gameCategoryName}}</option>
+											</select>
+										</div>
+										<div class="col-sm-4">
 											<label>游戏名称:</label> <input type="text" class="form-control" v-model="editGame.gameName">
 										</div>
-										<div class="col-sm-6">
+										<div class="col-sm-4">
 											<label>游戏代码:</label> <input type="text" class="form-control" v-model="editGame.gameCode">
 										</div>
 									</div>
 									<div class="form-group row">
 										<div class="col-sm-12">
-											<label>游戏说明:</label>
+											<label><span>游戏说明:</span>
+												<div class="custom-control custom-checkbox custom-control-inline">
+													<input type="checkbox" id="hotGameFlag" class="custom-control-input" v-model="editGame.hotGameFlag"> <label for="hotGameFlag" class="custom-control-label">热门游戏</label>
+												</div></label>
 											<textarea class="form-control" rows="3" v-model="editGame.gameDesc"></textarea>
 										</div>
 									</div>
@@ -299,11 +412,13 @@
 											<label>排序号:</label> <input type="text" class="form-control" v-model="editGame.orderNo">
 										</div>
 									</div>
-									<div class="form-group">
-										<label>复制已有游戏的玩法</label> <select class="form-control" v-model="editGame.copyGameCode">
-											<option value="">--请选择要复制的游戏--</option>
-											<option v-for="game in games" v-if="game.id != editGame.id" v-bind:value="game.gameCode">{{game.gameName}}</option>
-										</select>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>复制已有游戏的玩法</label> <select class="form-control" v-model="editGame.copyGameCode">
+												<option value="">--请选择要复制的游戏--</option>
+												<option v-for="game in games" v-if="game.id != editGame.id" v-bind:value="game.gameCode">{{game.gameName}}</option>
+											</select>
+										</div>
 									</div>
 								</form>
 							</div>

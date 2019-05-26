@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>开奖结果</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.bootcss.com/dayjs/1.7.8/dayjs.min.js"></script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+.game-category-navbar {
+	margin-bottom: 8px;
+	padding-top: 0;
+	padding-bottom: 0;
+	justify-content: center;
+	background-color: #FAFAFA;
+}
+
+.game-category-navbar li {
+	padding-bottom: 4px;
+	padding-top: 4px;
+	min-width: 150px;
+	text-align: center;
+	cursor: pointer;
+}
+
+.game-category-navbar .nav-item .nav-link {
+	color: #333;
+	font-size: 15px;
+}
+
+.selected-game-category-nav-item {
+	border-bottom: 3px solid #ec494c;
+}
+
+.selected-game-category-nav-item>a, .game-category-navbar li:hover>a {
+	color: #fe0200 !important;
+}
+
+.game-block {
+	border-top: 1px solid #ebebeb;
+	border-left: 1px solid #ebebeb;
+	border-right: 1px solid #ebebeb;
+}
+
+.game {
+	display: flex;
+	height: 110px;
+	border-bottom: 1px solid #ebebeb;
+	padding-left: 15px;
+}
+
+.game-logo {
+	flex: 0.5;
+	display: flex;
+	align-items: center;
+}
+
+.game-name-and-issue-num {
+	flex: 1;
+	line-height: 55px;
+}
+
+.game-lottery-result {
+	flex: 2;
+	margin-top: 33px;
+}
+
+.game-lottery-result span {
+	width: 42px;
+	height: 42px;
+	font-weight: normal;
+	display: inline-block;
+	background-color: #1783c6\9;
+	background: linear-gradient(#f56868, #cb3a3a);
+	color: #fff;
+	line-height: 42px;
+	text-align: center;
+	margin: 0 2px;
+	border-radius: 27px;
+	font-weight: normal;
+	display: inline-block;
+	background-color: #1783c6\9;
+	background: linear-gradient(#f56868, #cb3a3a);
+	color: #fff;
+	line-height: 42px;
+	text-align: center;
+	margin: 0 2px;
+	display: inline-block;
+	background-color: #1783c6\9;
+	background: linear-gradient(#f56868, #cb3a3a);
+	color: #fff;
+	line-height: 42px;
+	text-align: center;
+	margin: 0 2px;
+}
+
+.game-lottery-tip {
+	font-size: 24px;
+	color: #ffc200;
+}
+
+.game-action {
+	flex: 0.5;
+	margin-top: 33px;
+}
+</style>
+</head>
+
+<body style="height: 100%;">
+	<div class="container">
+		<div th:replace="common/header::html"></div>
+		<div id="lottery-result" v-cloak>
+			<nav class="navbar navbar-expand-sm game-category-navbar">
+				<ul class="navbar-nav">
+					<li class="nav-item" v-bind:class="{'selected-game-category-nav-item': selectedGameCategoryId == ''}" v-on:click="loadAllGameSituation"><a class="nav-link">全部游戏</a></li>
+					<li class="nav-item" v-for="gameCategory in gameCategorys" v-bind:class="{'selected-game-category-nav-item': selectedGameCategoryId == gameCategory.id}" v-on:click="loadGameSituationByGameCategoryId(gameCategory.id)"><a class="nav-link">{{gameCategory.gameCategoryName}}</a></li>
+				</ul>
+			</nav>
+			<div class="game-block">
+				<div class="game" v-for="game in games">
+					<div class="game-logo">
+						<img v-bind:src="'/images/lottery-logo/' + game.gameCode.toLowerCase() + '.png'" />
+					</div>
+					<div class="game-name-and-issue-num">
+						<div>{{game.gameName}}</div>
+						<div>第{{game.currentIssue != null ? game.currentIssue : game.preIssue}}期</div>
+					</div>
+					<div class="game-lottery-result">
+						<div class="game-lottery-content" v-show="game.preIssueLotteryNum != null">
+							<span v-for="num in splitlotteryNum(game.preIssueLotteryNum)">{{num}}</span>
+						</div>
+						<div class="game-lottery-tip" v-show="game.currentIssue != null && game.preIssueLotteryNum == null">正在开奖...</div>
+						<div class="game-lottery-tip" v-show="game.currentIssue == null">休市中...</div>
+					</div>
+					<div class="game-action">
+						<button type="button" class="btn btn-danger">立即投注</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var lotteryResultVM = new Vue({
+			el : '#lottery-result',
+			data : {
+				selectedGameCategoryId : '',
+				gameCategorys : [],
+				games : []
+			},
+			computed : {},
+			created : function() {
+			},
+			mounted : function() {
+				this.loadGameCategory();
+				this.loadAllGameSituation();
+			},
+			methods : {
+
+				loadAllGameSituation : function() {
+					var that = this;
+					that.$http.get('/game/findAllGameSituation').then(function(res) {
+						that.games = res.body.data;
+						that.selectedGameCategoryId = '';
+					});
+				},
+
+				loadGameSituationByGameCategoryId : function(gameCategoryId) {
+					var that = this;
+					that.$http.get('/game/findGameSituationByGameCategoryId', {
+						params : {
+							gameCategoryId : gameCategoryId
+						}
+					}).then(function(res) {
+						that.games = res.body.data;
+						that.selectedGameCategoryId = gameCategoryId;
+					});
+				},
+
+				loadGameCategory : function() {
+					var that = this;
+					that.$http.get('/game/findAllGameCategory').then(function(res) {
+						this.gameCategorys = res.body.data;
+					});
+				},
+
+				splitlotteryNum : function(lotteryNum) {
+					if (lotteryNum == null || lotteryNum == '') {
+						return [];
+					}
+					return lotteryNum.split(',');
+				}
+			}
+		});
+	</script>
+</body>
+</html>

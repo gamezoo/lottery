@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import me.zohar.lottery.common.param.PageParam;
 import me.zohar.lottery.common.vo.Result;
+import me.zohar.lottery.game.param.GameCategoryParam;
 import me.zohar.lottery.game.param.GameParam;
 import me.zohar.lottery.game.param.GamePlayParam;
 import me.zohar.lottery.game.service.GameService;
@@ -20,7 +20,7 @@ public class GameController {
 
 	@Autowired
 	private GameService gameService;
-	
+
 	@GetMapping("/dictSync")
 	@ResponseBody
 	public Result dictSync(Boolean syncGameDict, Boolean syncGamePlayDict) {
@@ -28,12 +28,12 @@ public class GameController {
 		return Result.success();
 	}
 
-	@GetMapping("/findAllGame")
+	@GetMapping("/findGameByGameCategoryId")
 	@ResponseBody
-	public Result findAllGame(PageParam param) {
-		return Result.success().setData(gameService.findAllGame());
+	public Result findGameByGameCategoryId(String gameCategoryId) {
+		return Result.success().setData(gameService.findGameByGameCategoryId(gameCategoryId));
 	}
-	
+
 	@GetMapping("/delGameById")
 	@ResponseBody
 	public Result delGameById(String id) {
@@ -85,6 +85,32 @@ public class GameController {
 	public Result delGamePlayById(String id) {
 		gameService.delGamePlayById(id);
 		return Result.success();
+	}
+
+	@GetMapping("/findAllGameCategory")
+	@ResponseBody
+	public Result findAllGameCategory() {
+		return Result.success().setData(gameService.findAllGameCategory());
+	}
+
+	@PostMapping("/addOrUpdateGameCategory")
+	@ResponseBody
+	public Result addOrUpdateGameCategory(@RequestBody GameCategoryParam param) {
+		gameService.addOrUpdateGameCategory(param);
+		return Result.success();
+	}
+
+	@GetMapping("/delGameCategoryById")
+	@ResponseBody
+	public Result delGameCategoryById(String id) {
+		gameService.delGameCategoryById(id);
+		return Result.success();
+	}
+
+	@GetMapping("/findGameCategoryById")
+	@ResponseBody
+	public Result findGameCategoryById(String id) {
+		return Result.success().setData(gameService.findGameCategoryById(id));
 	}
 
 }
