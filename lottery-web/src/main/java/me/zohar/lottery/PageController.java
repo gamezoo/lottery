@@ -135,5 +135,15 @@ public class PageController {
 	public String gameHall() {
 		return "game-hall";
 	}
+	
+	/**
+	 * 资讯详情
+	 * 
+	 * @return
+	 */
+	@GetMapping("/information-details")
+	public String informationDetails() {
+		return "information-details";
+	}
 
 }

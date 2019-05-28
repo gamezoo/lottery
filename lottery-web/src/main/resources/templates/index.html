@@ -59,6 +59,12 @@
 	color: red;
 }
 
+.latest-lottery-information {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .latest-lottery-information span {
 	cursor: pointer;
 }
@@ -70,6 +76,9 @@
 .lottery-information-title {
 	padding-bottom: 16px;
 	cursor: pointer;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .lottery-information-title:hover {
@@ -198,15 +207,11 @@
 					<div class="card lottery-information-card">
 						<div class="card-header">彩票资讯</div>
 						<div class="card-body">
-							<div class="latest-lottery-information">
-								<label>.NEW</label><span>汉中146人合买双色球中得1049万元大奖</span>
+							<div class="latest-lottery-information" v-if="informations.length != 0">
+								<label>.NEW</label><span v-on:click="toInformationDetailsPage(informations[0].id)">{{informations[0].title}}</span>
 							</div>
 							<div class=row>
-								<div class="col-sm-6 lottery-information-title">汉中146人合买双色球中得1049万元大奖</div>
-								<div class="col-sm-6 lottery-information-title">汉中146人合买双色球中得1049万元大奖</div>
-								<div class="col-sm-6 lottery-information-title">汉中146人合买双色球中得1049万元大奖</div>
-								<div class="col-sm-6 lottery-information-title">汉中146人合买双色球中得1049万元大奖</div>
-								<div class="col-sm-6 lottery-information-title">汉中146人合买双色球中得1049万元大奖</div>
+								<div class="col-sm-6 lottery-information-title" v-for="(information, index) in informations" v-if="index != 0" v-on:click="toInformationDetailsPage(information.id)">{{information.title}}</div>
 							</div>
 						</div>
 					</div>
@@ -292,6 +297,8 @@
 				showLatestNoticeModalFlag : false,
 				selectedSystemNotice : {},
 				
+				informations : [],
+				
 				winningRanks : []
 			},
 			computed : {},
@@ -299,13 +306,25 @@
 			},
 			mounted : function() {
 				this.loadTop5PublishedSystemNotice();
+				this.loadTop13Information();
 				this.loadTop50WinningRank();
 			},
 			methods : {
+				toInformationDetailsPage : function(id) {
+					window.location.href = '/information-details?id=' + id;
+				},
+				
 				loadTop5PublishedSystemNotice : function() {
 					var that = this;
 					that.$http.get('/systemNotice/findTop5PublishedSystemNotice', ).then(function(res) {
 						that.systemNotices = res.body.data;
+					});
+				},
+				
+				loadTop13Information : function() {
+					var that = this;
+					that.$http.get('/lotteryInformation/findTop13Information', ).then(function(res) {
+						that.informations = res.body.data;
 					});
 				},
 				

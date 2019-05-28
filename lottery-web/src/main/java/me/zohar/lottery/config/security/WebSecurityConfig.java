@@ -37,6 +37,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		.antMatchers("/pay-success").permitAll()
 		.antMatchers("/betting/findTop50WinningRank").permitAll()
 		.antMatchers("/systemNotice/findTop5PublishedSystemNotice").permitAll()
+		.antMatchers("/lotteryInformation/**").permitAll()
+		.antMatchers("/information-details").permitAll()
 		.anyRequest().authenticated()
 		.and().formLogin().loginPage("/").loginProcessingUrl("/login")
 		.successHandler(successHandler).failureHandler(failHandler).permitAll()

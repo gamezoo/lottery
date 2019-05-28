@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>彩票资讯</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.bootcss.com/dayjs/1.7.8/dayjs.min.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/locale/bootstrap-table-zh-CN.min.js"></script>
+<link href="https://cdn.bootcss.com/wangEditor/10.0.13/wangEditor.min.css" rel="stylesheet">
+<script src="https://cdn.bootcss.com/wangEditor/10.0.13/wangEditor.min.js"></script>
+<link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+.list-group-item {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	display: inline-block;
+	cursor: pointer;
+}
+
+.list-group-item-success {
+	color: #155724 !important;
+	background-color: #c3e6cb !important;
+}
+
+.information-title {
+	text-align: center;
+	padding-bottom: 10px;
+	color: #1e88e5;
+	font-weight: bold;
+	color: #1e88e5;
+}
+
+.information-content {
+	padding: 10px;
+}
+</style>
+</head>
+
+<body>
+	<div th:replace="common/header::html"></div>
+	<div id="lottery-information" v-cloak>
+		<div v-show="showLotteryInformationFlag">
+			<form class="form-inline common-query-cond-form" action="#">
+				<div class="form-group common-query-cond">
+					<label>来源:</label><input type="text" class="form-control-sm" v-model="source">
+				</div>
+				<div class="form-group common-query-cond">
+					<label>资讯标题:</label><input type="text" class="form-control-sm" v-model="title">
+				</div>
+				<button type="button" class="btn btn-danger btn-sm" v-on:click="refreshTable">搜索</button>
+			</form>
+			<form class="form-inline common-query-cond-form float-right" action="#">
+				<button type="button" class="btn btn-secondary btn-sm" style="margin-right: 4px;" v-on:click="toInformationCrawlerPage">资讯爬虫维护</button>
+				<button type="button" class="btn btn-info btn-sm" v-on:click="showAddSystemNoticeModal" style="margin-right: 4px;">新增资讯</button>
+			</form>
+			<table class="common-table lottery-information-table"></table>
+		</div>
+		<div v-show="showInformationCrawlerFlag">
+			<form class="form-inline common-query-cond-form float-right">
+				<button type="button" class="btn btn-info btn-sm" style="margin-right: 4px;" v-on:click="showAddCrawlerModal">新增爬虫</button>
+				<button type="button" class="btn btn-sm" v-on:click="">返回</button>
+			</form>
+			<table class="table table-hover common-table">
+				<thead>
+					<tr>
+						<th>来源</th>
+						<th>创建时间</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="informationCrawler in informationCrawlers">
+						<td>{{informationCrawler.source}}</td>
+						<td>{{informationCrawler.createTime}}</td>
+						<td>
+							<button type="button" class="btn btn-outline-primary btn-sm" v-on:click="collectionInformation(informationCrawler)">采集资讯</button>
+							<button type="button" class="btn btn-outline-success btn-sm" v-on:click="showEditCrawlerModal(informationCrawler.id)">编辑</button>
+							<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="delCrawler(informationCrawler.id)">删除</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div v-show="showCollectionInformationFlag">
+			<div class="container">
+				<div style="padding-left: 14px; padding-top: 10px; padding-bottom: 14px; padding-right: 10px;">
+					<span>{{selectedCrawler.source}}</span> <span style="float: right;">
+						<button type="button" class="btn btn-success btn-sm" v-on:click="syncInformation">同步资讯</button>
+						<button type="button" class="btn btn-sm" v-on:click="backToInformationCrawlerPage">返回</button>
+					</span>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<ul class="list-group">
+							<li class="list-group-item list-group-item-light" v-for="information in informations" v-bind:class="{'list-group-item-success': selectedInformation == information}" v-on:click="selectedInformation = information">{{information.title}}</li>
+					</div>
+					<div class="col-sm-8">
+						<div v-if="selectedInformation != null">
+							<div class="information-title">{{selectedInformation.title}}</div>
+							<div class="information-content" v-html="selectedInformation.content"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div v-show="addOrUpdateSystemNoticeFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog">
+						<div class="modal-content" style="width: 700px;">
+							<div class="modal-header">
+								<h5 class="modal-title">{{systemNoticeActionTitle}}</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="addOrUpdateSystemNoticeFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body" style="height: 450px; overflow: auto;">
+								<form>
+									<div class="form-group row">
+										<div class="col-sm-6">
+											<label>公告标题:</label> <input type="text" class="form-control" v-model="editSystemNotice.noticeTitle">
+										</div>
+										<div class="col-sm-6">
+											<label>发布日期:</label> <input type="date" class="form-control" v-model="editSystemNotice.publishDate">
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>公告内容:</label>
+											<div id="noticeContentEditor"></div>
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="addOrUpdateSystemNotice">保存</button>
+								<button type="button" class="btn btn-sm" v-on:click="addOrUpdateSystemNoticeFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div v-show="addOrUpdateCrawlerFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">{{crawlerActionTitle}}</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="addOrUpdateCrawlerFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<form>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>来源:</label> <input type="text" class="form-control" v-model="editCrawler.source">
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>脚本:</label>
+											<textarea rows="8" cols="" class="form-control" v-model="editCrawler.script"></textarea>
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="addOrUpdateCrawler">保存</button>
+								<button type="button" class="btn btn-sm" v-on:click="addOrUpdateCrawlerFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="/js/lottery-information.js"></script>
+</body>
+</html>

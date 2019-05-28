@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>盛大彩票</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+#information-details {
+	background: #fff;
+	box-shadow: 0 1px 10px 0 rgba(0, 0, 0, .1);
+	padding-top: 30px;
+	margin-top: 20px;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.information-title {
+	text-align: center;
+	font-size: 18px;
+	font-weight: bold;
+}
+
+.information-source-and-publish-time {
+	text-align: center;
+}
+
+.information-source-and-publish-time span {
+	padding-right: 10px;
+}
+
+.information-content {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	min-height: 300px;
+}
+</style>
+</head>
+
+<body style="height: 100%;">
+	<div class="container">
+		<div th:replace="common/header::html"></div>
+		<div id="information-details" v-cloak>
+			<div class="information-title">{{informationDetails.title}}</div>
+			<div class="information-source-and-publish-time">
+				<span>{{informationDetails.publishTime}}</span>来源：{{informationDetails.source}}
+			</div>
+			<div class="information-content" v-html="informationDetails.content"></div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var informationDetailsVM = new Vue({
+			el : '#information-details',
+			data : {
+				informationDetails : {}
+			},
+			computed : {},
+			created : function() {
+			},
+			mounted : function() {
+				var id = this.getQueryString('id');
+				if (id != null || id != '') {
+					this.loadInformationDetails(id);
+				}
+			},
+			methods : {
+				getQueryString : function(name) {
+					var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
+					var r = window.location.search.substr(1).match(reg);
+					if (r != null)
+						return unescape(r[2]);
+					return null;
+				},
+				loadInformationDetails : function(id) {
+					var that = this;
+					that.$http.get('/lotteryInformation/findInformationById', {
+						params : {
+							id : id
+						}
+					}).then(function(res) {
+						that.informationDetails = res.body.data;
+					});
+				}
+
+			}
+		});
+	</script>
+</body>
+</html>

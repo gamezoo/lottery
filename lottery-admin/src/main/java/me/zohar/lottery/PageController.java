@@ -131,4 +131,14 @@ public class PageController {
 		return "system-notice";
 	}
 
+	/**
+	 * 彩票资讯
+	 * 
+	 * @return
+	 */
+	@GetMapping("/lottery-information")
+	public String lotteryInformation() {
+		return "lottery-information";
+	}
+
 }
