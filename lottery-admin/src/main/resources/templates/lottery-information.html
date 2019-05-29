@@ -18,6 +18,26 @@
 <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 <link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <style type="text/css">
+.view-information-title {
+	text-align: center;
+	font-size: 18px;
+	font-weight: bold;
+}
+
+.view-information-source-and-publish-time {
+	text-align: center;
+}
+
+.view-information-source-and-publish-time span {
+	padding-right: 10px;
+}
+
+.view-information-content {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	min-height: 300px;
+}
+
 .list-group-item {
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -33,14 +53,27 @@
 
 .information-title {
 	text-align: center;
-	padding-bottom: 10px;
-	color: #1e88e5;
+	font-size: 18px;
 	font-weight: bold;
-	color: #1e88e5;
+}
+
+.information-source-and-publish-time {
+	text-align: center;
+}
+
+.information-source-and-publish-time span {
+	padding-right: 10px;
 }
 
 .information-content {
-	padding: 10px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	min-height: 300px;
+}
+
+.add-or-update-information-form .form-control {
+	display: inline-block;
+	width: 74%;
 }
 </style>
 </head>
@@ -59,20 +92,20 @@
 				<button type="button" class="btn btn-danger btn-sm" v-on:click="refreshTable">搜索</button>
 			</form>
 			<form class="form-inline common-query-cond-form float-right" action="#">
-				<button type="button" class="btn btn-secondary btn-sm" style="margin-right: 4px;" v-on:click="toInformationCrawlerPage">资讯爬虫维护</button>
-				<button type="button" class="btn btn-info btn-sm" v-on:click="showAddSystemNoticeModal" style="margin-right: 4px;">新增资讯</button>
+				<button type="button" class="btn btn-secondary btn-sm" style="margin-right: 4px;" v-on:click="toInformationCrawlerPage">爬虫维护</button>
+				<button type="button" class="btn btn-info btn-sm" v-on:click="showAddInformationModal" style="margin-right: 4px;">新增资讯</button>
 			</form>
 			<table class="common-table lottery-information-table"></table>
 		</div>
 		<div v-show="showInformationCrawlerFlag">
 			<form class="form-inline common-query-cond-form float-right">
 				<button type="button" class="btn btn-info btn-sm" style="margin-right: 4px;" v-on:click="showAddCrawlerModal">新增爬虫</button>
-				<button type="button" class="btn btn-sm" v-on:click="">返回</button>
+				<button type="button" class="btn btn-sm" v-on:click="backToInformationPage">返回</button>
 			</form>
 			<table class="table table-hover common-table">
 				<thead>
 					<tr>
-						<th>来源</th>
+						<th>采集源</th>
 						<th>创建时间</th>
 						<th>操作</th>
 					</tr>
@@ -107,6 +140,9 @@
 					<div class="col-sm-8">
 						<div v-if="selectedInformation != null">
 							<div class="information-title">{{selectedInformation.title}}</div>
+							<div class="information-source-and-publish-time">
+								<span>{{selectedInformation.publishTime}}</span>来源：{{selectedInformation.source}}
+							</div>
 							<div class="information-content" v-html="selectedInformation.content"></div>
 						</div>
 					</div>
@@ -114,38 +150,67 @@
 			</div>
 		</div>
 
-		<div v-show="addOrUpdateSystemNoticeFlag">
+		<div v-if="showViewInformationFlag">
 			<div class="modal-mask">
 				<div class="modal-wrapper">
-					<div class="modal-dialog">
-						<div class="modal-content" style="width: 700px;">
+					<div class="modal-dialog" style="max-width: 960px;">
+						<div class="modal-content">
 							<div class="modal-header">
-								<h5 class="modal-title">{{systemNoticeActionTitle}}</h5>
-								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="addOrUpdateSystemNoticeFlag = false">
+								<h5 class="modal-title">资讯内容</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="showViewInformationFlag = false">
 									<span aria-hidden="true">&times;</span>
 								</button>
 							</div>
 							<div class="modal-body" style="height: 450px; overflow: auto;">
-								<form>
+								<div class="view-information-title">{{viewInformation.title}}</div>
+								<div class="view-information-source-and-publish-time">
+									<span>{{viewInformation.publishTime}}</span>来源：{{viewInformation.source}}
+								</div>
+								<div class="view-information-content" v-html="viewInformation.content"></div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-sm" v-on:click="showViewInformationFlag = false">返回</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div v-show="addOrUpdateInformationFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog" style="max-width: 960px;">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">{{informationActionTitle}}</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="addOrUpdateInformationFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body" style="height: 460px; overflow: auto;">
+								<form class="add-or-update-information-form">
 									<div class="form-group row">
-										<div class="col-sm-6">
-											<label>公告标题:</label> <input type="text" class="form-control" v-model="editSystemNotice.noticeTitle">
+										<div class="col-sm-4">
+											<label>来源:</label> <input type="text" class="form-control" v-model="editInformation.source">
 										</div>
-										<div class="col-sm-6">
-											<label>发布日期:</label> <input type="date" class="form-control" v-model="editSystemNotice.publishDate">
+										<div class="col-sm-4">
+											<label>标题:</label> <input type="text" class="form-control" v-model="editInformation.title">
+										</div>
+										<div class="col-sm-4">
+											<label>发布时间:</label> <input type="datetime" class="form-control" v-model="editInformation.publishTime">
 										</div>
 									</div>
 									<div class="form-group row">
 										<div class="col-sm-12">
-											<label>公告内容:</label>
-											<div id="noticeContentEditor"></div>
+											<div id="informationContentEditor"></div>
 										</div>
 									</div>
 								</form>
 							</div>
 							<div class="modal-footer">
-								<button type="button" class="btn btn-success btn-sm" v-on:click="addOrUpdateSystemNotice">保存</button>
-								<button type="button" class="btn btn-sm" v-on:click="addOrUpdateSystemNoticeFlag = false">取消</button>
+								<button type="button" class="btn btn-success btn-sm" v-on:click="addOrUpdateInformation">保存</button>
+								<button type="button" class="btn btn-sm" v-on:click="addOrUpdateInformationFlag = false">取消</button>
 							</div>
 						</div>
 					</div>
@@ -168,7 +233,7 @@
 								<form>
 									<div class="form-group row">
 										<div class="col-sm-12">
-											<label>来源:</label> <input type="text" class="form-control" v-model="editCrawler.source">
+											<label>采集源:</label> <input type="text" class="form-control" v-model="editCrawler.source">
 										</div>
 									</div>
 									<div class="form-group row">

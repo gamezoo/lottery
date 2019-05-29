@@ -11,7 +11,9 @@ import me.zohar.lottery.common.utils.IdUtils;
 import me.zohar.lottery.information.domain.LotteryInformation;
 
 @Data
-public class SyncInformationParam {
+public class AddOrUpdateInformationParam {
+
+	private String id;
 
 	private String title;
 
@@ -21,7 +23,7 @@ public class SyncInformationParam {
 
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
 	private Date publishTime;
-
+	
 	public LotteryInformation convertToPo() {
 		LotteryInformation po = new LotteryInformation();
 		BeanUtils.copyProperties(this, po);

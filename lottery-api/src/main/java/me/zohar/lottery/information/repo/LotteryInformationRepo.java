@@ -11,7 +11,7 @@ import me.zohar.lottery.information.domain.LotteryInformation;
 public interface LotteryInformationRepo
 		extends JpaRepository<LotteryInformation, String>, JpaSpecificationExecutor<LotteryInformation> {
 
-	LotteryInformation findBytitleAndCreateTime(String title, Date createTime);
+	LotteryInformation findBytitleAndPublishTime(String title, Date publishTime);
 
 	List<LotteryInformation> findTop13ByOrderByPublishTimeDesc();
 

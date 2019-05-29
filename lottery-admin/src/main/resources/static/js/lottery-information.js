@@ -4,10 +4,14 @@ var lotteryInformationVM = new Vue({
 		showLotteryInformationFlag : true,
 		source : '',
 		title : '',
-		systemNoticeActionTitle : '',
-		noticeContentEditor : null,
-		addOrUpdateSystemNoticeFlag : false,
-		editSystemNotice : {},
+
+		informationActionTitle : '',
+		informationContentEditor : null,
+		addOrUpdateInformationFlag : false,
+		editInformation : {},
+
+		showViewInformationFlag : false,
+		viewInformation : {},
 
 		showInformationCrawlerFlag : false,
 		informationCrawlers : [],
@@ -25,8 +29,8 @@ var lotteryInformationVM = new Vue({
 	},
 	mounted : function() {
 		this.initTable();
-		this.noticeContentEditor = new window.wangEditor('#noticeContentEditor');
-		this.noticeContentEditor.customConfig.menus = [ 'head', // 标题
+		this.informationContentEditor = new window.wangEditor('#informationContentEditor');
+		this.informationContentEditor.customConfig.menus = [ 'head', // 标题
 		'bold', // 粗体
 		'fontSize', // 字号
 		'fontName', // 字体
@@ -41,12 +45,11 @@ var lotteryInformationVM = new Vue({
 		'quote', // 引用
 		'emoticon', // 表情
 		'table', // 表格
-		'video', // 插入视频
 		'code', // 插入代码
 		'undo', // 撤销
 		'redo' // 重复
 		];
-		this.noticeContentEditor.create();
+		this.informationContentEditor.create();
 	},
 	methods : {
 
@@ -58,6 +61,9 @@ var lotteryInformationVM = new Vue({
 					time : 3000,
 					shade : false
 				});
+				that.showCollectionInformationFlag = false;
+				that.showLotteryInformationFlag = true;
+				that.refreshTable();
 			});
 		},
 
@@ -170,79 +176,88 @@ var lotteryInformationVM = new Vue({
 			this.toInformationCrawlerPage();
 		},
 
-		showAddSystemNoticeModal : function() {
-			this.addOrUpdateSystemNoticeFlag = true;
-			this.systemNoticeActionTitle = '新增公告';
-			this.editSystemNotice = {
-				noticeTitle : '',
-				publishDate : '',
-				noticeContent : ''
+		showAddInformationModal : function() {
+			this.addOrUpdateInformationFlag = true;
+			this.informationActionTitle = '新增资讯';
+			this.editInformation = {
+				title : '',
+				content : '',
+				source : '',
+				publishTime : ''
 			};
-			this.noticeContentEditor.txt.html('');
+			this.informationContentEditor.txt.html('');
 		},
 
-		showEditSystemNoticeModal : function(id) {
+		showEditInformationModal : function(id) {
 			var that = this;
-			that.$http.get('/systemNotice/findSystemNoticeById', {
+			that.$http.get('/lotteryInformation/findInformationById', {
 				params : {
 					id : id
 				}
 			}).then(function(res) {
-				that.editSystemNotice = res.body.data;
-				that.addOrUpdateSystemNoticeFlag = true;
-				that.systemNoticeActionTitle = '编辑公告';
-				this.noticeContentEditor.txt.html(that.editSystemNotice.noticeContent);
+				that.editInformation = res.body.data;
+				that.addOrUpdateInformationFlag = true;
+				that.informationActionTitle = '编辑资讯';
+				this.informationContentEditor.txt.html(that.editInformation.content);
 			});
 		},
 
-		addOrUpdateSystemNotice : function() {
+		addOrUpdateInformation : function() {
 			var that = this;
-			var editSystemNotice = that.editSystemNotice;
-			if (editSystemNotice.noticeTitle == null || editSystemNotice.noticeTitle == '') {
-				layer.alert('请输入公告标题', {
+			var editInformation = that.editInformation;
+			if (editInformation.source == null || editInformation.source == '') {
+				layer.alert('请输入来源', {
 					title : '提示',
 					icon : 7,
 					time : 3000
 				});
 				return;
 			}
-			if (editSystemNotice.publishDate == null || editSystemNotice.publishDate == '') {
-				layer.alert('请输入发布日期', {
+			if (editInformation.title == null || editInformation.title == '') {
+				layer.alert('请输入标题', {
 					title : '提示',
 					icon : 7,
 					time : 3000
 				});
 				return;
 			}
-			var noticeContent = this.noticeContentEditor.txt.html();
-			if (noticeContent == null || noticeContent == '') {
-				layer.alert('请输入公告内容', {
+			if (editInformation.publishTime == null || editInformation.publishTime == '') {
+				layer.alert('请输入发布时间', {
 					title : '提示',
 					icon : 7,
 					time : 3000
 				});
 				return;
 			}
-			editSystemNotice.noticeContent = noticeContent;
-			that.$http.post('/systemNotice/addOrUpdateSystemNotice', editSystemNotice).then(function(res) {
+			var content = this.informationContentEditor.txt.html();
+			if (content == null || content == '') {
+				layer.alert('请输入内容', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			editInformation.content = content;
+			that.$http.post('/lotteryInformation/addOrUpdateInformation', editInformation).then(function(res) {
 				layer.alert('操作成功!', {
 					icon : 1,
 					time : 3000,
 					shade : false
 				});
-				that.addOrUpdateSystemNoticeFlag = false;
+				that.addOrUpdateInformationFlag = false;
 				that.refreshTable();
 			});
 		},
 
-		delSystemNotice : function(id) {
+		delInformation : function(id) {
 			var that = this;
 			layer.confirm('确定要删除吗?', {
 				icon : 7,
 				title : '提示'
 			}, function(index) {
 				layer.close(index);
-				that.$http.get('/systemNotice/delSystemNoticeById', {
+				that.$http.get('/lotteryInformation/delInformationById', {
 					params : {
 						id : id
 					}
@@ -255,6 +270,16 @@ var lotteryInformationVM = new Vue({
 					that.refreshTable();
 				});
 			});
+		},
+
+		showViewInformationModal : function(information) {
+			this.showViewInformationFlag = true;
+			this.viewInformation = information;
+		},
+
+		backToInformationPage : function() {
+			this.showInformationCrawlerFlag = false;
+			this.showLotteryInformationFlag = true;
 		},
 
 		initTable : function() {
@@ -291,22 +316,22 @@ var lotteryInformationVM = new Vue({
 					field : 'title',
 					title : '资讯标题'
 				}, {
-					field : 'createTime',
-					title : '创建时间'
-				}, {
 					field : 'publishTime',
 					title : '发布时间'
 				}, {
 					title : '操作',
 					formatter : function(value, row, index) {
-						return [ '<button type="button" class="edit-system-notice-btn btn btn-outline-success btn-sm" style="margin-right: 4px;">编辑</button>', '<button type="button" class="del-system-notice-btn btn btn-outline-danger btn-sm">删除</button>' ].join('');
+						return [ '<button type="button" class="view-information-btn btn btn-outline-primary btn-sm" style="margin-right: 4px;">查看内容</button>', '<button type="button" class="edit-information-btn btn btn-outline-success btn-sm" style="margin-right: 4px;">编辑</button>', '<button type="button" class="del-information-btn btn btn-outline-danger btn-sm">删除</button>' ].join('');
 					},
 					events : {
-						'click .edit-system-notice-btn' : function(event, value, row, index) {
-							that.showEditSystemNoticeModal(row.id);
+						'click .view-information-btn' : function(event, value, row, index) {
+							that.showViewInformationModal(row);
 						},
-						'click .del-system-notice-btn' : function(event, value, row, index) {
-							that.delSystemNotice(row.id);
+						'click .edit-information-btn' : function(event, value, row, index) {
+							that.showEditInformationModal(row.id);
+						},
+						'click .del-information-btn' : function(event, value, row, index) {
+							that.delInformation(row.id);
 						}
 					}
 				} ]

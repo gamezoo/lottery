@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import cn.hutool.core.collection.CollectionUtil;
 import lombok.Data;
+import me.zohar.lottery.common.utils.IdUtils;
 import me.zohar.lottery.information.domain.LotteryInformation;
 
 @Data
@@ -32,14 +33,18 @@ public class LotteryInformationVO {
 	 */
 	private String source;
 
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-	private Date createTime;
-
 	/**
 	 * 发布时间
 	 */
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
 	private Date publishTime;
+	
+	public LotteryInformation convertToPo() {
+		LotteryInformation po = new LotteryInformation();
+		BeanUtils.copyProperties(this, po);
+		po.setId(IdUtils.getId());
+		return po;
+	}
 
 	public static List<LotteryInformationVO> convertFor(List<LotteryInformation> lotteryInformations) {
 		if (CollectionUtil.isEmpty(lotteryInformations)) {

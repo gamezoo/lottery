@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import cn.hutool.core.util.StrUtil;
 import groovy.lang.GroovyShell;
@@ -25,6 +26,7 @@ import me.zohar.lottery.common.vo.PageResult;
 import me.zohar.lottery.information.domain.InformationCrawler;
 import me.zohar.lottery.information.domain.LotteryInformation;
 import me.zohar.lottery.information.param.AddOrUpdateInformationCrawlerParam;
+import me.zohar.lottery.information.param.AddOrUpdateInformationParam;
 import me.zohar.lottery.information.param.LotteryInformationQueryCondParam;
 import me.zohar.lottery.information.param.SyncInformationParam;
 import me.zohar.lottery.information.repo.InformationCrawlerRepo;
@@ -32,6 +34,7 @@ import me.zohar.lottery.information.repo.LotteryInformationRepo;
 import me.zohar.lottery.information.vo.LotteryInformationCrawlerVO;
 import me.zohar.lottery.information.vo.LotteryInformationVO;
 
+@Validated
 @Service
 public class LotteryInformationService {
 
@@ -41,6 +44,27 @@ public class LotteryInformationService {
 	@Autowired
 	private InformationCrawlerRepo informationCrawlerRepo;
 
+	@ParamValid
+	@Transactional
+	public void addOrUpdateInformation(AddOrUpdateInformationParam param) {
+		// 新增
+		if (StrUtil.isBlank(param.getId())) {
+			LotteryInformation lotteryInformation = param.convertToPo();
+			lotteryInformationRepo.save(lotteryInformation);
+		}
+		// 修改
+		else {
+			LotteryInformation lotteryInformation = lotteryInformationRepo.getOne(param.getId());
+			BeanUtils.copyProperties(param, lotteryInformation);
+			lotteryInformationRepo.save(lotteryInformation);
+		}
+	}
+
+	@Transactional
+	public void delInformationById(@NotBlank String id) {
+		lotteryInformationRepo.deleteById(id);
+	}
+
 	public LotteryInformationVO findInformationById(String id) {
 		return LotteryInformationVO.convertFor(lotteryInformationRepo.getOne(id));
 	}
@@ -49,10 +73,31 @@ public class LotteryInformationService {
 		return LotteryInformationVO.convertFor(lotteryInformationRepo.findTop13ByOrderByPublishTimeDesc());
 	}
 
+	@SuppressWarnings("unchecked")
+	public void autoSyncInformation() {
+		List<InformationCrawler> crawlers = informationCrawlerRepo.findAll();
+		for (InformationCrawler crawler : crawlers) {
+			GroovyShell shell = new GroovyShell();
+			List<LotteryInformationVO> vos = (List<LotteryInformationVO>) shell.evaluate(crawler.getScript());
+			for (LotteryInformationVO vo : vos) {
+				if (StrUtil.isBlank(vo.getSource())) {
+					vo.setSource(crawler.getSource());
+				}
+				LotteryInformation existLotteryInformation = lotteryInformationRepo
+						.findBytitleAndPublishTime(vo.getTitle(), vo.getPublishTime());
+				if (existLotteryInformation != null) {
+					continue;
+				}
+				LotteryInformation lotteryInformation = vo.convertToPo();
+				lotteryInformationRepo.save(lotteryInformation);
+			}
+		}
+	}
+
 	public void syncInformation(List<SyncInformationParam> params) {
 		for (SyncInformationParam param : params) {
 			LotteryInformation existLotteryInformation = lotteryInformationRepo
-					.findBytitleAndCreateTime(param.getTitle(), param.getCreateTime());
+					.findBytitleAndPublishTime(param.getTitle(), param.getPublishTime());
 			if (existLotteryInformation != null) {
 				continue;
 			}
@@ -68,7 +113,9 @@ public class LotteryInformationService {
 		GroovyShell shell = new GroovyShell();
 		List<LotteryInformationVO> vos = (List<LotteryInformationVO>) shell.evaluate(crawler.getScript());
 		for (LotteryInformationVO vo : vos) {
-			vo.setSource(crawler.getSource());
+			if (StrUtil.isBlank(vo.getSource())) {
+				vo.setSource(crawler.getSource());
+			}
 		}
 		return vos;
 	}
@@ -125,7 +172,7 @@ public class LotteryInformationService {
 			}
 		};
 		Page<LotteryInformation> result = lotteryInformationRepo.findAll(spec,
-				PageRequest.of(param.getPageNum() - 1, param.getPageSize(), Sort.by(Sort.Order.desc("createTime"))));
+				PageRequest.of(param.getPageNum() - 1, param.getPageSize(), Sort.by(Sort.Order.desc("publishTime"))));
 		PageResult<LotteryInformationVO> pageResult = new PageResult<>(
 				LotteryInformationVO.convertFor(result.getContent()), param.getPageNum(), param.getPageSize(),
 				result.getTotalElements());

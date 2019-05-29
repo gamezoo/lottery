@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import me.zohar.lottery.common.vo.Result;
 import me.zohar.lottery.information.param.AddOrUpdateInformationCrawlerParam;
+import me.zohar.lottery.information.param.AddOrUpdateInformationParam;
 import me.zohar.lottery.information.param.LotteryInformationQueryCondParam;
 import me.zohar.lottery.information.param.SyncInformationParam;
 import me.zohar.lottery.information.service.LotteryInformationService;
@@ -22,6 +23,26 @@ public class LotteryInformationController {
 
 	@Autowired
 	private LotteryInformationService lotteryInformationService;
+	
+	@GetMapping("/findInformationById")
+	@ResponseBody
+	public Result findInformationById(String id) {
+		return Result.success().setData(lotteryInformationService.findInformationById(id));
+	}
+
+	@GetMapping("/delInformationById")
+	@ResponseBody
+	public Result delInformationById(String id) {
+		lotteryInformationService.delInformationById(id);
+		return Result.success();
+	}
+
+	@PostMapping("/addOrUpdateInformation")
+	@ResponseBody
+	public Result addOrUpdateInformation(@RequestBody AddOrUpdateInformationParam param) {
+		lotteryInformationService.addOrUpdateInformation(param);
+		return Result.success();
+	}
 
 	@PostMapping("/syncInformation")
 	@ResponseBody

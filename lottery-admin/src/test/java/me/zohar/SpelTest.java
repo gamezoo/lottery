@@ -1,42 +1,20 @@
 package me.zohar;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.script.ScriptException;
-
-import org.codehaus.groovy.control.CompilationFailedException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.Test;
-import org.springframework.util.ResourceUtils;
 
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
-import groovy.lang.GroovyShell;
 import me.zohar.lottery.information.vo.LotteryInformationVO;
 
 public class SpelTest {
-
-	@Test
-	public void test2() throws ScriptException, CompilationFailedException, IOException {
-		File file = ResourceUtils.getFile("classpath:test.groovy");
-		GroovyShell shell = new GroovyShell();
-		@SuppressWarnings("unchecked")
-		List<LotteryInformationVO> vos = (List<LotteryInformationVO>) shell.evaluate(file);
-		System.out.println(vos.size());
-		// for (int i = 0; i < 100; i++) {
-		// Map<String, Object> map = new HashMap<>();
-		// shell.setVariable("map", map);
-		// map.put("a", i);
-		// Object eval2 = shell.evaluate("System.out.println(map);return map;");
-		// //System.out.println(eval2);
-		// }
-	}
 
 	@Test
 	public void test() throws IOException {
@@ -58,15 +36,23 @@ public class SpelTest {
 			if (document == null) {
 				continue;
 			}
+			Element contentElement = document.getElementById("news_content");
+			Elements imgs = contentElement.getElementsByTag("img");
+			for (Element img : imgs) {
+				String imgSrc = "http://www.zhcw.com" + img.attr("src");
+				img.attr("src", imgSrc);
+			}
 			String title = document.getElementsByClass("newsTitle").first().text();
 			String content = document.getElementById("news_content").html();
 			String[] split = document.getElementsByClass("message").first().text().split(" ");
-			String createDate = split[0] + " " + split[1];
+			String publishTime = split[0] + " " + split[1];
+			String source = split[2];
+			source = source.substring(3, source.length());
 			LotteryInformationVO vo = new LotteryInformationVO();
 			vo.setTitle(title);
 			vo.setContent(content);
-			vo.setCreateTime(DateUtil.parse(createDate, DatePattern.NORM_DATETIME_PATTERN));
-			vo.setPublishTime(vo.getCreateTime());
+			vo.setPublishTime(DateUtil.parse(publishTime, DatePattern.NORM_DATETIME_PATTERN));
+			vo.setSource(source);
 			vos.add(vo);
 		}
 		return vos;

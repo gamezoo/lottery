@@ -43,8 +43,6 @@ public class LotteryInformation {
 	 */
 	private String source;
 
-	private Date createTime;
-
 	/**
 	 * 发布时间
 	 */
