@@ -19,5 +19,5 @@
 
 | 支付宝 | 微信支付 |
 | :------: | :------: |
-| ![alipay](https://github.com/zohar001/runscore/blob/master/pic/alipay.jpg) | ![wepay](https://github.com/zohar001/runscore/blob/master/pic/wechant.png) |
+| ![alipay](/实施输出/截图/alipay.jpg) | ![wepay](/实施输出/截图/wechat.jpg) |
 
