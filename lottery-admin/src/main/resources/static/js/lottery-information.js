@@ -99,6 +99,7 @@ var lotteryInformationVM = new Vue({
 				});
 				return;
 			}
+			editCrawler.script = this.codeMirror.getDoc().getValue();
 			if (editCrawler.script == null || editCrawler.script == '') {
 				layer.alert('请输入脚本', {
 					title : '提示',
@@ -125,6 +126,7 @@ var lotteryInformationVM = new Vue({
 				source : '',
 				script : ''
 			};
+			this.initCodeMirror();
 		},
 
 		showEditCrawlerModal : function(id) {
@@ -137,6 +139,21 @@ var lotteryInformationVM = new Vue({
 				that.editCrawler = res.body.data;
 				that.addOrUpdateCrawlerFlag = true;
 				that.crawlerActionTitle = '编辑爬虫';
+				that.initCodeMirror();
+			});
+		},
+
+		initCodeMirror : function() {
+			this.$nextTick(function() {
+				if (this.codeMirror != null) {
+					this.codeMirror.toTextArea();
+					this.codeMirror = null;
+				}
+				this.codeMirror = CodeMirror.fromTextArea($('.crawler-script')[0], {
+					lineNumbers : true,
+					lineWrapping : true
+				});
+				this.codeMirror.getDoc().setValue(this.editCrawler.script);
 			});
 		},
 

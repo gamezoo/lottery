@@ -15,6 +15,9 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/locale/bootstrap-table-zh-CN.min.js"></script>
 <link href="https://cdn.bootcss.com/wangEditor/10.0.13/wangEditor.min.css" rel="stylesheet">
 <script src="https://cdn.bootcss.com/wangEditor/10.0.13/wangEditor.min.js"></script>
+<link href="https://cdn.bootcss.com/codemirror/5.47.0/codemirror.min.css" rel="stylesheet">
+<script src="https://cdn.bootcss.com/codemirror/5.47.0/codemirror.min.js"></script>
+<script src="https://cdn.bootcss.com/codemirror/5.47.0/mode/javascript/javascript.js"></script>
 <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 <link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <style type="text/css">
@@ -221,7 +224,7 @@
 		<div v-show="addOrUpdateCrawlerFlag">
 			<div class="modal-mask">
 				<div class="modal-wrapper">
-					<div class="modal-dialog">
+					<div class="modal-dialog" style="max-width: 680px;">
 						<div class="modal-content">
 							<div class="modal-header">
 								<h5 class="modal-title">{{crawlerActionTitle}}</h5>
@@ -239,7 +242,7 @@
 									<div class="form-group row">
 										<div class="col-sm-12">
 											<label>脚本:</label>
-											<textarea rows="8" cols="" class="form-control" v-model="editCrawler.script"></textarea>
+											<textarea rows="8" cols="" class="form-control crawler-script"></textarea>
 										</div>
 									</div>
 								</form>
