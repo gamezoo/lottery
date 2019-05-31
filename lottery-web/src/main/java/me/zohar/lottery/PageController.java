@@ -135,7 +135,17 @@ public class PageController {
 	public String gameHall() {
 		return "game-hall";
 	}
-	
+
+	/**
+	 * 彩票资讯
+	 * 
+	 * @return
+	 */
+	@GetMapping("/lottery-information")
+	public String lotteryInformation() {
+		return "lottery-information";
+	}
+
 	/**
 	 * 资讯详情
 	 * 

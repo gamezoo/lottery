@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import me.zohar.lottery.common.vo.Result;
+import me.zohar.lottery.information.param.LotteryInformationQueryCondParam;
 import me.zohar.lottery.information.service.LotteryInformationService;
 
 @Controller
@@ -26,6 +27,12 @@ public class LotteryInformationController {
 	@ResponseBody
 	public Result findTop13Information() {
 		return Result.success().setData(lotteryInformationService.findTop13Information());
+	}
+
+	@GetMapping("/findLotteryInformationByPage")
+	@ResponseBody
+	public Result findLotteryInformationByPage(LotteryInformationQueryCondParam param) {
+		return Result.success().setData(lotteryInformationService.findLotteryInformationByPage(param));
 	}
 
 }

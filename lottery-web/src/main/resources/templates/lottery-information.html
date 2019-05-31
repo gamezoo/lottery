@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>盛大彩票</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.6.1/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+#lottery-information {
+	background: #fff;
+	box-shadow: 0 1px 10px 0 rgba(0, 0, 0, .1);
+	margin-top: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.page-title {
+	height: 67px;
+	line-height: 67px;
+	padding-left: 1.25rem;
+}
+
+.list-group-item {
+	border-left: unset;
+	border-right: unset;
+	border-top-left-radius: unset !important;
+	border-top-right-radius: unset !important;
+	cursor: pointer;
+}
+
+.list-group-item:hover {
+	color: red;
+}
+
+.lottery-pagination {
+	padding-top: 30px;
+	padding-bottom: 30px;
+}
+
+.lottery-pagination .pagination {
+	margin-bottom: unset;
+}
+</style>
+</head>
+
+<body style="height: 100%;">
+	<div class="container">
+		<div th:replace="common/header::html"></div>
+		<div id="lottery-information" v-cloak>
+			<div class="page-title">彩票资讯</div>
+			<ul class="list-group">
+				<li class="list-group-item" v-for="information in informations" v-on:click="toInformationDetalsPage(information.id)">{{information.title}}</li>
+			</ul>
+			<div class="lottery-pagination">
+				<template> <b-pagination v-model="pageNum" :per-page="pageSize" :total-rows="total" align="center" prev-text="上一页" next-text="下一页" v-on:change=loadInformationByPage></b-pagination> </template>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var lotteryInformationVM = new Vue({
+			el : '#lottery-information',
+			data : {
+				informations : {},
+				pageNum : 1,
+				pageSize : 10,
+				totalPage : 0,
+				total : 0,
+			},
+			computed : {},
+			created : function() {
+			},
+			mounted : function() {
+				this.loadInformationByPage(1);
+			},
+			methods : {
+				toInformationDetalsPage : function(id) {
+					window.location.href = '/information-details?id=' + id;
+				},
+				loadInformationByPage : function(pageNum) {
+					var that = this;
+					that.$http.get('/lotteryInformation/findLotteryInformationByPage', {
+						params : {
+							pageNum : pageNum,
+							pageSize : that.pageSize
+						}
+					}).then(function(res) {
+						that.informations = res.body.data.content;
+						that.pageNum = res.body.data.pageNum;
+						that.totalPage = res.body.data.totalPage;
+						that.total = res.body.data.total;
+					});
+				}
+
+			}
+		});
+	</script>
+</body>
+</html>
