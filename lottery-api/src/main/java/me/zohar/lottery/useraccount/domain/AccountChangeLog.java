@@ -37,7 +37,7 @@ import me.zohar.lottery.rechargewithdraw.domain.WithdrawRecord;
 @Getter
 @Setter
 @Entity
-@Table(name = "account_change_log", schema = "lottery")
+@Table(name = "account_change_log")
 @DynamicInsert(true)
 @DynamicUpdate(true)
 public class AccountChangeLog {

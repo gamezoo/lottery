@@ -6,13 +6,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	private CustomUserDetailsService customUserDetailsService;
+	private CustomAuthenticationProvider customAuthenticationProvider;
 
 	@Autowired
 	private AuthenticationSuccessHandler successHandler;
@@ -42,7 +41,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		.antMatchers("/lottery-information").permitAll()
 		.anyRequest().authenticated()
 		.and().formLogin().loginPage("/").loginProcessingUrl("/login")
-		.successHandler(successHandler).failureHandler(failHandler).permitAll()
+		.successHandler(successHandler)
+		.failureHandler(failHandler).permitAll()
 		.and().logout().logoutUrl("/logout").logoutSuccessHandler(logoutHandler).permitAll();
 	}
 
@@ -51,13 +51,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		web.ignoring().antMatchers("/css/**", "/images/**", "/js/**", "/plugins/**");
 	}
 
-	/**
-	 * 添加 UserDetailsService， 实现自定义登录校验
-	 */
 	@Override
 	protected void configure(AuthenticationManagerBuilder builder) throws Exception {
-		builder.eraseCredentials(false).userDetailsService(customUserDetailsService)
-				.passwordEncoder(new BCryptPasswordEncoder());
+		builder.authenticationProvider(customAuthenticationProvider);
 	}
 
 }

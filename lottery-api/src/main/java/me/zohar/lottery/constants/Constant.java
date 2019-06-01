@@ -2,6 +2,18 @@ package me.zohar.lottery.constants;
 
 public class Constant {
 
+	public static final String 登录提示_登录成功 = "登录成功";
+
+	public static final String 登录提示_不是管理员无法登陆后台 = "该账号不是管理员,无法登陆到后台";
+	
+	public static final String 登录提示_用户名或密码不正确 = "用户名或密码不正确";
+	
+	public static final String 登录提示_用户名不存在 = "用户名不存在";
+
+	public static final String 登录状态_成功 = "1";
+
+	public static final String 登录状态_失败 = "0";
+
 	public static final String 投注订单状态_未开奖 = "1";
 
 	public static final String 投注订单状态_未中奖 = "2";

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSONObject;
 
 import me.zohar.lottery.common.vo.Result;
+import me.zohar.lottery.constants.Constant;
 
 /**
  * 登录成功处理类
@@ -31,7 +32,7 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
 		response.setCharacterEncoding("UTF-8");
 		response.setContentType("application/json");
 		PrintWriter out = response.getWriter();
-		out.println(JSONObject.toJSONString(Result.success().setMsg("登录成功")));
+		out.println(JSONObject.toJSONString(Result.success().setMsg(Constant.登录提示_登录成功)));
 		out.flush();
 		out.close();
 	}

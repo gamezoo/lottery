@@ -31,7 +31,7 @@ public class AuthenticationFailHandler extends SimpleUrlAuthenticationFailureHan
 		response.setCharacterEncoding("UTF-8");
 		response.setContentType("application/json");
 		PrintWriter out = response.getWriter();
-		out.println(JSONObject.toJSONString(Result.fail(500, "用户名或密码错误")));
+		out.println(JSONObject.toJSONString(Result.fail(500, e.getMessage())));
 		out.flush();
 		out.close();
 	}

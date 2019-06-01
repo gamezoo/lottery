@@ -36,6 +36,8 @@ public class ThreadPoolUtils {
 	 * 充值结算线程池
 	 */
 	private static ScheduledThreadPoolExecutor rechargeSettlementPool = new ScheduledThreadPoolExecutor(5);
+	
+	private static ScheduledThreadPoolExecutor loginLogPool = new ScheduledThreadPoolExecutor(3);
 
 	static {
 		syncLotteryThreadPool.prestartAllCoreThreads();
@@ -51,5 +53,9 @@ public class ThreadPoolUtils {
 	
 	public static ScheduledThreadPoolExecutor getRechargeSettlementPool() {
 		return rechargeSettlementPool;
+	}
+	
+	public static ScheduledThreadPoolExecutor getLoginLogPool() {
+		return loginLogPool;
 	}
 }
