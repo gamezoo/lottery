@@ -7,26 +7,23 @@
 [v-cloak] {
 	display: none;
 }
+
+.dropdown-item.active {
+	color: #fff !important;
+}
 </style>
 </head>
 <body>
 	<div id="header" v-cloak>
 		<nav class="navbar navbar-expand-sm bg-info navbar-dark" style="justify-content: space-between;">
 			<ul class="navbar-nav">
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/statistics-analysis'}" v-on:click="navTo('/statistics-analysis')"><a class="nav-link">统计分析</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/master-control-room'}" v-on:click="navTo('/master-control-room')"><a class="nav-link">总控室</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/game-manage'}" v-on:click="navTo('/game-manage')"><a class="nav-link">游戏管理</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/lottery-situation'}" v-on:click="navTo('/lottery-situation')"><a class="nav-link">开奖情况</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/betting-record'}" v-on:click="navTo('/betting-record')"><a class="nav-link">投注记录</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/account-change-log'}" v-on:click="navTo('/account-change-log')"><a class="nav-link">帐变日志</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/recharge-order'}" v-on:click="navTo('/recharge-order')"><a class="nav-link">充值订单</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/withdraw-record'}" v-on:click="navTo('/withdraw-record')"><a class="nav-link">提现记录</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/account-manage'}" v-on:click="navTo('/account-manage')"><a class="nav-link">账号管理</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/invite-code'}" v-on:click="navTo('/invite-code')"><a class="nav-link">邀请码</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/system-notice'}" v-on:click="navTo('/system-notice')"><a class="nav-link">系统公告</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/lottery-information'}" v-on:click="navTo('/lottery-information')"><a class="nav-link">彩票资讯</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/config-manage'}" v-on:click="navTo('/config-manage')"><a class="nav-link">配置项管理</a></li>
-				<li class="nav-item" v-bind:class="{'active': currentPathName == '/dict-manage'}" v-on:click="navTo('/dict-manage')"><a class="nav-link">字典管理</a></li>
+				<template v-for="(menu, index) in menus">
+				<li class="nav-item" v-if="menu.subMenus.length == 0" v-bind:class="{'active': currentPathName == menu.url}" v-on:click="navTo(menu.url)"><a class="nav-link">{{menu.name}}</a></li>
+				<li class="nav-item dropdown" v-if="menu.subMenus.length > 0" v-bind:class="{'active': parentMenuActive(menu.subMenus)}"><a class="nav-link dropdown-toggle" data-toggle="dropdown">{{menu.name}}</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" v-for="subMenu in menu.subMenus" v-bind:class="{'active': currentPathName == subMenu.url}" v-on:click="navTo(subMenu.url)">{{subMenu.name}}</a>
+					</div></li>
+				</template>
 			</ul>
 			<form class="form-inline" style="float: right;">
 				<span style="padding-right: 20px;">欢迎你:{{userName}}</span>
@@ -52,7 +49,74 @@
 			el : '#header',
 			data : {
 				userName : '',
-				currentPathName : ''
+				currentPathName : '',
+				menus : [ {
+					name : '首页',
+					url : '',
+					subMenus : []
+				}, {
+					name : '总控室',
+					url : '/master-control-room',
+					subMenus : []
+				}, {
+					name : '游戏管理',
+					url : '/game-manage',
+					subMenus : []
+				}, {
+					name : '开奖情况',
+					url : '/lottery-situation',
+					subMenus : []
+				}, {
+					name : '投注记录',
+					url : '/betting-record',
+					subMenus : []
+				}, {
+					name : '追号记录',
+					url : '/tracking-number-record',
+					subMenus : []
+				}, {
+					name : '账号相关',
+					url : '',
+					subMenus : [ {
+						name : '账号管理',
+						url : '/account-manage'
+					}, {
+						name : '邀请码',
+						url : ''
+					}, {
+						name : '账变日志',
+						url : '/account-change-log'
+					} ]
+				}, {
+					name : '充值提现',
+					url : '',
+					subMenus : [ {
+						name : '充值订单',
+						url : '/recharge-order'
+					}, {
+						name : '提现记录',
+						url : '/withdraw-record'
+					} ]
+				}, {
+					name : '系统管理',
+					url : '',
+					subMenus : [ {
+						name : '系统公告',
+						url : '/system-notice'
+					}, {
+						name : '彩票资讯',
+						url : '/lottery-information'
+					}, {
+						name : '登录日志',
+						url : '/login-log'
+					}, {
+						name : '配置项管理',
+						url : '/config-manage'
+					}, {
+						name : '字典管理',
+						url : '/dict-manage'
+					} ]
+				} ]
 			},
 			computed : {},
 			created : function() {
@@ -60,6 +124,15 @@
 				this.getUserAccountInfo();
 			},
 			methods : {
+				parentMenuActive : function(subMenus) {
+					for (var i = 0; i < subMenus.length; i++) {
+						if (subMenus[i].url == this.currentPathName) {
+							return true;
+						}
+					}
+					return false;
+				},
+
 				navTo : function(url) {
 					window.location.href = url;
 				},

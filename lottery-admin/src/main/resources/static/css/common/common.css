@@ -86,3 +86,56 @@ a {
 	text-align: start;
 }
 /*bootstrap table插件detailView样式end*/
+
+/*表单详情样式start*/
+.form-details-summary-title {
+	margin-bottom: 20px;
+	padding-left: 10px;
+	border-left: 3px solid #3080fe;
+}
+
+.form-details-item label {
+	color: #9a9898;
+	padding-right: 4px;
+}
+
+.form-details-item-highlight {
+	color: #E37D23 !important;
+}
+
+.form-details-table thead th {
+	border-top: 0;
+	border-bottom: 0;
+	text-align: center;
+	color: #666;
+	font-size: 14px;
+	font-weight: normal;
+	background-color: #dedede;
+}
+
+.form-details-table tbody tr {
+	background-color: #EEEEEE;
+}
+
+.form-details-table tr td {
+	text-align: center;
+	border-top: 0;
+	color: #666;
+	border-bottom: 0;
+	border-left: 0;
+}
+
+.form-details-table .custom-checkbox {
+	min-height: unset;
+	padding-left: 0;
+}
+
+.form-details-table .custom-checkbox .custom-control-label::before {
+	background-color: #0000004d;
+}
+
+.form-details-table .custom-checkbox .custom-control-input:checked ~.custom-control-label::before
+	{
+	background-color: #dc3545;
+}
+/*表单详情样式end*/

@@ -137,19 +137,22 @@ public class TrackingNumberService {
 			public Predicate toPredicate(Root<TrackingNumberSituation> root, CriteriaQuery<?> query,
 					CriteriaBuilder builder) {
 				List<Predicate> predicates = new ArrayList<Predicate>();
+				if (StrUtil.isNotEmpty(param.getOrderNo())) {
+					predicates.add(builder.equal(root.get("orderNo"), param.getOrderNo()));
+				}
 				if (StrUtil.isNotEmpty(param.getGameCode())) {
 					predicates.add(builder.equal(root.get("gameCode"), param.getGameCode()));
 				}
 				if (StrUtil.isNotEmpty(param.getState())) {
 					predicates.add(builder.equal(root.get("state"), param.getState()));
 				}
-				if (param.getStartDate() != null) {
+				if (param.getStartTime() != null) {
 					predicates.add(builder.greaterThanOrEqualTo(root.get("trackingNumberTime").as(Date.class),
-							DateUtil.beginOfDay(param.getStartDate())));
+							DateUtil.beginOfDay(param.getStartTime())));
 				}
-				if (param.getEndDate() != null) {
+				if (param.getEndTime() != null) {
 					predicates.add(builder.lessThanOrEqualTo(root.get("trackingNumberTime").as(Date.class),
-							DateUtil.endOfDay(param.getEndDate())));
+							DateUtil.endOfDay(param.getEndTime())));
 				}
 				if (StrUtil.isNotEmpty(param.getUserAccountId())) {
 					predicates.add(builder.equal(root.get("userAccountId"), param.getUserAccountId()));
@@ -210,7 +213,9 @@ public class TrackingNumberService {
 		if (trackingNumberOrder == null) {
 			throw new BizException(BizError.追号订单不存在);
 		}
-		if (!userAccountId.equals(trackingNumberOrder.getUserAccountId())) {
+		UserAccount currentAccount = userAccountRepo.getOne(userAccountId);
+		if (!Constant.账号类型_管理员.equals(currentAccount.getAccountType())
+				&& !userAccountId.equals(trackingNumberOrder.getUserAccountId())) {
 			throw new BizException(BizError.无权撤销追号订单);
 		}
 		Date now = new Date();

@@ -14,7 +14,7 @@ public class SyncLotteryInformationTask {
 	@Autowired
 	private LotteryInformationService lotteryInformationService;
 
-	@Scheduled(cron = "0 0 10,20 * * ? *")
+	@Scheduled(cron = "0 0 10,20 * * ?")
 	public void execute() {
 		try {
 			log.info("执行同步彩票资讯任务start");

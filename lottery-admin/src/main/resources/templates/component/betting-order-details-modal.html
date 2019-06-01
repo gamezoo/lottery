@@ -15,49 +15,12 @@
 	padding-left: 10px;
 	color: #E37D23;
 }
-
-.betting-summary-title {
-	margin-bottom: 20px;
-	padding-left: 10px;
-	border-left: 3px solid #3080fe;
-}
-
-.betting-order-details-item label {
-	color: #9a9898;
-	padding-right: 4px;
-}
-
-.betting-order-details-highlight {
-	color: #E37D23 !important;
-}
-
-.betting-order-details-table thead th {
-	border-top: 0;
-	border-bottom: 0;
-	text-align: center;
-	color: #666;
-	font-size: 14px;
-	font-weight: normal;
-	background-color: #dedede;
-}
-
-.betting-order-details-table tbody tr {
-	background-color: #EEEEEE;
-}
-
-.betting-order-details-table tr td {
-	text-align: center;
-	border-top: 0;
-	color: #666;
-	border-bottom: 0;
-	border-left: 0;
-}
 </style>
 </head>
 
 <body>
 	<div id="betting-order-details-modal" v-cloak>
-		<div v-if="showBettingOrderDetailsFlag">
+		<div v-show="showBettingOrderDetailsFlag">
 			<div class="modal-mask">
 				<div class="modal-wrapper">
 					<div class="modal-dialog betting-order-details-dialog">
@@ -71,54 +34,54 @@
 								</button>
 							</div>
 							<div class="modal-body">
-								<div class="betting-summary-title">订单摘要</div>
+								<div class="form-details-summary-title">订单摘要</div>
 								<div class="row">
-									<div class="col-sm-6 betting-order-details-item">
+									<div class="col-sm-6 form-details-item">
 										<label>投注用户:</label> <span>{{bettingOrderDetails.userName}}</span>
 									</div>
-									<div class="col-sm-6 betting-order-details-item">
+									<div class="col-sm-6 form-details-item">
 										<label>奖期:</label> <span>{{bettingOrderDetails.gameName}} 第{{bettingOrderDetails.issueNum}}期</span>
 									</div>
 								</div>
 								<div class="row">
-									<div class="col-sm-6 betting-order-details-item">
+									<div class="col-sm-6 form-details-item">
 										<label>投注模式:</label> <span>{{bettingOrderDetails.baseAmount}}元</span>
 									</div>
-									<div class="col-sm-6 betting-order-details-item">
+									<div class="col-sm-6 form-details-item">
 										<label>投注倍数:</label> <span>{{bettingOrderDetails.multiple}}</span>
 									</div>
 								</div>
 								<div class="row">
-									<div class="col-sm-6 betting-order-details-item">
+									<div class="col-sm-6 form-details-item">
 										<label>单倍注数:</label> <span>{{bettingOrderDetails.totalBettingCount}}</span>
 									</div>
-									<div class="col-sm-6 betting-order-details-item">
+									<div class="col-sm-6 form-details-item">
 										<label>总金额:</label> <span>{{bettingOrderDetails.totalBettingAmount}}元</span>
 									</div>
 								</div>
 								<div class="row">
-									<div class="col-sm-6 betting-order-details-item">
+									<div class="col-sm-6 form-details-item">
 										<label>投注时间:</label> <span>{{bettingOrderDetails.bettingTime}}</span>
 									</div>
-									<div class="col-sm-6 betting-order-details-item">
-										<label>中奖金额:</label> <span class="betting-order-details-highlight">{{bettingOrderDetails.totalWinningAmount}}元</span>
+									<div class="col-sm-6 form-details-item">
+										<label>中奖金额:</label> <span class="form-details-item-highlight">{{bettingOrderDetails.totalWinningAmount}}元</span>
 									</div>
 								</div>
 								<div class="row">
-									<div class="col-sm-6 betting-order-details-item">
+									<div class="col-sm-6 form-details-item">
 										<label>订单状态:</label> <span>{{bettingOrderDetails.stateName}}</span>
 									</div>
-									<div class="col-sm-6 betting-order-details-item">
-										<label>开奖号码:</label> <span class="betting-order-details-highlight">{{bettingOrderDetails.lotteryNum}}</span>
+									<div class="col-sm-6 form-details-item">
+										<label>开奖号码:</label> <span class="form-details-item-highlight">{{bettingOrderDetails.lotteryNum}}</span>
 									</div>
 								</div>
 								<div class="row">
-									<div class="col-sm-6 offset-md-6 betting-order-details-item">
-										<label>订单盈亏:</label> <span class="betting-order-details-highlight">{{bettingOrderDetails.totalProfitAndLoss}}元</span>
+									<div class="col-sm-6 offset-md-6 form-details-item">
+										<label>订单盈亏:</label> <span class="form-details-item-highlight">{{bettingOrderDetails.totalProfitAndLoss}}元</span>
 									</div>
 								</div>
-								<div class="betting-summary-title" style="">订单明细</div>
-								<table class="table table-sm betting-order-details-table">
+								<div class="form-details-summary-title" style="">订单明细</div>
+								<table class="table table-sm form-details-table">
 									<thead>
 										<tr>
 											<th>玩法</th>
@@ -133,13 +96,14 @@
 											<td>{{bettingRecord.gamePlayName}}</td>
 											<td>{{bettingRecord.selectedNo}}</td>
 											<td>{{bettingRecord.bettingCount}}</td>
-											<td class="betting-order-details-highlight">{{bettingRecord.bettingAmount}}</td>
+											<td class="form-details-item-highlight">{{bettingRecord.bettingAmount}}</td>
 											<td>{{bettingRecord.winningAmount}}</td>
 										</tr>
 									</tbody>
 								</table>
 							</div>
 							<div class="modal-footer">
+								<button type="button" class="btn btn-danger btn-sm" v-show="bettingOrderDetails.cancelOrderFlag" v-on:click="cancelOrder(bettingOrderDetails.id)">撤单</button>
 								<button type="button" class="btn btn-sm" v-on:click="showBettingOrderDetailsFlag = false">返回</button>
 							</div>
 						</div>
@@ -168,6 +132,28 @@
 					}).then(function(res) {
 						that.bettingOrderDetails = res.body.data;
 						that.showBettingOrderDetailsFlag = true;
+					});
+				},
+
+				cancelOrder : function(orderId) {
+					var that = this;
+					layer.confirm('确定要撤单吗?', {
+						icon : 7,
+						title : '提示'
+					}, function(index) {
+						layer.close(index);
+						that.$http.get('/betting/cancelOrder', {
+							params : {
+								orderId : orderId
+							}
+						}).then(function(res) {
+							layer.alert('操作成功!', {
+								icon : 1,
+								time : 3000,
+								shade : false
+							});
+							that.loadAndShowBettingOrderDetails(orderId);
+						});
 					});
 				}
 			}

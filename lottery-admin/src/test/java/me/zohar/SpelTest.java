@@ -18,7 +18,42 @@ public class SpelTest {
 
 	@Test
 	public void test() throws IOException {
-		testInner();
+		testInner2();
+	}
+
+	public List<LotteryInformationVO> testInner2() throws IOException {
+		List<LotteryInformationVO> vos = new ArrayList<>();
+		String url = "http://www.lottery.gov.cn/";
+		Elements elements = Jsoup.connect(url).get().getElementById("hotZX").getElementsByTag("a");
+		for (Element element : elements) {
+			String newUrl = "http://www.lottery.gov.cn" + element.attr("href");
+			Document document = Jsoup.connect(newUrl).get();
+			if (document == null) {
+				continue;
+			}
+			String title = document.getElementsByClass("main_content_title").first().text();
+			Element contentElement = document.getElementsByClass("main_content").first();
+			contentElement.select(".main_content_edit").remove();
+			contentElement.select(".main_content_ts").remove();
+			contentElement.select(".main_content_back").remove();
+			Elements imgs = contentElement.getElementsByTag("img");
+			for (Element img : imgs) {
+				String imgSrc = "http://www.lottery.gov.cn" + img.attr("src");
+				img.attr("src", imgSrc);
+			}
+			String content = contentElement.html();
+			Element infoElement = document.getElementsByClass("main_content_info").first();
+			Elements sourceAndPublishTimeElements = infoElement.getElementsByTag("span");
+			String source = sourceAndPublishTimeElements.get(1).text();
+			String publishTime = sourceAndPublishTimeElements.get(0).text();
+			LotteryInformationVO vo = new LotteryInformationVO();
+			vo.setTitle(title);
+			vo.setContent(content);
+			vo.setPublishTime(DateUtil.parse(publishTime, DatePattern.NORM_DATETIME_PATTERN));
+			vo.setSource(source);
+			vos.add(vo);
+		}
+		return vos;
 	}
 
 	public List<LotteryInformationVO> testInner() throws IOException {

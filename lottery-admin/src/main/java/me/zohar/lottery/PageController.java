@@ -141,4 +141,24 @@ public class PageController {
 		return "lottery-information";
 	}
 
+	/**
+	 * 登录日志
+	 * 
+	 * @return
+	 */
+	@GetMapping("/login-log")
+	public String loginLog() {
+		return "login-log";
+	}
+
+	/**
+	 * 追号记录
+	 * 
+	 * @return
+	 */
+	@GetMapping("/tracking-number-record")
+	public String trackingNumberRecord() {
+		return "tracking-number-record";
+	}
+
 }

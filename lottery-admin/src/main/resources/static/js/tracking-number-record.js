@@ -1,12 +1,12 @@
-var bettingRecordVM = new Vue({
-	el : '#betting-record',
+var trackingNumberRecordVM = new Vue({
+	el : '#tracking-number-record',
 	data : {
 		orderNo : '',
 		gameDictItems : [],
 		gameCode : '',
 		startTime : dayjs().format('YYYY-MM-DD'),
 		endTime : dayjs().format('YYYY-MM-DD'),
-		bettingOrderStateDictItems : [],
+		trackingNumberOrderStateDictItems : [],
 		state : ''
 	},
 	computed : {},
@@ -14,7 +14,7 @@ var bettingRecordVM = new Vue({
 	},
 	mounted : function() {
 		this.loadGameDictItem();
-		this.loadBettingOrderStateDictItem();
+		this.loadTrackingNumberOrderStateDictItem();
 		this.initTable();
 	},
 	methods : {
@@ -30,23 +30,23 @@ var bettingRecordVM = new Vue({
 			});
 		},
 
-		loadBettingOrderStateDictItem : function() {
+		loadTrackingNumberOrderStateDictItem : function() {
 			var that = this;
 			that.$http.get('/dictconfig/findDictItemInCache', {
 				params : {
-					dictTypeCode : 'bettingOrderState'
+					dictTypeCode : 'trackingNumberOrderState'
 				}
 			}).then(function(res) {
-				this.bettingOrderStateDictItems = res.body.data;
+				this.trackingNumberOrderStateDictItems = res.body.data;
 			});
 		},
 
 		initTable : function() {
 			var that = this;
-			$('.betting-record-table').bootstrapTable({
+			$('.tracking-number-record-table').bootstrapTable({
 				classes : 'table table-hover',
 				height : 490,
-				url : '/betting/findBettingOrderInfoByPage',
+				url : '/trackingNumber/findTrackingNumberSituationByPage',
 				pagination : true,
 				sidePagination : 'server',
 				pageNumber : 1,
@@ -75,57 +75,49 @@ var bettingRecordVM = new Vue({
 					field : 'orderNo',
 					title : '订单号',
 					cellStyle : {
-						classes : 'betting-record-order-no'
+						classes : 'tracking-number-order-no'
 					}
 				}, {
 					field : 'gameName',
 					title : '游戏'
 				}, {
-					field : 'bettingTime',
-					title : '投注时间'
+					field : 'trackingNumberTime',
+					title : '追号时间'
 				}, {
-					field : 'issueNum',
-					title : '期号'
+					field : 'startIssueNum',
+					title : '开始期号'
+				}, {
+					field : 'totalIssueCount',
+					title : '追号期数',
+				}, {
+					field : 'totalBettingAmount',
+					title : '总金额',
+					formatter : function(value) {
+						return value + '元';
+					}
+				}, {
+					field : 'completedIssueCount',
+					title : '完成期数'
+				}, {
+					field : 'winToStop',
+					title : '中奖即停',
+					formatter : function(value) {
+						return value ? '是' : '否';
+					}
 				}, {
 					field : 'stateName',
 					title : '状态',
 					cellStyle : {
-						classes : 'betting-record-state'
-					}
-				}, {
-					field : 'totalBettingAmount',
-					title : '投注金额',
-					formatter : function(value) {
-						return value + '元';
-					}
-				}, {
-					field : 'totalWinningAmount',
-					title : '中奖金额',
-					formatter : function(value) {
-						return value + '元';
-					}
-				}, {
-					field : 'totalProfitAndLoss',
-					title : '盈亏',
-					formatter : function(value) {
-						return value + '元';
+						classes : 'tracking-number-state'
 					}
 				}, {
 					title : '操作',
 					formatter : function(value, row, index) {
-						var btns = [];
-						if (row.state == '1') {
-							btns.push('<button type="button" class="change-order-btn btn btn-outline-info btn-sm" style="margin-right: 4px;">改单</button>');
+						if (row.uncompletedIssueCount > 0) {
+							return '<button type="button" class="cancel-order-btn btn btn-outline-danger btn-sm">撤单</button>';
 						}
-						if (row.cancelOrderFlag) {
-							btns.push('<button type="button" class="cancel-order-btn btn btn-outline-danger btn-sm" style="margin-right: 4px;">撤单</button>');
-						}
-						return btns.join('');
 					},
 					events : {
-						'click .change-order-btn' : function(event, value, row, index) {
-							changeOrderModalVM.show(row.id, row.gameCode);
-						},
 						'click .cancel-order-btn' : function(event, value, row, index) {
 							that.cancelOrder(row.id);
 						}
@@ -133,13 +125,13 @@ var bettingRecordVM = new Vue({
 				} ],
 				onClickCell : function(field, value, row) {
 					if ('orderNo' == field) {
-						bettingOrderDetailsModal.loadAndShowBettingOrderDetails(row.id);
+						trackingNumberOrderDetailsModal.loadAndShowTrackingNumberOrderDetails(row.id);
 					}
 				}
 			});
 		},
 		refreshTable : function() {
-			$('.betting-record-table').bootstrapTable('refreshOptions', {
+			$('.tracking-number-record-table').bootstrapTable('refreshOptions', {
 				pageNumber : 1
 			});
 		},
@@ -151,7 +143,7 @@ var bettingRecordVM = new Vue({
 				title : '提示'
 			}, function(index) {
 				layer.close(index);
-				that.$http.get('/betting/cancelOrder', {
+				that.$http.get('/trackingNumber/cancelOrder', {
 					params : {
 						orderId : orderId
 					}

@@ -1,4 +1,4 @@
-package me.zohar.lottery.betting.param;
+package me.zohar.lottery.useraccount.param;
 
 import java.util.Date;
 
@@ -9,19 +9,15 @@ import lombok.EqualsAndHashCode;
 import me.zohar.lottery.common.param.PageParam;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class TrackingNumberSituationQueryCondParam extends PageParam {
+@EqualsAndHashCode(callSuper=false)
+public class LoginLogQueryCondParam extends PageParam {
 	
-	/**
-	 * 订单号
-	 */
-	private String orderNo;
-
-	/**
-	 * 游戏代码
-	 */
-	private String gameCode;
-
+	private String ipAddr;
+	
+	private String userName;
+	
+	private String state;
+	
 	/**
 	 * 开始时间
 	 */
@@ -33,9 +29,5 @@ public class TrackingNumberSituationQueryCondParam extends PageParam {
 	 */
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date endTime;
-
-	private String state;
-
-	private String userAccountId;
 
 }

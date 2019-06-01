@@ -3,6 +3,7 @@ package me.zohar.lottery.betting.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import me.zohar.lottery.betting.param.BettingOrderQueryCondParam;
 import me.zohar.lottery.betting.param.ChangeOrderParam;
 import me.zohar.lottery.betting.service.BettingService;
 import me.zohar.lottery.common.vo.Result;
+import me.zohar.lottery.config.security.UserAccountDetails;
 
 @Controller
 @RequestMapping("/betting")
@@ -45,7 +47,7 @@ public class BettingController {
 	public Result findBettingOrderInfoByPage(BettingOrderQueryCondParam param) {
 		return Result.success().setData(bettingService.findBettingOrderInfoByPage(param));
 	}
-	
+
 	/**
 	 * 改单
 	 * 
@@ -57,7 +59,23 @@ public class BettingController {
 		bettingService.changeOrder(changeOrderParams);
 		return Result.success();
 	}
-	
-	
+
+	@GetMapping("/cancelOrder")
+	@ResponseBody
+	public Result cancelOrder(String orderId) {
+		UserAccountDetails user = (UserAccountDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		bettingService.cancelOrder(orderId, user.getUserAccountId());
+		return Result.success();
+	}
+
+	@PostMapping("/batchCancelOrder")
+	@ResponseBody
+	public Result batchCancelOrder(@RequestBody List<String> orderIds) {
+		UserAccountDetails user = (UserAccountDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		bettingService.batchCancelOrder(orderIds, user.getUserAccountId());
+		return Result.success();
+	}
 
 }

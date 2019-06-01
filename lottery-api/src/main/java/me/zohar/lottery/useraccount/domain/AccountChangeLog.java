@@ -16,6 +16,8 @@ import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 import cn.hutool.core.util.NumberUtil;
 import lombok.Getter;
@@ -104,6 +106,7 @@ public class AccountChangeLog {
 	/**
 	 * 用户账号
 	 */
+	@NotFound(action = NotFoundAction.IGNORE)
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_account_id", updatable = false, insertable = false, foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	private UserAccount userAccount;
@@ -229,7 +232,7 @@ public class AccountChangeLog {
 		log.setUserAccountId(userAccount.getId());
 		return log;
 	}
-	
+
 	/**
 	 * 构建投注撤单账变日志
 	 * 

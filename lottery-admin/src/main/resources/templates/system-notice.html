@@ -25,12 +25,12 @@
 	<div id="system-notice" v-cloak>
 		<form class="form-inline common-query-cond-form" action="#">
 			<div class="form-group common-query-cond">
-				<label>公告标题:</label><input type="text" class="form-control" v-model="noticeTitle">
+				<label>公告标题:</label><input type="text" class="form-control-sm" v-model="noticeTitle">
 			</div>
-			<button type="button" class="btn btn-danger" v-on:click="refreshTable">搜索</button>
+			<button type="button" class="btn btn-danger btn-sm" v-on:click="refreshTable">搜索</button>
 		</form>
 		<form class="form-inline common-query-cond-form float-right" action="#">
-			<button type="button" class="btn btn-info" v-on:click="showAddSystemNoticeModal" style="margin-right: 4px;">新增公告</button>
+			<button type="button" class="btn btn-info btn-sm" v-on:click="showAddSystemNoticeModal" style="margin-right: 4px;">新增公告</button>
 		</form>
 		<table class="common-table system-notice-table"></table>
 		<div v-show="addOrUpdateSystemNoticeFlag">

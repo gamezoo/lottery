@@ -15,6 +15,7 @@
 	padding-left: 10px;
 	color: #E37D23;
 }
+
 </style>
 </head>
 
@@ -141,7 +142,7 @@
 			methods : {
 				loadAndShowTrackingNumberOrderDetails : function(id) {
 					var that = this;
-					that.$http.get('/trackingNumber/findMyTrackingNumberOrderDetails', {
+					that.$http.get('/trackingNumber/findTrackingNumberOrderDetails', {
 						params : {
 							id : id
 						}

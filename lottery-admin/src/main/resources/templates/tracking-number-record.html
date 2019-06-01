@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8">
-<title>投注记录</title>
+<title>追号记录</title>
 <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
 <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
@@ -15,19 +15,19 @@
 <script src="https://cdn.bootcss.com/dayjs/1.7.8/dayjs.min.js"></script>
 <link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <style type="text/css">
-.betting-record-table .betting-record-order-no {
-	color: #2765a1;
+.tracking-number-order-no {
+	color: #2765a1 !important;
 	cursor: pointer;
 }
 
-.betting-record-table .betting-record-state {
-	color: #ec494c;
+.tracking-number-state {
+	color: #ec494c !important
 }
 </style>
 </head>
 <body>
 	<div th:replace="common/header::html"></div>
-	<div id="betting-record" v-cloak>
+	<div id="tracking-number-record" v-cloak>
 		<form class="form-inline common-query-cond-form" action="#">
 			<div class="form-group common-query-cond">
 				<label>订单号:</label><input type="text" class="form-control-sm" v-model="orderNo">
@@ -44,15 +44,14 @@
 			<div class="form-group common-query-cond">
 				<label>状态:</label> <select class="form-control-sm" v-model="state">
 					<option value="">全部</option>
-					<option v-for="dictItem in bettingOrderStateDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
+					<option v-for="dictItem in trackingNumberOrderStateDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
 				</select>
 			</div>
 			<button type="button" class="btn btn-danger btn-sm" v-on:click="refreshTable">搜索</button>
 		</form>
-		<table class="common-table betting-record-table"></table>
+		<table class="common-table tracking-number-record-table"></table>
 	</div>
-	<div th:replace="component/betting-order-details-modal::html"></div>
-	<div th:replace="component/change-order-modal::html"></div>
-	<script src="/js/betting-record.js"></script>
+	<div th:replace="component/tracking-number-order-details-modal::html"></div>
+	<script src="/js/tracking-number-record.js"></script>
 </body>
 </html>

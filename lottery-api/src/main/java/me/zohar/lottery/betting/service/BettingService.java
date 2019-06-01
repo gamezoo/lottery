@@ -345,8 +345,10 @@ public class BettingService {
 		if (order == null) {
 			throw new BizException(BizError.投注订单不存在);
 		}
-		if (!order.getUserAccountId().equals(userAccountId)) {
-			throw new BizException(BizError.无权查看投注记录);
+		UserAccount currentAccount = userAccountRepo.getOne(userAccountId);
+		if (!Constant.账号类型_管理员.equals(currentAccount.getAccountType())
+				&& !order.getUserAccountId().equals(userAccountId)) {
+			throw new BizException(BizError.无权撤销投注订单);
 		}
 		if (!Constant.投注订单状态_未开奖.equals(order.getState())) {
 			throw new BizException(BizError.已开奖或已取消无法撤单);
