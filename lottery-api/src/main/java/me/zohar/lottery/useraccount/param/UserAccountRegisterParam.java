@@ -3,6 +3,7 @@ package me.zohar.lottery.useraccount.param;
 import java.util.Date;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
 import org.springframework.beans.BeanUtils;
 
@@ -23,6 +24,7 @@ public class UserAccountRegisterParam {
 	 * 用户名
 	 */
 	@NotBlank
+	@Pattern(regexp = "^[A-Za-z][A-Za-z0-9]{5,11}$")
 	private String userName;
 
 	/**
@@ -35,6 +37,7 @@ public class UserAccountRegisterParam {
 	 * 登录密码
 	 */
 	@NotBlank
+	@Pattern(regexp = "^[A-Za-z][A-Za-z0-9]{5,14}$")
 	private String loginPwd;
 
 	public UserAccount convertToPo() {

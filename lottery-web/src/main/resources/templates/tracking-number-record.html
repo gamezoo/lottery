@@ -34,8 +34,8 @@
 			<form class="form-inline common-query-cond-form" action="#">
 				<div class="form-group common-query-cond">
 					<label>游戏:</label> <select class="form-control" v-model="gameCode">
-						<option value="">请选择</option>
-						<option value="CQSSC">重庆时时彩</option>
+						<option value="">全部游戏</option>
+						<option v-for="dictItem in gameDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
 					</select>
 				</div>
 				<div class="form-group common-query-cond">
@@ -44,9 +44,7 @@
 				<div class="form-group common-query-cond">
 					<label>状态:</label> <select class="form-control" v-model="state">
 						<option value="">全部</option>
-						<option value="1">未开奖</option>
-						<option value="2">未中奖</option>
-						<option value="3">已中奖</option>
+						<option v-for="dictItem in trackingNumberOrderStateDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
 					</select>
 				</div>
 				<button type="button" class="btn btn-danger" v-on:click="refreshTable">搜索</button>
@@ -60,18 +58,44 @@
 			el : '#betting-record',
 			data : {
 				gameCode : '',
+				gameDictItems : [],
 				startTime : dayjs().format('YYYY-MM-DD'),
 				endTime : dayjs().format('YYYY-MM-DD'),
+				trackingNumberOrderStateDictItems : [],
 				state : '',
-				bettingRecords : []
 			},
 			computed : {},
 			created : function() {
 			},
 			mounted : function() {
+				this.loadGameDictItem();
+				this.loadTrackingNumberOrderStateDictItem();
 				this.initTable();
 			},
 			methods : {
+				
+				loadGameDictItem : function() {
+					var that = this;
+					that.$http.get('/dictconfig/findDictItemInCache', {
+						params : {
+							dictTypeCode : 'game'
+						}
+					}).then(function(res) {
+						this.gameDictItems = res.body.data;
+					});
+				},
+				
+				loadTrackingNumberOrderStateDictItem : function() {
+					var that = this;
+					that.$http.get('/dictconfig/findDictItemInCache', {
+						params : {
+							dictTypeCode : 'trackingNumberOrderState'
+						}
+					}).then(function(res) {
+						this.trackingNumberOrderStateDictItems = res.body.data;
+					});
+				},
+
 				initTable : function() {
 					var that = this;
 					$('.betting-record-table').bootstrapTable({

@@ -134,6 +134,11 @@
 						layer.alert('请输入用户名');
 						return;
 					}
+					var userNamePatt = /^[A-Za-z][A-Za-z0-9]{5,11}$/;
+					if (!userNamePatt.test(that.userName)) {
+						layer.alert('用户名不合法!请输入以字母开头,长度为6-12个字母和数字的用户名');
+						return;
+					}
 					if (that.realName == null || that.realName == '') {
 						layer.alert('请输入真实姓名');
 						return;
@@ -148,6 +153,11 @@
 					}
 					if (that.password != that.confirmPassword) {
 						layer.alert('密码不一致');
+						return;
+					}
+					var passwordPatt = /^[A-Za-z][A-Za-z0-9]{5,14}$/;
+					if (!passwordPatt.test(that.password)) {
+						layer.alert('密码不合法!请输入以字母开头,长度为6-15个字母和数字的密码');
 						return;
 					}
 					that.$http.post('/userAccount/register', {
