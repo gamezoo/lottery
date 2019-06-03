@@ -31,13 +31,21 @@ public class ThreadPoolUtils {
 	 * 开奖结算线程池
 	 */
 	private static ScheduledThreadPoolExecutor lotterySettlementPool = new ScheduledThreadPoolExecutor(5);
-	
+
 	/**
 	 * 充值结算线程池
 	 */
 	private static ScheduledThreadPoolExecutor rechargeSettlementPool = new ScheduledThreadPoolExecutor(5);
-	
+
+	/**
+	 * 登录日志线程池
+	 */
 	private static ScheduledThreadPoolExecutor loginLogPool = new ScheduledThreadPoolExecutor(3);
+
+	/**
+	 * 投注返点结算线程池
+	 */
+	private static ScheduledThreadPoolExecutor bettingRebateSettlementPool = new ScheduledThreadPoolExecutor(5);
 
 	static {
 		syncLotteryThreadPool.prestartAllCoreThreads();
@@ -50,12 +58,16 @@ public class ThreadPoolUtils {
 	public static ScheduledThreadPoolExecutor getLotterySettlementPool() {
 		return lotterySettlementPool;
 	}
-	
+
 	public static ScheduledThreadPoolExecutor getRechargeSettlementPool() {
 		return rechargeSettlementPool;
 	}
-	
+
 	public static ScheduledThreadPoolExecutor getLoginLogPool() {
 		return loginLogPool;
+	}
+
+	public static ScheduledThreadPoolExecutor getBettingRebateSettlementPool() {
+		return bettingRebateSettlementPool;
 	}
 }

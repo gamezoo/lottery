@@ -31,7 +31,7 @@ import me.zohar.lottery.common.utils.IdUtils;
 @Getter
 @Setter
 @Entity
-@Table(name = "invite_code", schema = "lottery")
+@Table(name = "invite_code")
 @DynamicInsert(true)
 @DynamicUpdate(true)
 public class InviteCode {

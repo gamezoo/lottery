@@ -23,6 +23,7 @@ import cn.hutool.core.util.NumberUtil;
 import lombok.Getter;
 import lombok.Setter;
 import me.zohar.lottery.betting.domain.BettingOrder;
+import me.zohar.lottery.betting.domain.BettingRebate;
 import me.zohar.lottery.common.utils.IdUtils;
 import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.mastercontrol.domain.RegisterAmountSetting;
@@ -112,10 +113,32 @@ public class AccountChangeLog {
 	private UserAccount userAccount;
 
 	/**
+	 * 构建投注返点账变日志
+	 * 
+	 * @param userAccount
+	 * @param bettingRebate
+	 * @return
+	 */
+	public static AccountChangeLog buildWithBettingRebate(UserAccount userAccount, BettingRebate bettingRebate) {
+		AccountChangeLog log = new AccountChangeLog();
+		log.setId(IdUtils.getId());
+		log.setOrderNo(bettingRebate.getId());
+		log.setGameCode(bettingRebate.getBettingOrder().getGameCode());
+		log.setIssueNum(bettingRebate.getBettingOrder().getIssueNum());
+		log.setAccountChangeTime(new Date());
+		log.setAccountChangeTypeCode(
+				bettingRebate.getWinningRebateFlag() ? Constant.账变日志类型_中奖返点 : Constant.账变日志类型_投注返点);
+		log.setAccountChangeAmount(NumberUtil.round(bettingRebate.getRebateAmount(), 4).doubleValue());
+		log.setBalance(userAccount.getBalance());
+		log.setUserAccountId(userAccount.getId());
+		return log;
+	}
+
+	/**
 	 * 构建注册礼金账变日志
 	 * 
 	 * @param userAccount
-	 * @param bettingOrder
+	 * @param setting
 	 * @return
 	 */
 	public static AccountChangeLog buildWithRegisterAmount(UserAccount userAccount, RegisterAmountSetting setting) {
@@ -135,7 +158,7 @@ public class AccountChangeLog {
 	 * 构建充值账变日志
 	 * 
 	 * @param userAccount
-	 * @param bettingOrder
+	 * @param rechargeOrder
 	 * @return
 	 */
 	public static AccountChangeLog buildWithRecharge(UserAccount userAccount, RechargeOrder rechargeOrder) {
@@ -218,7 +241,7 @@ public class AccountChangeLog {
 	 * 构建发起提现账变日志
 	 * 
 	 * @param userAccount
-	 * @param bettingOrder
+	 * @param withdrawRecord
 	 * @return
 	 */
 	public static AccountChangeLog buildWithStartWithdraw(UserAccount userAccount, WithdrawRecord withdrawRecord) {

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
+import me.zohar.lottery.betting.service.BettingService;
 import me.zohar.lottery.common.utils.ThreadPoolUtils;
 import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.issue.service.IssueService;
@@ -28,11 +29,40 @@ public class RedisMessageListener {
 
 	@Autowired
 	private RechargeService rechargeService;
+	
+	@Autowired
+	private BettingService bettingService;
 
 	@PostConstruct
 	public void init() {
 		listenLotterySettlement();
+		listenBettingRebateSettlement();
 		listenRechargeSettlement();
+	}
+
+	public void listenBettingRebateSettlement() {
+		new Thread(() -> {
+			while (true) {
+				try {
+					String bettingRebateId = redisTemplate.opsForList().rightPop(Constant.投注返点ID, 2L, TimeUnit.SECONDS);
+					if (StrUtil.isBlank(bettingRebateId)) {
+						continue;
+					}
+
+					ThreadPoolUtils.getLotterySettlementPool().execute(() -> {
+						try {
+							log.info("系统进行投注返点结算操作,id为{}", bettingRebateId);
+							bettingService.bettingRebateSettlement(bettingRebateId);
+						} catch (Exception e) {
+							log.error(MessageFormat.format("系统进行投注返点结算操作出现异常,id为{0}", bettingRebateId), e);
+							throw new RuntimeException();
+						}
+					});
+				} catch (Exception e) {
+					log.error("投注返点结算消息队列异常", e);
+				}
+			}
+		}).start();
 	}
 
 	public void listenLotterySettlement() {
@@ -43,7 +73,7 @@ public class RedisMessageListener {
 					if (StrUtil.isBlank(issueId)) {
 						continue;
 					}
-					
+
 					ThreadPoolUtils.getLotterySettlementPool().execute(() -> {
 						try {
 							log.info("系统进行开奖结算操作,期号id为{}", issueId);
@@ -54,7 +84,7 @@ public class RedisMessageListener {
 						}
 					});
 				} catch (Exception e) {
-					log.error("获取开奖结算消息异常", e);
+					log.error("开奖结算消息队列异常", e);
 				}
 			}
 		}).start();
@@ -68,7 +98,7 @@ public class RedisMessageListener {
 					if (StrUtil.isBlank(orderNo)) {
 						continue;
 					}
-					
+
 					ThreadPoolUtils.getRechargeSettlementPool().execute(() -> {
 						try {
 							log.info("系统进行充值结算操作,订单单号为{}", orderNo);

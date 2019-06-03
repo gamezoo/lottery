@@ -31,7 +31,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "user_account", schema = "lottery")
+@Table(name = "user_account")
 @DynamicInsert(true)
 @DynamicUpdate(true)
 public class UserAccount {
@@ -57,6 +57,21 @@ public class UserAccount {
 	 * 账号类型
 	 */
 	private String accountType;
+
+	/**
+	 * 账号级别
+	 */
+	private Integer accountLevel;
+
+	/**
+	 * 返点
+	 */
+	private Double rebate;
+
+	/**
+	 * 赔率
+	 */
+	private Double odds;
 
 	/**
 	 * 登录密码
@@ -117,7 +132,7 @@ public class UserAccount {
 	/**
 	 * 邀请人
 	 */
-	@NotFound(action=NotFoundAction.IGNORE)
+	@NotFound(action = NotFoundAction.IGNORE)
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "inviter_id", updatable = false, insertable = false, foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	private UserAccount inviter;

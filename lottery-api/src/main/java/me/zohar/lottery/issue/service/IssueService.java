@@ -72,7 +72,7 @@ public class IssueService {
 			return;
 		}
 		if (!latestIssue.getAutomaticLottery()) {
-			log.error("当前期号没有没有设置自动开奖,同步开奖结果失败.gameCode:{},issueNum:{}", gameCode, issueNum);
+			log.warn("当前期号没有没有设置自动开奖,同步开奖结果失败.gameCode:{},issueNum:{}", gameCode, issueNum);
 			return;
 		}
 
@@ -80,7 +80,7 @@ public class IssueService {
 		issueRepo.save(latestIssue);
 
 		if (!latestIssue.getAutomaticSettlement()) {
-			log.error("当前期号没有没有设置自动结算,结算失败.gameCode:{},issueNum:{}", gameCode, issueNum);
+			log.warn("当前期号没有没有设置自动结算,结算失败.gameCode:{},issueNum:{}", gameCode, issueNum);
 			return;
 		}
 

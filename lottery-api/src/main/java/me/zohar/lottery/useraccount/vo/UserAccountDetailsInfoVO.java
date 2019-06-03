@@ -46,6 +46,21 @@ public class UserAccountDetailsInfoVO {
 	private String accountTypeName;
 
 	/**
+	 * 账号级别
+	 */
+	private Integer accountLevel;
+
+	/**
+	 * 返点
+	 */
+	private Double rebate;
+
+	/**
+	 * 赔率
+	 */
+	private Double odds;
+
+	/**
 	 * 余额
 	 */
 	private Double balance;

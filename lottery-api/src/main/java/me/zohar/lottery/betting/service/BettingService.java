@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -13,7 +14,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -28,12 +28,14 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import me.zohar.lottery.betting.domain.BettingOrder;
+import me.zohar.lottery.betting.domain.BettingRebate;
 import me.zohar.lottery.betting.domain.BettingRecord;
 import me.zohar.lottery.betting.param.BettingOrderQueryCondParam;
 import me.zohar.lottery.betting.param.BettingRecordParam;
 import me.zohar.lottery.betting.param.ChangeOrderParam;
 import me.zohar.lottery.betting.param.PlaceOrderParam;
 import me.zohar.lottery.betting.repo.BettingOrderRepo;
+import me.zohar.lottery.betting.repo.BettingRebateRepo;
 import me.zohar.lottery.betting.repo.BettingRecordRepo;
 import me.zohar.lottery.betting.vo.BettingOrderDetailsVO;
 import me.zohar.lottery.betting.vo.BettingOrderInfoVO;
@@ -41,6 +43,7 @@ import me.zohar.lottery.betting.vo.BettingRecordVO;
 import me.zohar.lottery.betting.vo.WinningRankVO;
 import me.zohar.lottery.common.exception.BizError;
 import me.zohar.lottery.common.exception.BizException;
+import me.zohar.lottery.common.utils.ThreadPoolUtils;
 import me.zohar.lottery.common.valid.ParamValid;
 import me.zohar.lottery.common.vo.PageResult;
 import me.zohar.lottery.constants.Constant;
@@ -60,11 +63,7 @@ import me.zohar.lottery.useraccount.repo.UserAccountRepo;
 public class BettingService {
 
 	@Autowired
-	private StringRedisTemplate template;
-
-	@Lazy
-	@Autowired
-	private TrackingNumberService trackingNumberService;
+	private StringRedisTemplate redisTemplate;
 
 	@Autowired
 	private BettingOrderRepo bettingOrderRepo;
@@ -83,6 +82,9 @@ public class BettingService {
 
 	@Autowired
 	private IssueRepo issueRepo;
+
+	@Autowired
+	private BettingRebateRepo bettingRebateRepo;
 
 	@Transactional(readOnly = true)
 	public List<WinningRankVO> findTop50WinningRank() {
@@ -194,14 +196,15 @@ public class BettingService {
 			throw new BizException(BizError.休市中);
 		}
 		if (currentIssue.getIssueNum() == placeOrderParam.getIssueNum()) {
-			String gameState = template.opsForValue().get(placeOrderParam.getGameCode() + Constant.游戏当期状态);
+			String gameState = redisTemplate.opsForValue().get(placeOrderParam.getGameCode() + Constant.游戏当期状态);
 			if (Constant.游戏当期状态_休市中.equals(gameState)) {
 				throw new BizException(BizError.休市中);
 			}
 			if (Constant.游戏当期状态_已截止投注.equals(gameState)) {
 				throw new BizException(BizError.已截止投注);
 			}
-			String gameCurrentIssueNum = template.opsForValue().get(placeOrderParam.getGameCode() + Constant.游戏当前期号);
+			String gameCurrentIssueNum = redisTemplate.opsForValue()
+					.get(placeOrderParam.getGameCode() + Constant.游戏当前期号);
 			if (StrUtil.isEmpty(gameCurrentIssueNum)) {
 				throw new BizException(BizError.休市中);
 			}
@@ -320,6 +323,7 @@ public class BettingService {
 			}
 			bettingOrder.setLotteryNum(issue.getLotteryNum());
 			bettingOrder.setState(state);
+
 			if (Constant.投注订单状态_未中奖.equals(state)) {
 				bettingOrderRepo.save(bettingOrder);
 			} else {
@@ -333,6 +337,75 @@ public class BettingService {
 				userAccountRepo.save(userAccount);
 				accountChangeLogRepo.save(AccountChangeLog.buildWithWinning(userAccount, bettingOrder));
 			}
+			generateBettingRebateAndNoticeSettlement(bettingOrder, bettingOrder.getUserAccount(),
+					bettingOrder.getUserAccount().getInviter());
+		}
+	}
+
+	/**
+	 * 生成投注返点并通知结算
+	 * 
+	 * @param bettingOrder
+	 * @param userAccount
+	 * @param superior
+	 */
+	public void generateBettingRebateAndNoticeSettlement(BettingOrder bettingOrder, UserAccount userAccount,
+			UserAccount superior) {
+		List<String> bettingRebateIds = new ArrayList<>();
+		while (superior != null) {
+			double rebate = NumberUtil.round(superior.getRebate() - userAccount.getRebate(), 4).doubleValue();
+			if (rebate < 0) {
+				log.error("投注返点异常,下级账号的返点不能大于上级账号;下级账号id:{},上级账号id:{}", userAccount.getId(), superior.getId());
+				break;
+			}
+			double rebateAmount = NumberUtil.round(rebate * 0.01 * bettingOrder.getTotalBettingAmount(), 4)
+					.doubleValue();
+			BettingRebate bettingRebate = BettingRebate.build(rebate, false, rebateAmount, bettingOrder.getId(),
+					superior.getId());
+			bettingRebateRepo.save(bettingRebate);
+			bettingRebateIds.add(bettingRebate.getId());
+			if (Constant.投注订单状态_已中奖.equals(bettingOrder.getState())) {
+				double winningRebateAmount = NumberUtil.round(rebate * 0.01 * bettingOrder.getTotalWinningAmount(), 4)
+						.doubleValue();
+				BettingRebate winningRebate = BettingRebate.build(rebate, true, winningRebateAmount,
+						bettingOrder.getId(), superior.getId());
+				bettingRebateRepo.save(winningRebate);
+				bettingRebateIds.add(winningRebate.getId());
+			}
+			userAccount = superior;
+			superior = superior.getInviter();
+		}
+		for (String bettingRebateId : bettingRebateIds) {
+			ThreadPoolUtils.getBettingRebateSettlementPool().schedule(() -> {
+				redisTemplate.opsForList().leftPush(Constant.投注返点ID, bettingRebateId);
+			}, 1, TimeUnit.SECONDS);
+		}
+	}
+
+	/**
+	 * 投注返点结算
+	 */
+	@Transactional
+	public void bettingRebateSettlement(@NotBlank String bettingRebateId) {
+		BettingRebate bettingRebate = bettingRebateRepo.getOne(bettingRebateId);
+		if (bettingRebate.getSettlementTime() != null) {
+			log.warn("当前的投注返点记录已结算,无法重复结算;id:{}", bettingRebateId);
+			return;
+		}
+		bettingRebate.settlement();
+		bettingRebateRepo.save(bettingRebate);
+		UserAccount userAccount = bettingRebate.getRebateAccount();
+		double balance = userAccount.getBalance() + bettingRebate.getRebateAmount();
+		userAccount.setBalance(NumberUtil.round(balance, 4).doubleValue());
+		userAccountRepo.save(userAccount);
+		accountChangeLogRepo.save(AccountChangeLog.buildWithBettingRebate(userAccount, bettingRebate));
+	}
+
+	@Transactional(readOnly = true)
+	public void bettingRebateAutoSettlement() {
+		List<BettingRebate> bettingRebates = bettingRebateRepo.findBySettlementTimeIsNull();
+		for (BettingRebate bettingRebate : bettingRebates) {
+			redisTemplate.opsForList().leftPush(Constant.投注返点ID, bettingRebate.getId());
 		}
 	}
 

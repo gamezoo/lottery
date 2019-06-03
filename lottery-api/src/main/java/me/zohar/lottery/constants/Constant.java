@@ -2,12 +2,14 @@ package me.zohar.lottery.constants;
 
 public class Constant {
 
+	public static final String 投注返点ID = "BETTING_REBATE_ID";
+
 	public static final String 登录提示_登录成功 = "登录成功";
 
 	public static final String 登录提示_不是管理员无法登陆后台 = "该账号不是管理员,无法登陆到后台";
-	
+
 	public static final String 登录提示_用户名或密码不正确 = "用户名或密码不正确";
-	
+
 	public static final String 登录提示_用户名不存在 = "用户名不存在";
 
 	public static final String 登录状态_成功 = "1";
@@ -95,6 +97,10 @@ public class Constant {
 	public static final String 账变日志类型_活动礼金 = "6";
 
 	public static final String 账变日志类型_撤单返款 = "7";
+	
+	public static final String 账变日志类型_投注返点 = "8";
+	
+	public static final String 账变日志类型_中奖返点 = "9";
 
 	public static final String 充提日志订单类型_充值 = "1";
 

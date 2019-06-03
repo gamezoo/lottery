@@ -90,8 +90,13 @@ public class UserAccountService {
 		if (existUserAccount != null && !existUserAccount.getId().equals(param.getUserAccountId())) {
 			throw new BizException(BizError.用户名已存在);
 		}
-
 		UserAccount userAccount = userAccountRepo.getOne(param.getUserAccountId());
+		if (userAccount.getInviter() != null) {
+			// 校验下级账号的返点不能大于上级账号
+			if (param.getRebate() > userAccount.getInviter().getRebate()) {
+				throw new BizException(BizError.下级账号的返点不能大于上级账号);
+			}
+		}
 		BeanUtils.copyProperties(param, userAccount);
 		userAccountRepo.save(userAccount);
 	}
@@ -209,7 +214,12 @@ public class UserAccountService {
 			if (inviter == null) {
 				throw new BizException(BizError.邀请人不存在);
 			}
+			// 校验下级账号的返点不能大于上级账号
+			if (param.getRebate() > inviter.getRebate()) {
+				throw new BizException(BizError.下级账号的返点不能大于上级账号);
+			}
 			newUserAccount.setInviterId(inviter.getId());
+			newUserAccount.setAccountLevel(inviter.getAccountLevel() + 1);
 		}
 		userAccountRepo.save(newUserAccount);
 		updateBalanceWithRegisterAmount(newUserAccount);

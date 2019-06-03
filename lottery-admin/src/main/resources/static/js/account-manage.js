@@ -2,12 +2,14 @@ var accountManageVM = new Vue({
 	el : '#account-manage',
 	data : {
 		accountTypeDictItems : [],
+		rebateAndOddsDictItems : [],
 		accountStateDictItems : [],
 		userName : '',
 		realName : '',
 
 		addUserAccountFlag : false,
 		selectedAccount : {},
+		selectedRebateAndOdds : {},
 		modifyLoginPwdFlag : false,
 		newLoginPwd : '',
 		modifyMoneyPwdFlag : false,
@@ -20,13 +22,14 @@ var accountManageVM = new Vue({
 	created : function() {
 	},
 	mounted : function() {
-		this.loadAccountTypeItem();
-		this.loadAccountStateItem();
+		this.loadAccountTypeDictItem();
+		this.loadRebateAndOddsDictItem();
+		this.loadAccountStateDictItem();
 		this.initTable();
 	},
 	methods : {
 
-		loadAccountTypeItem : function() {
+		loadAccountTypeDictItem : function() {
 			var that = this;
 			that.$http.get('/dictconfig/findDictItemInCache', {
 				params : {
@@ -37,7 +40,14 @@ var accountManageVM = new Vue({
 			});
 		},
 
-		loadAccountStateItem : function() {
+		loadRebateAndOddsDictItem : function() {
+			var that = this;
+			that.$http.get('/agent/findAllRebateAndOdds').then(function(res) {
+				this.rebateAndOddsDictItems = res.body.data;
+			});
+		},
+
+		loadAccountStateDictItem : function() {
 			var that = this;
 			that.$http.get('/dictconfig/findDictItemInCache', {
 				params : {
@@ -83,17 +93,31 @@ var accountManageVM = new Vue({
 					return html;
 				},
 				columns : [ {
-					field : 'userName',
-					title : '用户名'
+					title : '用户名',
+					formatter : function(value, row, index) {
+						var userName = row.userName;
+						if (row.accountType == 'admin') {
+							return userName + '(' + row.accountTypeName + ')';
+						}
+						return userName + '(' + row.accountLevel + '级' + row.accountTypeName + ')';
+					},
+					cellStyle : {
+						classes : 'user-name'
+					}
 				}, {
 					field : 'realName',
 					title : '真实姓名'
 				}, {
-					field : 'accountTypeName',
-					title : '账号类型'
-				}, {
 					field : 'balance',
 					title : '余额'
+				}, {
+					title : '返水/赔率',
+					formatter : function(value, row, index) {
+						if (row.rebate == null) {
+							return;
+						}
+						return row.rebate + '%/' + row.odds;
+					},
 				}, {
 					field : 'stateName',
 					title : '状态'
@@ -139,6 +163,7 @@ var accountManageVM = new Vue({
 				realName : '',
 				loginPwd : '',
 				accountType : '',
+				rebate : '',
 				state : ''
 			}
 		},
@@ -177,6 +202,20 @@ var accountManageVM = new Vue({
 					time : 3000
 				});
 				return;
+			}
+			if (selectedAccount.rebate == null || selectedAccount.rebate == '') {
+				layer.alert('请选择返点', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			for (var i = 0; i < that.rebateAndOddsDictItems.length; i++) {
+				if (selectedAccount.rebate == that.rebateAndOddsDictItems[i].rebate) {
+					selectedAccount.odds = that.rebateAndOddsDictItems[i].odds;
+					break;
+				}
 			}
 			if (selectedAccount.state == null || selectedAccount.state == '') {
 				layer.alert('请选择状态', {
@@ -260,6 +299,20 @@ var accountManageVM = new Vue({
 				});
 				return;
 			}
+			if (selectedAccount.rebate == null || selectedAccount.rebate == '') {
+				layer.alert('请选择返点', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			for (var i = 0; i < that.rebateAndOddsDictItems.length; i++) {
+				if (selectedAccount.rebate == that.rebateAndOddsDictItems[i].rebate) {
+					selectedAccount.odds = that.rebateAndOddsDictItems[i].odds;
+					break;
+				}
+			}
 			if (selectedAccount.state == null || selectedAccount.state == '') {
 				layer.alert('请选择状态', {
 					title : '提示',
@@ -273,6 +326,8 @@ var accountManageVM = new Vue({
 				userName : selectedAccount.userName,
 				realName : selectedAccount.realName,
 				accountType : selectedAccount.accountType,
+				rebate : selectedAccount.rebate,
+				odds : selectedAccount.odds,
 				state : selectedAccount.state
 			}, {
 				emulateJSON : true

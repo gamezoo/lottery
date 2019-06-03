@@ -14,13 +14,20 @@ import org.hibernate.annotations.DynamicUpdate;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * 返点/赔率
+ * 
+ * @author zohar
+ * @date 2019年6月2日
+ *
+ */
 @Getter
 @Setter
 @Entity
-@Table(name = "login_log")
+@Table(name = "rebate_and_odds")
 @DynamicInsert(true)
 @DynamicUpdate(true)
-public class LoginLog {
+public class RebateAndOdds {
 
 	/**
 	 * 主键id
@@ -29,21 +36,20 @@ public class LoginLog {
 	@Column(name = "id", length = 32)
 	private String id;
 
-	private String state;
+	/**
+	 * 返点
+	 */
+	private Double rebate;
 
-	private String ipAddr;
+	/**
+	 * 赔率
+	 */
+	private Double odds;
 
-	private String loginLocation;
-
-	private Date loginTime;
-
-	private String browser;
-
-	private String os;
-
-	private String msg;
-
-	private String userName;
+	/**
+	 * 创建时间
+	 */
+	private Date createTime;
 
 	/**
 	 * 乐观锁版本号

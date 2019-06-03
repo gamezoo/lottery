@@ -121,7 +121,7 @@ public class DictService {
 			}
 		};
 		Page<DictType> result = dictTypeRepo.findAll(spec,
-				PageRequest.of(param.getPageNum() - 1, param.getPageSize(), Sort.by(Sort.Order.desc("dictTypeCode"))));
+				PageRequest.of(param.getPageNum() - 1, param.getPageSize(), Sort.by(Sort.Order.asc("dictTypeCode"))));
 		PageResult<DictTypeVO> pageResult = new PageResult<>(DictTypeVO.convertFor(result.getContent()),
 				param.getPageNum(), param.getPageSize(), result.getTotalElements());
 		return pageResult;

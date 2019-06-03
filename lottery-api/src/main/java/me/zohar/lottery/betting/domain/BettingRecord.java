@@ -27,7 +27,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "betting_record", schema = "lottery")
+@Table(name = "betting_record")
 @DynamicInsert(true)
 @DynamicUpdate(true)
 public class BettingRecord {

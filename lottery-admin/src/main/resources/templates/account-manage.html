@@ -48,7 +48,16 @@
 	</div>
 </script>
 <style type="text/css">
+.account-manage-table .user-name {
+	color: #ec494c;
+}
+
 .add-account-modal-dialog {
+	max-width: 100%;
+	width: 40%;
+}
+
+.account-edit-modal-dialog {
 	max-width: 100%;
 	width: 40%;
 }
@@ -105,17 +114,25 @@
 										</div>
 									</div>
 									<div class="form-group row">
-										<div class="col-sm-6">
+										<div class="col-sm-4">
 											<label>账号类型:</label>
 											<div>
-												<template v-for="dictItem in accountTypeDictItems">
-												<div class="custom-control custom-radio custom-control-inline">
-													<input type="radio" class="custom-control-input" :id="'accountType' + dictItem.dictItemCode" v-model="selectedAccount.accountType" :value="dictItem.dictItemCode"> <label class="custom-control-label" :for="'accountType' + dictItem.dictItemCode">{{dictItem.dictItemName}}</label>
-												</div>
-												</template>
+												<select class="form-control" v-model="selectedAccount.accountType">
+													<option value="">请选择</option>
+													<option v-for="dictItem in accountTypeDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
+												</select>
 											</div>
 										</div>
-										<div class="col-sm-6">
+										<div class="col-sm-4">
+											<label>返点/赔率:</label>
+											<div>
+												<select class="form-control" v-model="selectedAccount.rebate">
+													<option value="">请选择</option>
+													<option v-for="dictItem in rebateAndOddsDictItems" :value="dictItem.rebate">{{dictItem.rebate}}%/{{dictItem.odds}}</option>
+												</select>
+											</div>
+										</div>
+										<div class="col-sm-4">
 											<label>状态:</label>
 											<div>
 												<template v-for="dictItem in accountStateDictItems">
@@ -161,19 +178,25 @@
 										</div>
 									</div>
 									<div class="form-group row">
-										<div class="col-sm-12">
+										<div class="col-sm-4">
 											<label>账号类型:</label>
 											<div>
-												<template v-for="dictItem in accountTypeDictItems">
-												<div class="custom-control custom-radio custom-control-inline">
-													<input type="radio" class="custom-control-input" :id="'accountType' + dictItem.dictItemCode" v-model="selectedAccount.accountType" :value="dictItem.dictItemCode"> <label class="custom-control-label" :for="'accountType' + dictItem.dictItemCode">{{dictItem.dictItemName}}</label>
-												</div>
-												</template>
+												<select class="form-control" v-model="selectedAccount.accountType">
+													<option value="">请选择</option>
+													<option v-for="dictItem in accountTypeDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
+												</select>
 											</div>
 										</div>
-									</div>
-									<div class="form-group row">
-										<div class="col-sm-12">
+										<div class="col-sm-4">
+											<label>返点/赔率:</label>
+											<div>
+												<select class="form-control" v-model="selectedAccount.rebate">
+													<option value="">请选择</option>
+													<option v-for="dictItem in rebateAndOddsDictItems" :value="dictItem.rebate">{{dictItem.rebate}}%/{{dictItem.odds}}</option>
+												</select>
+											</div>
+										</div>
+										<div class="col-sm-4">
 											<label>状态:</label>
 											<div>
 												<template v-for="dictItem in accountStateDictItems">
