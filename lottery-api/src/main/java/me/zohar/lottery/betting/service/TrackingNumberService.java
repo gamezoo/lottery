@@ -95,6 +95,8 @@ public class TrackingNumberService {
 			placeOrderParam.setIssueNum(planParam.getIssueNum());
 			placeOrderParam.setBaseAmount(startTrackingNumberParam.getBaseAmount());
 			placeOrderParam.setMultiple(planParam.getMultiple());
+			placeOrderParam.setTrackingNumberFlag(true);
+			placeOrderParam.setRebate(startTrackingNumberParam.getRebate());
 			placeOrderParam.setBettingRecords(startTrackingNumberParam.getBettingRecords());
 			String bettingOrderId = bettingService.placeOrder(placeOrderParam, userAccountId);
 			planParam.setBettingOrderId(bettingOrderId);

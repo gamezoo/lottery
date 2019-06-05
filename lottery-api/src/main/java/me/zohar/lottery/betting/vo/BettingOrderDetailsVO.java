@@ -90,6 +90,21 @@ public class BettingOrderDetailsVO {
 	private Double totalProfitAndLoss;
 
 	/**
+	 * 追号标识
+	 */
+	private Boolean trackingNumberFlag;
+
+	/**
+	 * 返点
+	 */
+	private Double rebate;
+
+	/**
+	 * 返点金额
+	 */
+	private Double rebateAmount;
+
+	/**
 	 * 状态
 	 */
 	private String state;

@@ -150,7 +150,7 @@
 			created : function() {
 			},
 			methods : {
-				showTrackingNumberModal : function(gameCode, baseAmount, preBettingRecords, trackingNumberCallBack) {
+				showTrackingNumberModal : function(gameCode, baseAmount, rebate, preBettingRecords, trackingNumberCallBack) {
 					var that = this;
 					that.$http.get('/issue/findTodayTrackingNumberIssue', {
 						params : {
@@ -164,6 +164,7 @@
 						that.trackingNumberIssues = trackingNumberIssues;
 						that.gameCode = gameCode;
 						that.baseAmount = baseAmount;
+						that.rebate = rebate;
 						that.preBettingRecords = preBettingRecords;
 						that.trackingNumberCallBack = trackingNumberCallBack;
 						that.winToStop = true;
@@ -245,6 +246,7 @@
 					var startTrackingNumberParam = {
 						gameCode : that.gameCode,
 						baseAmount : that.baseAmount,
+						rebate : that.rebate,
 						winToStop : that.winToStop,
 						bettingRecords : that.preBettingRecords,
 						plans : that.trackingNumberRecords

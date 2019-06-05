@@ -499,7 +499,7 @@ new Vue({
 					shade : false
 				});
 				that.clearPreBettingOrder();
-				header.refreshBalance();
+				headerVM.refreshBalance();
 				that.refreshTodayLatestBettingRecord();
 			});
 		},
@@ -622,7 +622,7 @@ new Vue({
 						that.refreshLatelyIssue(true);
 					}, 5000);
 				} else if (updateFlag) {
-					header.refreshBalance();
+					headerVM.refreshBalance();
 					that.refreshLatelyThe5TimeIssue();
 					that.refreshTodayLatestBettingRecord();
 				}

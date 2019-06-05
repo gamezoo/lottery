@@ -41,6 +41,13 @@ public class StartTrackingNumberParam {
 	private Double baseAmount;
 	
 	/**
+	 * 返点
+	 */
+	@NotNull
+	@DecimalMin(value = "0", inclusive = true)
+	private Double rebate;
+	
+	/**
 	 * 中奖即停
 	 */
 	@NotNull

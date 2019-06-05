@@ -14,7 +14,7 @@ public class SyncJs11x5LotteryNumTask {
 	@Autowired
 	private Js11x5Service js11x5Service;
 
-	@Scheduled(fixedRate = 6000)
+//	@Scheduled(fixedRate = 6000)
 	public void execute() {
 		try {
 			log.info("执行同步江苏11选5开奖号码定时任务start");

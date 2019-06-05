@@ -14,7 +14,7 @@ public class SyncYnsscLotteryNumTask {
 	@Autowired
 	private YnsscService ynsscService;
 
-	@Scheduled(fixedRate = 6000)
+//	@Scheduled(fixedRate = 6000)
 	public void execute() {
 		try {
 			log.info("执行同步云南时时彩开奖号码定时任务start");

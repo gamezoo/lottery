@@ -115,7 +115,7 @@ public class BettingRebate {
 		BettingRebate bettingRebate = new BettingRebate();
 		bettingRebate.setId(IdUtils.getId());
 		bettingRebate.setCreateTime(new Date());
-		bettingRebate.setRebate(rebateAmount);
+		bettingRebate.setRebate(rebate);
 		bettingRebate.setWinningRebateFlag(winningRebateFlag);
 		bettingRebate.setRebateAmount(rebateAmount);
 		bettingRebate.setBettingOrderId(bettingOrderId);

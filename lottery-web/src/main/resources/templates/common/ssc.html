@@ -86,36 +86,39 @@
 						</div>
 					</div>
 				</div>
-				<div class="pre-betting-btn-operation-area">
-					<button type="button" class="btn btn-success btn-sm" v-on:click="addToPreBettingOrder">添加号码</button>
-					<button type="button" class="btn btn-danger btn-sm" v-on:click="onekeyPlaceOrder">一键投注</button>
-					<button type="button" class="btn btn-success btn-sm">机选10注</button>
-					<!-- <button type="button" class="btn btn-danger btn-sm" v-bind:class="{'disabled': bettingCount <= 1}">显示包牌组合</button> -->
+				<div class="row pre-betting-btn-operation-area">
+					<div class="col-sm-4 odds-and-rebate">
+						<span>赔率/返点:</span> <input type="range" min="1" :max="rebateAndOddses.length" v-model="oddsAndRebateIndex" v-on:change="changeSelectedOddsAndRebate" /> <span>{{numberFormat(selectedPlay.odds * selectedOddsAndRebate.odds)}}/{{numberFormat(headerVM.rebate - selectedOddsAndRebate.rebate)}}%</span>
+					</div>
+					<div class="col-sm-4 multiple-total">
+						您当前选择了 <em class="betting-count">{{bettingCount}}</em> 注,共￥ <em class="betting-amount">{{numberFormat(bettingCount * baseAmount)}}</em>
+					</div>
+					<div class="col-sm-4">
+						<div style="float: right;">
+							<button type="button" class="btn btn-sm" v-on:click="addToPreBettingOrder">添加号码</button>
+							<button type="button" class="btn btn-danger btn-sm" v-on:click="onekeyPlaceOrder">一键投注</button>
+							<button type="button" class="btn btn-success btn-sm">机选10注</button>
+							<!-- <button type="button" class="btn btn-danger btn-sm" v-bind:class="{'disabled': bettingCount <= 1}">显示包牌组合</button> -->
+						</div>
+					</div>
 				</div>
 				<div class="row betting-amount-area">
-					<div class="col-sm-2 base-amount">
+					<div class="col-sm-3 base-amount">
 						<div>
-							<span v-on:click="switchYuanJiaoMode(2)" v-bind:class="{'selected-base-amount': baseAmount == 2}">2元</span> <span v-on:click="switchYuanJiaoMode(0.2)" v-bind:class="{'selected-base-amount': baseAmount == 0.2}">2角</span>
-						</div>
-						<div>
-							<span v-on:click="switchYuanJiaoMode(1)" v-bind:class="{'selected-base-amount': baseAmount == 1}">1元</span> <span v-on:click="switchYuanJiaoMode(0.1)" v-bind:class="{'selected-base-amount': baseAmount == 0.1}">1角</span>
+							<span v-on:click="switchYuanJiaoMode(2)" v-bind:class="{'selected-base-amount': baseAmount == 2}">2元</span> <span v-on:click="switchYuanJiaoMode(0.2)" v-bind:class="{'selected-base-amount': baseAmount == 0.2}">2角</span><span v-on:click="switchYuanJiaoMode(1)" v-bind:class="{'selected-base-amount': baseAmount == 1}">1元</span> <span v-on:click="switchYuanJiaoMode(0.1)" v-bind:class="{'selected-base-amount': baseAmount == 0.1}">1角</span>
 						</div>
 					</div>
 					<div class="col-sm-4">
 						<div class="betting-multiple">
 							<span class="betting-multiple-label">倍数</span> <span class="betting-multiple-btn" v-on:click="multipleSubtract1">-</span> <input class="betting-multiple-value" maxlength="5" v-model="inputMultiple"><span class="betting-multiple-btn" v-on:click="multipleAdd1">+</span>
 						</div>
-						<div class="multiple-total">
-							您当前选择了 <em class="betting-count">{{bettingCount}}</em> 注,共￥ <em class="betting-amount">{{bettingCount * baseAmount}}</em>
-						</div>
 					</div>
-					<div class="col-sm-4 offset-md-2">
+					<div class="col-sm-4 offset-md-1">
 						<div class="play-introduce-play-odds">
 							<i class="clear-pre-betting-order-btn" v-on:click="clearPreBettingOrder"> <i class="fa fa-trash" aria-hidden="true"></i>清空
-							</i> 
-							<i class="play-introduce" v-on:mouseenter="showPlayIntroduceDesc" v-on:mouseleave="hidePlayIntroduceDesc"> <i class="fa fa-question-circle" aria-hidden="true"></i>玩法介绍
+							</i> <i class="play-introduce" v-on:mouseenter="showPlayIntroduceDesc" v-on:mouseleave="hidePlayIntroduceDesc"> <i class="fa fa-question-circle" aria-hidden="true"></i>玩法介绍
 								<div class="play-introduce-desc" style="display: none;">{{selectedPlay.gamePlayDesc}}</div>
-							</i> <i class="play-odds" v-if="selectedPlay.oddsMode == '1'"><label class="play-odds-label">赔率:</label><label class="play-odds-value">{{selectedPlay.odds}}</label></i>
+							</i>
 						</div>
 					</div>
 				</div>
@@ -137,7 +140,7 @@
 										<td>{{preBettingRecord.gamePlayName}}</td>
 										<td class="pre-betting-selected-no">{{preBettingRecord.selectedNo}}</td>
 										<td>{{preBettingRecord.bettingCount}}注</td>
-										<td class="pre-betting-amount">￥{{baseAmount * multiple * preBettingRecord.bettingCount}}</td>
+										<td class="pre-betting-amount">￥{{numberFormat(baseAmount * multiple * preBettingRecord.bettingCount)}}</td>
 										<td class="del-pre-betting-record" v-on:click="delPreBettingOrder(index)"><span>X</span></td>
 									</tr>
 								</tbody>
@@ -147,7 +150,7 @@
 				</div>
 				<div class="row betting-btn-operation-area">
 					<div class="col-sm-6 betting-total">
-						<span>总计<em class="betting-count">{{preBettingTotalCount}}</em>注, 合计￥<em class="betting-amount">{{preBettingTotalAmount}}</em>
+						<span>总计<em class="betting-count">{{preBettingTotalCount}}</em>注, 合计￥<em class="betting-amount">{{numberFormat(preBettingTotalAmount)}}</em>
 						</span>
 					</div>
 					<div class="col-sm-3 offset-md-3 betting-btn-operation">

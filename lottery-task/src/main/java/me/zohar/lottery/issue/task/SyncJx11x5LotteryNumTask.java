@@ -14,7 +14,7 @@ public class SyncJx11x5LotteryNumTask {
 	@Autowired
 	private Jx11x5Service jx11x5Service;
 
-	@Scheduled(fixedRate = 6000)
+//	@Scheduled(fixedRate = 6000)
 	public void execute() {
 		try {
 			log.info("执行同步江西11选5开奖号码定时任务start");

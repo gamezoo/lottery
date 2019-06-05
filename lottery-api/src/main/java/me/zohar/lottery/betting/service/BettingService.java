@@ -53,8 +53,10 @@ import me.zohar.lottery.issue.domain.Issue;
 import me.zohar.lottery.issue.enums.GamePlayEnum;
 import me.zohar.lottery.issue.repo.IssueRepo;
 import me.zohar.lottery.useraccount.domain.AccountChangeLog;
+import me.zohar.lottery.useraccount.domain.RebateAndOdds;
 import me.zohar.lottery.useraccount.domain.UserAccount;
 import me.zohar.lottery.useraccount.repo.AccountChangeLogRepo;
+import me.zohar.lottery.useraccount.repo.RebateAndOddsRepo;
 import me.zohar.lottery.useraccount.repo.UserAccountRepo;
 
 @Validated
@@ -85,6 +87,9 @@ public class BettingService {
 
 	@Autowired
 	private BettingRebateRepo bettingRebateRepo;
+
+	@Autowired
+	private RebateAndOddsRepo rebateAndOddsRepo;
 
 	@Transactional(readOnly = true)
 	public List<WinningRankVO> findTop50WinningRank() {
@@ -223,6 +228,7 @@ public class BettingService {
 			}
 		}
 
+		UserAccount userAccount = userAccountRepo.getOne(userAccountId);
 		long totalBettingCount = 0;
 		double totalBettingAmount = 0;
 		List<BettingRecord> bettingRecords = new ArrayList<>();
@@ -236,16 +242,29 @@ public class BettingService {
 				throw new BizException(BizError.游戏玩法被禁用);
 			}
 			Double odds = gamePlay.getOdds();
+			Double accountOdds = userAccount.getOdds();
 			if (odds == null || odds <= 0) {
 				throw new BizException(BizError.玩法赔率异常);
 			}
+			if (placeOrderParam.getRebate() > userAccount.getRebate()) {
+				throw new BizException(BizError.返点不能大于账号设置的返点);
+			}
+			if (placeOrderParam.getRebate() > 0) {
+				RebateAndOdds rebateAndOdds = rebateAndOddsRepo.findTopByRebate(
+						NumberUtil.round(userAccount.getRebate() - placeOrderParam.getRebate(), 4).doubleValue());
+				if (rebateAndOdds == null) {
+					throw new BizException(BizError.该返点赔率记录未设置);
+				}
+				accountOdds = rebateAndOdds.getOdds();
+			}
+
+			odds = NumberUtil.round(odds * accountOdds, 4).doubleValue();
 			double bettingAmount = NumberUtil.round(bettingRecordParam.getBettingCount()
 					* placeOrderParam.getBaseAmount() * placeOrderParam.getMultiple(), 4).doubleValue();
 			bettingRecords.add(bettingRecordParam.convertToPo(bettingAmount, odds));
 			totalBettingCount += bettingRecordParam.getBettingCount();
 			totalBettingAmount += bettingAmount;
 		}
-		UserAccount userAccount = userAccountRepo.getOne(userAccountId);
 		double balance = NumberUtil.round(userAccount.getBalance() - totalBettingAmount, 4).doubleValue();
 		if (userAccount.getBalance() <= 0 || balance < 0) {
 			throw new BizException(BizError.余额不足);
@@ -272,6 +291,7 @@ public class BettingService {
 	public void changeOrder(List<ChangeOrderParam> params) {
 		for (ChangeOrderParam param : params) {
 			BettingOrder bettingOrder = bettingOrderRepo.getOne(param.getBettingOrderId());
+			UserAccount userAccount = bettingOrder.getUserAccount();
 			GamePlay gamePlay = gamePlayRepo.findByGameCodeAndGamePlayCode(bettingOrder.getGameCode(),
 					param.getGamePlayCode());
 			if (gamePlay == null) {
@@ -281,10 +301,11 @@ public class BettingService {
 			if (odds == null || odds <= 0) {
 				throw new BizException(BizError.玩法赔率异常);
 			}
+			odds = NumberUtil.round(odds * userAccount.getOdds(), 4).doubleValue();
 
 			BettingRecord bettingRecord = bettingRecordRepo.getOne(param.getBettingRecordId());
 			bettingRecord.setGamePlayCode(gamePlay.getGamePlayCode());
-			bettingRecord.setOdds(gamePlay.getOdds());
+			bettingRecord.setOdds(odds);
 			bettingRecord.setSelectedNo(param.getSelectedNo());
 			bettingRecordRepo.save(bettingRecord);
 		}
@@ -337,8 +358,7 @@ public class BettingService {
 				userAccountRepo.save(userAccount);
 				accountChangeLogRepo.save(AccountChangeLog.buildWithWinning(userAccount, bettingOrder));
 			}
-			generateBettingRebateAndNoticeSettlement(bettingOrder, bettingOrder.getUserAccount(),
-					bettingOrder.getUserAccount().getInviter());
+			generateBettingRebateAndNoticeSettlement(bettingOrder);
 		}
 	}
 
@@ -346,12 +366,18 @@ public class BettingService {
 	 * 生成投注返点并通知结算
 	 * 
 	 * @param bettingOrder
-	 * @param userAccount
-	 * @param superior
 	 */
-	public void generateBettingRebateAndNoticeSettlement(BettingOrder bettingOrder, UserAccount userAccount,
-			UserAccount superior) {
+	public void generateBettingRebateAndNoticeSettlement(BettingOrder bettingOrder) {
 		List<String> bettingRebateIds = new ArrayList<>();
+		// 自身投注的返点
+		if (bettingOrder.getRebateAmount() > 0) {
+			BettingRebate bettingRebate = BettingRebate.build(bettingOrder.getRebate(), false,
+					bettingOrder.getRebateAmount(), bettingOrder.getId(), bettingOrder.getUserAccountId());
+			bettingRebateRepo.save(bettingRebate);
+			bettingRebateIds.add(bettingRebate.getId());
+		}
+		UserAccount userAccount = bettingOrder.getUserAccount();
+		UserAccount superior = bettingOrder.getUserAccount().getInviter();
 		while (superior != null) {
 			double rebate = NumberUtil.round(superior.getRebate() - userAccount.getRebate(), 4).doubleValue();
 			if (rebate < 0) {

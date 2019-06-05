@@ -143,7 +143,7 @@
 				}
 			};
 		});
-		var header = new Vue({
+		var headerVM = new Vue({
 			el : '#header',
 			data : {
 				currentPathName : '',
@@ -152,6 +152,8 @@
 				password : '',
 				balance : '',
 				accountType : '',
+				rebate : '',
+				odds : '',
 				games : []
 			},
 			computed : {},
@@ -223,6 +225,8 @@
 							that.userName = res.body.data.userName;
 							that.balance = '￥' + res.body.data.balance;
 							that.accountType = res.body.data.accountType;
+							that.rebate = res.body.data.rebate;
+							that.odds = res.body.data.odds;
 						}
 					});
 				},

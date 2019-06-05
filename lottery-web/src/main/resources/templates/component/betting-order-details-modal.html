@@ -1,7 +1,6 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <style>
-
 .betting-order-details-dialog {
 	max-width: 100%;
 	width: 50%;
@@ -16,7 +15,6 @@
 	padding-left: 10px;
 	color: #E37D23;
 }
-
 </style>
 </head>
 
@@ -74,12 +72,20 @@
 										<label>订单状态:</label> <span>{{bettingOrderDetails.stateName}}</span>
 									</div>
 									<div class="col-sm-6 form-details-item">
-										<label>开奖号码:</label> <span class="form-details-item-highlight">{{bettingOrderDetails.lotteryNum}}</span>
+										<label>返点金额:</label> <span class="form-details-item-highlight">{{bettingOrderDetails.rebateAmount}}元</span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-6 form-details-item">
+										<label>订单盈亏:</label> <span class="form-details-item-highlight">{{bettingOrderDetails.totalProfitAndLoss}}元</span>
+									</div>
+									<div class="col-sm-6 form-details-item">
+										<label>是否追号:</label> <span class="form-details-item-highlight">{{bettingOrderDetails.trackingNumberFlag ? '是' : '否'}}</span>
 									</div>
 								</div>
 								<div class="row">
 									<div class="col-sm-6 offset-md-6 form-details-item">
-										<label>订单盈亏:</label> <span class="form-details-item-highlight">{{bettingOrderDetails.totalProfitAndLoss}}元</span>
+										<label>开奖号码:</label> <span class="form-details-item-highlight">{{bettingOrderDetails.lotteryNum}}</span>
 									</div>
 								</div>
 								<div class="form-details-summary-title" style="">订单明细</div>

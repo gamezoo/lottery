@@ -25,18 +25,28 @@ public class UserAccountInfoVO {
 	 * 用户名
 	 */
 	private String userName;
-	
+
 	/**
 	 * 真实姓名
 	 */
 	private String realName;
-	
+
 	/**
 	 * 账号类型
 	 */
 	private String accountType;
 
 	private String accountTypeName;
+
+	/**
+	 * 返点
+	 */
+	private Double rebate;
+
+	/**
+	 * 赔率
+	 */
+	private Double odds;
 
 	/**
 	 * 余额

@@ -57,7 +57,7 @@ public class BettingOrder {
 	 * 投注时间
 	 */
 	private Date bettingTime;
-	
+
 	/**
 	 * 撤单时间
 	 */
@@ -114,6 +114,21 @@ public class BettingOrder {
 	private String state;
 
 	/**
+	 * 追号标识
+	 */
+	private Boolean trackingNumberFlag;
+
+	/**
+	 * 返点
+	 */
+	private Double rebate;
+
+	/**
+	 * 返点金额
+	 */
+	private Double rebateAmount;
+
+	/**
 	 * 乐观锁版本号
 	 */
 	@Version
@@ -144,7 +159,7 @@ public class BettingOrder {
 	@OneToMany(fetch = FetchType.LAZY)
 	@JoinColumn(name = "betting_order_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	private Set<BettingRecord> bettingRecords;
-	
+
 	public void cancelOrder() {
 		this.setCancelOrderTime(new Date());
 		this.setState(Constant.投注订单状态_已撤单);

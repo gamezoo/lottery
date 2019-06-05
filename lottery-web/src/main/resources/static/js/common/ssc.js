@@ -31,7 +31,10 @@ var ssc = new Vue({
 		subGamePlayCategorys : [],
 		selectedPlay : {},
 		// 选号号位集合
-		numLocates : []
+		numLocates : [],
+		rebateAndOddses : [],
+		oddsAndRebateIndex : 1,
+		selectedOddsAndRebate : {}
 	},
 	computed : {
 		// 监听倍数输入框的值,控制只能输入正整数数字
@@ -86,9 +89,43 @@ var ssc = new Vue({
 		this.loadGamePlay();
 		this.refreshLatelyThe5TimeIssue();
 		this.refreshTodayLatestBettingRecord();
-
+		this.initRebateAndOddsData();
 	},
 	methods : {
+		changeSelectedOddsAndRebate : function() {
+			this.selectedOddsAndRebate = this.rebateAndOddses[this.oddsAndRebateIndex - 1];
+		},
+
+		initRebateAndOddsData : function() {
+			var that = this;
+			this.$http.get('/agent/findAllRebateAndOdds').then(function(res) {
+				var resResult = res.body.data;
+				var currentAccountRebateAndOddsAddedFlag = false;
+				var rebateAndOddses = [];
+				for (var i = 0; i < resResult.length; i++) {
+					if (resResult[i].rebate <= headerVM.rebate) {
+						rebateAndOddses.push({
+							rebate : resResult[i].rebate,
+							odds : resResult[i].odds
+						});
+						if (resResult[i].rebate == headerVM.rebate) {
+							currentAccountRebateAndOddsAddedFlag = true;
+						}
+					}
+				}
+				if (!currentAccountRebateAndOddsAddedFlag) {
+					rebateAndOddses.push({
+						rebate : headerVM.rebate,
+						odds : headerVM.odds
+					});
+				}
+				rebateAndOddses.reverse();
+				that.rebateAndOddses = rebateAndOddses;
+				that.oddsAndRebateIndex = that.rebateAndOddses.length;
+				that.selectedOddsAndRebate = that.rebateAndOddses[that.oddsAndRebateIndex - 1];
+			});
+		},
+
 		showTrackingNumberModal : function() {
 			if (this.preBettingRecords.length == 0) {
 				layer.alert('请先选择投注号码', {
@@ -98,13 +135,13 @@ var ssc = new Vue({
 				});
 				return;
 			}
-			trackingNumberModal.showTrackingNumberModal(this.gameCode, this.baseAmount, this.preBettingRecords, this.trackingNumberCallBack);
+			trackingNumberModal.showTrackingNumberModal(this.gameCode, this.baseAmount, this.numberFormat(headerVM.rebate - this.selectedOddsAndRebate.rebate), this.preBettingRecords, this.trackingNumberCallBack);
 		},
 
 		trackingNumberCallBack : function() {
 			this.clearPreBettingOrder();
 			this.refreshTodayLatestBettingRecord();
-			header.refreshBalance();
+			headerVM.refreshBalance();
 		},
 
 		showPlayIntroduceDesc : function() {
@@ -168,6 +205,10 @@ var ssc = new Vue({
 			}
 			this.numLocates = numLocates;
 			this.resetBettingCountAndAmount();
+		},
+
+		numberFormat : function(num) {
+			return parseFloat(Number(num).toFixed(4));
 		},
 
 		/**
@@ -537,6 +578,8 @@ var ssc = new Vue({
 				issueNum : that.currentIssue.issueNum,
 				baseAmount : that.baseAmount,
 				multiple : that.multiple,
+				trackingNumberFlag : false,
+				rebate : that.numberFormat(headerVM.rebate - that.selectedOddsAndRebate.rebate),
 				bettingRecords : that.preBettingRecords
 			};
 			that.$http.post('/betting/placeOrder', placeOrderParam).then(function(res) {
@@ -546,7 +589,7 @@ var ssc = new Vue({
 					shade : false
 				});
 				that.clearPreBettingOrder();
-				header.refreshBalance();
+				headerVM.refreshBalance();
 				that.refreshTodayLatestBettingRecord();
 			});
 		},
@@ -669,7 +712,7 @@ var ssc = new Vue({
 						that.refreshLatelyIssue(true);
 					}, 5000);
 				} else if (updateFlag) {
-					header.refreshBalance();
+					headerVM.refreshBalance();
 					that.refreshLatelyThe5TimeIssue();
 					that.refreshTodayLatestBettingRecord();
 				}

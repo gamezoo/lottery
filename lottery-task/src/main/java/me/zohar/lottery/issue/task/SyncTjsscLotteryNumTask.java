@@ -14,7 +14,7 @@ public class SyncTjsscLotteryNumTask {
 	@Autowired
 	private TjsscService tjsscService;
 
-	@Scheduled(fixedRate = 6000)
+//	@Scheduled(fixedRate = 6000)
 	public void execute() {
 		try {
 			log.info("执行同步天津时时彩开奖号码定时任务start");

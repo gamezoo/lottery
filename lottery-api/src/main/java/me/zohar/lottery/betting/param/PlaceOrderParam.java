@@ -11,6 +11,7 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.BeanUtils;
 
+import cn.hutool.core.util.NumberUtil;
 import lombok.Data;
 import me.zohar.lottery.betting.domain.BettingOrder;
 import me.zohar.lottery.common.utils.IdUtils;
@@ -53,9 +54,22 @@ public class PlaceOrderParam {
 	private Double multiple;
 
 	/**
+	 * 追号标识
+	 */
+	@NotNull
+	private Boolean trackingNumberFlag;
+
+	/**
+	 * 返点
+	 */
+	@NotNull
+	@DecimalMin(value = "0", inclusive = true)
+	private Double rebate;
+
+	/**
 	 * 投注记录集合
 	 */
-	@NotEmpty(message = "bettingRecords不能为空")
+	@NotEmpty
 	@Valid
 	private List<BettingRecordParam> bettingRecords;
 
@@ -71,6 +85,7 @@ public class PlaceOrderParam {
 		po.setTotalBettingCount(totalBettingCount);
 		po.setTotalWinningAmount(0d);
 		po.setTotalProfitAndLoss(-totalBettingAmount);
+		po.setRebateAmount(NumberUtil.round(po.getRebate() * 0.01 * totalBettingAmount, 4).doubleValue());
 		po.setState(Constant.投注订单状态_未开奖);
 		po.setUserAccountId(userAccountId);
 		return po;
