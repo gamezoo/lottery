@@ -3,6 +3,8 @@ package me.zohar.lottery.constants;
 public class Constant {
 
 	public static final String 投注返点ID = "BETTING_REBATE_ID";
+	
+	public static final String 返点结算期号ID = "REBATE_SETTLEMENT_ISSUE_ID";
 
 	public static final String 登录提示_登录成功 = "登录成功";
 

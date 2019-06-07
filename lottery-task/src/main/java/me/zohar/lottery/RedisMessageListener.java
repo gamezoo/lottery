@@ -29,7 +29,7 @@ public class RedisMessageListener {
 
 	@Autowired
 	private RechargeService rechargeService;
-	
+
 	@Autowired
 	private BettingService bettingService;
 
@@ -41,6 +41,29 @@ public class RedisMessageListener {
 	}
 
 	public void listenBettingRebateSettlement() {
+		new Thread(() -> {
+			while (true) {
+				try {
+					String issueId = redisTemplate.opsForList().rightPop(Constant.返点结算期号ID, 2L, TimeUnit.SECONDS);
+					if (StrUtil.isBlank(issueId)) {
+						continue;
+					}
+
+					ThreadPoolUtils.getLotterySettlementPool().execute(() -> {
+						try {
+							log.info("系统通知该期进行返点结算,id为{}", issueId);
+							bettingService.noticeIssueRebateSettlement(issueId);
+						} catch (Exception e) {
+							log.error(MessageFormat.format("系统通知该期进行返点结算出现异常,id为{0}", issueId), e);
+							throw new RuntimeException();
+						}
+					});
+				} catch (Exception e) {
+					log.error("系统通知该期进行返点结算消息队列异常", e);
+				}
+			}
+		}).start();
+
 		new Thread(() -> {
 			while (true) {
 				try {

@@ -11,5 +11,7 @@ public interface BettingRebateRepo
 		extends JpaRepository<BettingRebate, String>, JpaSpecificationExecutor<BettingRebate> {
 
 	List<BettingRebate> findBySettlementTimeIsNull();
+	
+	List<BettingRebate> findByBettingOrderId(String bettingOrderId);
 
 }

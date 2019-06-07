@@ -27,6 +27,8 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
+import me.zohar.lottery.agent.domain.RebateAndOdds;
+import me.zohar.lottery.agent.repo.RebateAndOddsRepo;
 import me.zohar.lottery.betting.domain.BettingOrder;
 import me.zohar.lottery.betting.domain.BettingRebate;
 import me.zohar.lottery.betting.domain.BettingRecord;
@@ -53,10 +55,8 @@ import me.zohar.lottery.issue.domain.Issue;
 import me.zohar.lottery.issue.enums.GamePlayEnum;
 import me.zohar.lottery.issue.repo.IssueRepo;
 import me.zohar.lottery.useraccount.domain.AccountChangeLog;
-import me.zohar.lottery.useraccount.domain.RebateAndOdds;
 import me.zohar.lottery.useraccount.domain.UserAccount;
 import me.zohar.lottery.useraccount.repo.AccountChangeLogRepo;
-import me.zohar.lottery.useraccount.repo.RebateAndOddsRepo;
 import me.zohar.lottery.useraccount.repo.UserAccountRepo;
 
 @Validated
@@ -358,23 +358,24 @@ public class BettingService {
 				userAccountRepo.save(userAccount);
 				accountChangeLogRepo.save(AccountChangeLog.buildWithWinning(userAccount, bettingOrder));
 			}
-			generateBettingRebateAndNoticeSettlement(bettingOrder);
+			generateBettingRebate(bettingOrder);
 		}
+		ThreadPoolUtils.getBettingRebateSettlementPool().schedule(() -> {
+			redisTemplate.opsForList().leftPush(Constant.返点结算期号ID, issueId);
+		}, 1, TimeUnit.SECONDS);
 	}
 
 	/**
-	 * 生成投注返点并通知结算
+	 * 生成投注返点
 	 * 
 	 * @param bettingOrder
 	 */
-	public void generateBettingRebateAndNoticeSettlement(BettingOrder bettingOrder) {
-		List<String> bettingRebateIds = new ArrayList<>();
+	public void generateBettingRebate(BettingOrder bettingOrder) {
 		// 自身投注的返点
 		if (bettingOrder.getRebateAmount() > 0) {
 			BettingRebate bettingRebate = BettingRebate.build(bettingOrder.getRebate(), false,
 					bettingOrder.getRebateAmount(), bettingOrder.getId(), bettingOrder.getUserAccountId());
 			bettingRebateRepo.save(bettingRebate);
-			bettingRebateIds.add(bettingRebate.getId());
 		}
 		UserAccount userAccount = bettingOrder.getUserAccount();
 		UserAccount superior = bettingOrder.getUserAccount().getInviter();
@@ -389,22 +390,15 @@ public class BettingService {
 			BettingRebate bettingRebate = BettingRebate.build(rebate, false, rebateAmount, bettingOrder.getId(),
 					superior.getId());
 			bettingRebateRepo.save(bettingRebate);
-			bettingRebateIds.add(bettingRebate.getId());
 			if (Constant.投注订单状态_已中奖.equals(bettingOrder.getState())) {
 				double winningRebateAmount = NumberUtil.round(rebate * 0.01 * bettingOrder.getTotalWinningAmount(), 4)
 						.doubleValue();
 				BettingRebate winningRebate = BettingRebate.build(rebate, true, winningRebateAmount,
 						bettingOrder.getId(), superior.getId());
 				bettingRebateRepo.save(winningRebate);
-				bettingRebateIds.add(winningRebate.getId());
 			}
 			userAccount = superior;
 			superior = superior.getInviter();
-		}
-		for (String bettingRebateId : bettingRebateIds) {
-			ThreadPoolUtils.getBettingRebateSettlementPool().schedule(() -> {
-				redisTemplate.opsForList().leftPush(Constant.投注返点ID, bettingRebateId);
-			}, 1, TimeUnit.SECONDS);
 		}
 	}
 
@@ -425,6 +419,24 @@ public class BettingService {
 		userAccount.setBalance(NumberUtil.round(balance, 4).doubleValue());
 		userAccountRepo.save(userAccount);
 		accountChangeLogRepo.save(AccountChangeLog.buildWithBettingRebate(userAccount, bettingRebate));
+	}
+
+	/**
+	 * 通知指定的期号进行返点结算
+	 * 
+	 * @param issueId
+	 */
+	@Transactional(readOnly = true)
+	public void noticeIssueRebateSettlement(@NotBlank String issueId) {
+		Issue issue = issueRepo.getOne(issueId);
+		List<BettingOrder> bettingOrders = bettingOrderRepo.findByGameCodeAndIssueNum(issue.getGameCode(),
+				issue.getIssueNum());
+		for (BettingOrder bettingOrder : bettingOrders) {
+			List<BettingRebate> bettingRebates = bettingRebateRepo.findByBettingOrderId(bettingOrder.getId());
+			for (BettingRebate bettingRebate : bettingRebates) {
+				redisTemplate.opsForList().leftPush(Constant.投注返点ID, bettingRebate.getId());
+			}
+		}
 	}
 
 	@Transactional(readOnly = true)

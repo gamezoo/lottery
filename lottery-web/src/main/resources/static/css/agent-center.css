@@ -1,0 +1,40 @@
+@charset "UTF-8";
+
+.personal-center-navbar {
+	margin-top: 0;
+	margin-bottom: 8px;
+	padding-top: 0;
+	padding-bottom: 0;
+	background-color: #F2F2F2 !important;
+}
+
+.personal-center-navbar li {
+	padding-bottom: 0;
+	padding-top: 0;
+	min-width: 150px;
+	text-align: center;
+}
+
+.selected-personal-center-navbar-item span, .personal-center-navbar span:hover
+	{
+	border-bottom: 2px solid red;
+}
+
+.personal-center-navbar a {
+	color: #666;
+	font-size: 14px;
+}
+
+/*代理开户样式start*/
+#agentOpenAnAccountTab {
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+#agentOpenAnAccountTab .row {
+    padding-bottom: 20px;
+}
+#agentOpenAnAccountTab .row label {
+	float: right;
+}
+/*代理开户样式end*/

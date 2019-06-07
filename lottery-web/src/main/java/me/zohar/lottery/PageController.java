@@ -156,4 +156,14 @@ public class PageController {
 		return "information-details";
 	}
 
+	/**
+	 * 代理中心
+	 * 
+	 * @return
+	 */
+	@GetMapping("/agent-center")
+	public String agentCenter() {
+		return "agent-center";
+	}
+
 }

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>返点/赔率</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.bootcss.com/dayjs/1.7.8/dayjs.min.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/locale/bootstrap-table-zh-CN.min.js"></script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<script src="/js/common/common.js"></script>
+<style type="text/css">
+.rebate-and-odds-table .rebate-and-odds-state {
+	color: #dc3545;
+	font-weight: bold;
+}
+
+.quick-setting-modal-dialog .modal-body {
+	max-height: 450px;
+	overflow: auto;
+}
+</style>
+</head>
+
+<body>
+	<div th:replace="common/header::html"></div>
+	<div id="rebate-and-odds" v-cloak>
+		<form class="form-inline common-query-cond-form float-right" action="#">
+			<button type="button" class="btn btn-secondary btn-sm" style="margin-right: 4px;" v-on:click="showQuickSettingModal">快速设置</button>
+			<button type="button" class="btn btn-info btn-sm" v-on:click="showAddRebateAndOddsModal">新增返点/赔率</button>
+		</form>
+		<table class="common-table rebate-and-odds-table"></table>
+
+		<div v-if="quickSettingFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog quick-setting-modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">快速设置</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="quickSettingFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<form>
+									<div class="input-group" style="padding-bottom: 10px;">
+										<div class="input-group-prepend">
+											<span class="input-group-text">返点/最低/最高/步长</span>
+										</div>
+										<input type="number" class="form-control" placeholder="最低" v-model.number="lowestRebate"> <input type="number" class="form-control" placeholder="最高" v-model.number="highestRebate"><input type="number" class="form-control" placeholder="步长" v-model.number="rebateStep">
+									</div>
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text">赔率/最低/最高/步长</span>
+										</div>
+										<input type="number" class="form-control" placeholder="最低" v-model.number="lowestOdds"> <input type="number" class="form-control" placeholder="最高" v-model.number="highestOdds"><input type="number" class="form-control" placeholder="步长" v-model.number="oddsStep">
+									</div>
+									<div class="" style="margin-top: 20px; margin-bottom: 20px; padding-left: 10px;">
+										<button type="button" class="btn btn-success btn-sm" v-on:click="generateRecord">生成记录</button>
+									</div>
+									<div class="" style="margin-top: 20px; margin-bottom: 20px; padding-left: 10px; border-left: 3px solid #3080fe;">
+										<span>返点/赔率</span>
+										<button type="button" class="btn btn-info btn-sm float-right" v-on:click="addRecord">增加</button>
+									</div>
+									<table class="table table-sm common-table">
+										<thead>
+											<tr>
+												<th>返点</th>
+												<th>赔率</th>
+												<th>操作</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr v-for="(rebateAndOdds, index) in rebateAndOddses">
+												<td><input type="number" class="form-control-sm" v-model="rebateAndOdds.rebate"></td>
+												<td><input type="number" class="form-control-sm" v-model="rebateAndOdds.odds"></td>
+												<td>
+													<button type="button" class="btn btn-danger btn-sm" v-on:click="rebateAndOddses.splice(index, 1);">删除</button>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="saveRebateAndOdds">确认</button>
+								<button type="button" class="btn btn-sm" v-on:click="quickSettingFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div v-if="addOrUpdateRebateAndOddsFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">{{rebateAndOddsActionTitle}}</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="addOrUpdateRebateAndOddsFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<form>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>返点:</label> <input type="text" class="form-control" v-model.number="editRebateAndOdds.rebate">
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>赔率:</label> <input type="text" class="form-control" v-model.number="editRebateAndOdds.odds">
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="addOrUpdateRebateAndOdds">保存</button>
+								<button type="button" class="btn btn-sm" v-on:click="addOrUpdateRebateAndOddsFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="/js/rebate-and-odds.js"></script>
+</body>
+</html>

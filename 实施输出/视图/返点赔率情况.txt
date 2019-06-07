@@ -1,0 +1,18 @@
+create view v_rebate_and_odds_situation as
+select 
+CONCAT(rebate,'/',odds) id,
+rebate,odds,
+sum(associated_account_num) associated_account_num,
+max(create_time) create_time
+from(
+select 
+rebate,odds,create_time,0 associated_account_num 
+from rebate_and_odds
+union all 
+select 
+rebate,odds,null create_time,count(1) associated_account_num 
+from user_account GROUP BY rebate,odds
+) t
+group by rebate,odds
+
+

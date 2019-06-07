@@ -1,12 +1,12 @@
-package me.zohar.lottery.useraccount.domain;
+package me.zohar.lottery.agent.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -14,20 +14,18 @@ import org.hibernate.annotations.DynamicUpdate;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * 返点/赔率
- * 
- * @author zohar
- * @date 2019年6月2日
- *
- */
 @Getter
 @Setter
 @Entity
-@Table(name = "rebate_and_odds")
+@Table(name = "v_rebate_and_odds_situation")
 @DynamicInsert(true)
 @DynamicUpdate(true)
-public class RebateAndOdds {
+public class RebateAndOddsSituation implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * 主键id
@@ -47,14 +45,10 @@ public class RebateAndOdds {
 	private Double odds;
 
 	/**
-	 * 创建时间
+	 * 关联账号数量
 	 */
-	private Date createTime;
+	private Integer associatedAccountNum;
 
-	/**
-	 * 乐观锁版本号
-	 */
-	@Version
-	private Long version;
+	private Date createTime;
 
 }

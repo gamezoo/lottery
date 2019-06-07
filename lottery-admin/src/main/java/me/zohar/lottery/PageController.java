@@ -161,4 +161,14 @@ public class PageController {
 		return "tracking-number-record";
 	}
 
+	/**
+	 * 返点赔率
+	 * 
+	 * @return
+	 */
+	@GetMapping("/rebate-and-odds")
+	public String rebateAndOdds() {
+		return "rebate-and-odds";
+	}
+
 }

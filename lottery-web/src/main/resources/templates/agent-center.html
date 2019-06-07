@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>代理中心</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.bootcss.com/dayjs/1.7.8/dayjs.min.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/locale/bootstrap-table-zh-CN.min.js"></script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<link href="/css/agent-center.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+	<div class="container">
+		<div th:replace="common/header::html"></div>
+		<div th:replace="common/personal-navbar::html"></div>
+		<div id="personal-center" v-cloak>
+			<div class="row">
+				<div class="col-sm-12">
+					<nav class="navbar navbar-expand-sm bg-light personal-center-navbar">
+						<ul class="navbar-nav">
+							<li class="nav-item" v-bind:class="{'selected-personal-center-navbar-item': currentTab == 'bankCardInfo'}" v-on:click=""><a class="nav-link" href="#"><span>下级账号管理</span></a></li>
+							<li class="nav-item" v-bind:class="{'selected-personal-center-navbar-item': currentTab == 'loginPwdModify'}" v-on:click=""><a class=" nav-link" href="#"><span>代理开户</span></a></li>
+							<li class="nav-item" v-bind:class="{'selected-personal-center-navbar-item': currentTab == 'loginPwdModify'}" v-on:click=""><a class=" nav-link" href="#"><span>下级开户</span></a></li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+
+			<div id="agentOpenAnAccountTab" class="col-sm-6 offset-sm-3">
+				<div class="row">
+					<div class="col-sm-3">
+						<label>用户名</label>
+					</div>
+					<div class="col-sm-9">
+						<input type="password" class="form-control" v-model="userNameAgentOpenAnAccount">
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-3">
+						<label>登录密码</label>
+					</div>
+					<div class="col-sm-9">
+						<input type="password" class="form-control" v-model="loginPwdAgentOpenAnAccount">
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-3">
+						<label>确认登录密码</label>
+					</div>
+					<div class="col-sm-9">
+						<input type="password" class="form-control" v-model="confirmLoginPwdAgentOpenAnAccount">
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-3">
+						<label>返点/赔率</label>
+					</div>
+					<div class="col-sm-9">
+						<select class="form-control" v-model="rebateAndOddsAgentOpenAnAccount">
+							<option value="">请选择</option>
+							<option v-for="rebateAndOdds in rebateAndOddses" :value="rebateAndOdds">{{rebateAndOdds.rebate}}%/{{rebateAndOdds.odds}}</option>
+						</select>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-6 offset-sm-5">
+						<button type="button" class="btn btn-danger btn-lg" v-on:click="agentOpenAnAccount">确认开户</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="/js/agent-center.js"></script>
+</body>
+</html>

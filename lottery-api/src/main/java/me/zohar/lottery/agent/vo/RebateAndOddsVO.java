@@ -1,4 +1,4 @@
-package me.zohar.lottery.useraccount.vo;
+package me.zohar.lottery.agent.vo;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import cn.hutool.core.collection.CollectionUtil;
 import lombok.Data;
-import me.zohar.lottery.useraccount.domain.RebateAndOdds;
+import me.zohar.lottery.agent.domain.RebateAndOdds;
 
 @Data
 public class RebateAndOddsVO {

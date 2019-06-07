@@ -24,5 +24,7 @@ public interface BettingOrderRepo extends JpaRepository<BettingOrder, String>, J
 			String state);
 
 	List<BettingOrder> findTop50ByStateOrderByTotalWinningAmountDesc(String state);
+	
+	List<BettingOrder> findByGameCodeAndIssueNum(String gameCode, Long issueNum);
 
 }
