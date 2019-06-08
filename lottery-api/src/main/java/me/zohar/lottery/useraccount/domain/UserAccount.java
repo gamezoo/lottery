@@ -20,6 +20,7 @@ import org.hibernate.annotations.NotFoundAction;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.zohar.lottery.agent.domain.InviteCode;
 
 /**
  * 用户账号
@@ -62,6 +63,11 @@ public class UserAccount {
 	 * 账号级别
 	 */
 	private Integer accountLevel;
+
+	/**
+	 * 账号级别路径
+	 */
+	private String accountLevelPath;
 
 	/**
 	 * 返点
@@ -142,5 +148,14 @@ public class UserAccount {
 	 */
 	@Version
 	private Long version;
+
+	public void updateInviteInfo(InviteCode inviteCode) {
+		this.setInviterId(inviteCode.getInviterId());
+		this.setAccountLevel(inviteCode.getInviter().getAccountLevel() + 1);
+		this.setAccountLevelPath(inviteCode.getInviter().getAccountLevelPath() + "." + this.getId());
+		this.setAccountType(inviteCode.getAccountType());
+		this.setRebate(inviteCode.getRebate());
+		this.setOdds(inviteCode.getOdds());
+	}
 
 }

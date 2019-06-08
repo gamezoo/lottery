@@ -5,12 +5,6 @@ var personalCenter = new Vue({
 		gameDictItems : [],
 
 		/**
-		 * 邀请码tab相关参数start
-		 */
-		inviteRegisterFlag : false,
-		inviteDetailsInfo : {},
-
-		/**
 		 * 银行卡资料管理tab相关参数start
 		 */
 		editBankInfoFlag : false,
@@ -54,45 +48,9 @@ var personalCenter = new Vue({
 	created : function() {
 	},
 	mounted : function() {
-		this.loadInviteRegisterSetting();
 		this.switchAccountChangeTab();
 	},
 	methods : {
-		
-		loadInviteRegisterSetting : function() {
-			var that = this;
-			that.$http.get('/masterControl/getInviteRegisterSetting').then(function(res) {
-				if (res.body.data != null) {
-					that.inviteRegisterFlag = res.body.data.enabled;
-				}
-			});
-		},
-
-		/**
-		 * 邀请码tab相关方法start
-		 */
-		switchInviteCodeTab : function() {
-			this.currentTab = 'inviteCode';
-			this.loadInvoteCodeInfo();
-		},
-
-		loadInvoteCodeInfo : function() {
-			var that = this;
-			that.$http.get('/userAccount/getInviteDetailsInfo').then(function(res) {
-				if (res.body.data == null) {
-					that.inviteDetailsInfo = {};
-					return;
-				}
-				that.inviteDetailsInfo = res.body.data;
-			});
-		},
-
-		generateInviteCode : function() {
-			var that = this;
-			that.$http.get('/userAccount/generateInviteCode').then(function(res) {
-				that.loadInvoteCodeInfo();
-			});
-		},
 
 		/**
 		 * 银行卡资料管理tab相关方法start

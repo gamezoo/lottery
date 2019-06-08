@@ -10,6 +10,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -23,13 +24,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import me.zohar.lottery.agent.domain.InviteCode;
 import me.zohar.lottery.agent.domain.RebateAndOdds;
 import me.zohar.lottery.agent.domain.RebateAndOddsSituation;
 import me.zohar.lottery.agent.param.AddOrUpdateRebateAndOddsParam;
 import me.zohar.lottery.agent.param.AgentOpenAnAccountParam;
+import me.zohar.lottery.agent.param.GenerateInviteCodeParam;
+import me.zohar.lottery.agent.repo.InviteCodeRepo;
 import me.zohar.lottery.agent.repo.RebateAndOddsRepo;
 import me.zohar.lottery.agent.repo.RebateAndOddsSituationRepo;
+import me.zohar.lottery.agent.vo.InviteCodeDetailsInfoVO;
 import me.zohar.lottery.agent.vo.RebateAndOddsSituationVO;
 import me.zohar.lottery.agent.vo.RebateAndOddsVO;
 import me.zohar.lottery.common.exception.BizError;
@@ -38,6 +44,8 @@ import me.zohar.lottery.common.param.PageParam;
 import me.zohar.lottery.common.valid.ParamValid;
 import me.zohar.lottery.common.vo.PageResult;
 import me.zohar.lottery.constants.Constant;
+import me.zohar.lottery.mastercontrol.domain.InviteRegisterSetting;
+import me.zohar.lottery.mastercontrol.repo.InviteRegisterSettingRepo;
 import me.zohar.lottery.useraccount.domain.UserAccount;
 import me.zohar.lottery.useraccount.repo.UserAccountRepo;
 
@@ -53,6 +61,12 @@ public class AgentService {
 
 	@Autowired
 	private UserAccountRepo userAccountRepo;
+
+	@Autowired
+	private InviteCodeRepo inviteCodeRepo;
+
+	@Autowired
+	private InviteRegisterSettingRepo inviteRegisterSettingRepo;
 
 	@Transactional(readOnly = true)
 	public List<RebateAndOddsVO> findAllRebateAndOdds() {
@@ -143,12 +157,54 @@ public class AgentService {
 	@ParamValid
 	@Transactional
 	public void agentOpenAnAccount(AgentOpenAnAccountParam param) {
-		UserAccount userAccount = userAccountRepo.getOne(param.getInviterId());
-		if (!(Constant.账号类型_管理员.equals(userAccount.getAccountType())
-				|| Constant.账号类型_管理员.equals(userAccount.getAccountType()))) {
+		UserAccount inviter = userAccountRepo.getOne(param.getInviterId());
+		if (!(Constant.账号类型_管理员.equals(inviter.getAccountType())
+				|| Constant.账号类型_管理员.equals(inviter.getAccountType()))) {
 			throw new BizException(BizError.只有管理员或代理才能进行代理开户操作);
 		}
+		if (param.getRebate() > inviter.getRebate()) {
+			throw new BizException(BizError.下级账号的返点不能大于上级账号);
+		}
+		RebateAndOdds rebateAndOdds = rebateAndOddsRepo.findTopByRebateAndOdds(param.getRebate(), param.getOdds());
+		if (rebateAndOdds == null) {
+			throw new BizException(BizError.该返点赔率未设置);
+		}
+		UserAccount userAccount = userAccountRepo.findByUserName(param.getUserName());
+		if (userAccount != null) {
+			throw new BizException(BizError.用户名已存在);
+		}
+		UserAccount lowerLevelAccount = param.convertToPo(inviter.getAccountLevel() + 1);
+		userAccountRepo.save(lowerLevelAccount);
+	}
 
+	/**
+	 * 生成邀请码
+	 * 
+	 * @param param
+	 * @return
+	 */
+	@ParamValid
+	@Transactional
+	public String generateInviteCode(GenerateInviteCodeParam param) {
+		InviteRegisterSetting setting = inviteRegisterSettingRepo.findTopByOrderByEnabled();
+		if (setting == null || !setting.getEnabled()) {
+			throw new BizException(BizError.邀请注册功能已关闭);
+		}
+
+		String code = IdUtil.fastSimpleUUID().substring(0, 6);
+		while (inviteCodeRepo.findTopByCodeAndPeriodOfValidityGreaterThanEqual(code, new Date()) != null) {
+			code = IdUtil.fastSimpleUUID().substring(0, 6);
+		}
+		InviteCode newInviteCode = param.convertToPo(code, setting.getEffectiveDuration());
+		inviteCodeRepo.save(newInviteCode);
+		return newInviteCode.getId();
+	}
+
+	@Transactional(readOnly = true)
+	public InviteCodeDetailsInfoVO getInviteCodeDetailsInfoById(@NotBlank String id) {
+		InviteCode inviteCode = inviteCodeRepo.getOne(id);
+		InviteCodeDetailsInfoVO inviteDetailsInfo = InviteCodeDetailsInfoVO.convertFor(inviteCode);
+		return inviteDetailsInfo;
 	}
 
 }

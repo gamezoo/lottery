@@ -111,7 +111,7 @@ var accountManageVM = new Vue({
 					field : 'balance',
 					title : '余额'
 				}, {
-					title : '返水/赔率',
+					title : '返点/赔率',
 					formatter : function(value, row, index) {
 						if (row.rebate == null) {
 							return;

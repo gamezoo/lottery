@@ -10,6 +10,7 @@
 <script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
 <script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
 <link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<script src="/js/common/common.js"></script>
 <style type="text/css">
 #information-details {
 	background: #fff;
@@ -63,7 +64,7 @@
 			created : function() {
 			},
 			mounted : function() {
-				var id = this.getQueryString('id');
+				var id = getQueryString('id');
 				if (id != null || id != '') {
 					this.loadInformationDetails(id);
 				}

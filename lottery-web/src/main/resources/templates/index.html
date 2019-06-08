@@ -10,6 +10,7 @@
 <script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
 <script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
 <link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<script src="/js/common/common.js"></script>
 <style type="text/css">
 .carousel-indicators li {
 	cursor: pointer;
@@ -296,15 +297,17 @@
 				systemNotices : [],
 				showLatestNoticeModalFlag : false,
 				selectedSystemNotice : {},
-				
 				informations : [],
-				
 				winningRanks : []
 			},
 			computed : {},
 			created : function() {
 			},
 			mounted : function() {
+				var inviteCode = getQueryString('inviteCode');
+				if (inviteCode != null) {
+					window.sessionStorage.setItem('inviteCode', inviteCode);
+				}
 				this.loadTop5PublishedSystemNotice();
 				this.loadTop13Information();
 				this.loadTop50WinningRank();

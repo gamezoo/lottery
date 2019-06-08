@@ -104,6 +104,8 @@ public class UserAccountDetailsInfoVO {
 	 */
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date bankInfoLatelyModifyTime;
+	
+	private String inviterId;
 
 	/**
 	 * 邀请人

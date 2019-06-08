@@ -22,34 +22,34 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
+import me.zohar.lottery.agent.domain.InviteCode;
+import me.zohar.lottery.agent.repo.InviteCodeRepo;
 import me.zohar.lottery.common.exception.BizError;
 import me.zohar.lottery.common.exception.BizException;
 import me.zohar.lottery.common.valid.ParamValid;
 import me.zohar.lottery.common.vo.PageResult;
+import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.mastercontrol.domain.InviteRegisterSetting;
 import me.zohar.lottery.mastercontrol.domain.RegisterAmountSetting;
 import me.zohar.lottery.mastercontrol.repo.InviteRegisterSettingRepo;
 import me.zohar.lottery.mastercontrol.repo.RegisterAmountSettingRepo;
 import me.zohar.lottery.useraccount.domain.AccountChangeLog;
-import me.zohar.lottery.useraccount.domain.InviteCode;
 import me.zohar.lottery.useraccount.domain.UserAccount;
 import me.zohar.lottery.useraccount.param.AccountChangeLogQueryCondParam;
 import me.zohar.lottery.useraccount.param.AddUserAccountParam;
 import me.zohar.lottery.useraccount.param.BindBankInfoParam;
+import me.zohar.lottery.useraccount.param.LowerLevelAccountQueryCondParam;
 import me.zohar.lottery.useraccount.param.ModifyLoginPwdParam;
 import me.zohar.lottery.useraccount.param.ModifyMoneyPwdParam;
 import me.zohar.lottery.useraccount.param.UserAccountEditParam;
 import me.zohar.lottery.useraccount.param.UserAccountQueryCondParam;
 import me.zohar.lottery.useraccount.param.UserAccountRegisterParam;
 import me.zohar.lottery.useraccount.repo.AccountChangeLogRepo;
-import me.zohar.lottery.useraccount.repo.InviteCodeRepo;
 import me.zohar.lottery.useraccount.repo.UserAccountRepo;
 import me.zohar.lottery.useraccount.vo.AccountChangeLogVO;
 import me.zohar.lottery.useraccount.vo.BankInfoVO;
-import me.zohar.lottery.useraccount.vo.InviteDetailsInfoVO;
 import me.zohar.lottery.useraccount.vo.LoginAccountInfoVO;
 import me.zohar.lottery.useraccount.vo.UserAccountDetailsInfoVO;
 import me.zohar.lottery.useraccount.vo.UserAccountInfoVO;
@@ -208,7 +208,6 @@ public class UserAccountService {
 		String encodePwd = new BCryptPasswordEncoder().encode(param.getLoginPwd());
 		param.setLoginPwd(encodePwd);
 		UserAccount newUserAccount = param.convertToPo();
-		newUserAccount.setBalance(100d);
 		if (StrUtil.isNotBlank(param.getInviterUserName())) {
 			UserAccount inviter = userAccountRepo.findByUserName(param.getInviterUserName());
 			if (inviter == null) {
@@ -220,9 +219,9 @@ public class UserAccountService {
 			}
 			newUserAccount.setInviterId(inviter.getId());
 			newUserAccount.setAccountLevel(inviter.getAccountLevel() + 1);
+			newUserAccount.setAccountLevelPath(inviter.getAccountLevelPath() + "." + newUserAccount.getId());
 		}
 		userAccountRepo.save(newUserAccount);
-		updateBalanceWithRegisterAmount(newUserAccount);
 	}
 
 	/**
@@ -241,40 +240,23 @@ public class UserAccountService {
 	}
 
 	@Transactional
-	public UserAccountInfoVO userAccountRegister(UserAccountRegisterParam param) {
+	public void register(UserAccountRegisterParam param) {
 		UserAccount userAccount = userAccountRepo.findByUserName(param.getUserName());
 		if (userAccount != null) {
 			throw new BizException(BizError.用户名已存在);
 		}
-		String encodePwd = new BCryptPasswordEncoder().encode(param.getLoginPwd());
-		param.setLoginPwd(encodePwd);
+		param.setLoginPwd(new BCryptPasswordEncoder().encode(param.getLoginPwd()));
 		UserAccount newUserAccount = param.convertToPo();
-		newUserAccount.setBalance(0d);
-		newUserAccount.setInviterId(confirmCodeAndGetInviterId(param.getInviteCode()));
-		userAccountRepo.save(newUserAccount);
-		updateBalanceWithRegisterAmount(newUserAccount);
-		return UserAccountInfoVO.convertFor(newUserAccount);
-	}
-
-	/**
-	 * 确认邀请码并返回邀请人id
-	 * 
-	 * @param code
-	 * @return
-	 */
-	public String confirmCodeAndGetInviterId(String code) {
 		InviteRegisterSetting setting = inviteRegisterSettingRepo.findTopByOrderByEnabled();
-		if (setting == null || !setting.getEnabled()) {
-			return null;
+		if (setting != null && setting.getEnabled()) {
+			InviteCode inviteCode = inviteCodeRepo
+					.findTopByCodeAndPeriodOfValidityGreaterThanEqual(param.getInviteCode(), new Date());
+			if (inviteCode == null) {
+				throw new BizException(BizError.邀请码不存在或已失效);
+			}
+			newUserAccount.updateInviteInfo(inviteCode);
 		}
-		if (StrUtil.isBlank(code)) {
-			throw new BizException(BizError.邀请码不存在或已失效);
-		}
-		InviteCode inviteCode = inviteCodeRepo.findTopByCodeAndPeriodOfValidityGreaterThanEqual(code, new Date());
-		if (inviteCode == null) {
-			throw new BizException(BizError.邀请码不存在或已失效);
-		}
-		return inviteCode.getUserAccountId();
+		userAccountRepo.save(newUserAccount);
 	}
 
 	@Transactional(readOnly = true)
@@ -314,47 +296,55 @@ public class UserAccountService {
 		return pageResult;
 	}
 
-	@Transactional(readOnly = true)
-	public InviteDetailsInfoVO getInviteDetailsInfo(String userAccountId) {
-		InviteCode inviteCode = inviteCodeRepo.findTopByUserAccountIdOrderByPeriodOfValidityDesc(userAccountId);
-		if (inviteCode == null) {
-			return null;
-		}
-
-		Long numberOfInvite = userAccountRepo.countByInviterId(userAccountId);
-		InviteDetailsInfoVO inviteDetailsInfo = InviteDetailsInfoVO.convertFor(inviteCode, numberOfInvite);
-		return inviteDetailsInfo;
-	}
-
-	/**
-	 * 生成邀请码
-	 * 
-	 * @param userAccountId
-	 */
-	@Transactional
-	public void generateInviteCode(String userAccountId) {
-		InviteRegisterSetting setting = inviteRegisterSettingRepo.findTopByOrderByEnabled();
-		if (setting == null || !setting.getEnabled()) {
-			throw new BizException(BizError.邀请注册功能已关闭);
-		}
-
-		InviteCode inviteCode = inviteCodeRepo.findTopByUserAccountIdOrderByPeriodOfValidityDesc(userAccountId);
-		if (inviteCode != null && inviteCode.getPeriodOfValidity().getTime() > new Date().getTime()) {
-			return;
-		}
-
-		String code = IdUtil.fastSimpleUUID().substring(0, 6);
-		while (inviteCodeRepo.findTopByCodeAndPeriodOfValidityGreaterThanEqual(code, new Date()) != null) {
-			code = IdUtil.fastSimpleUUID().substring(0, 6);
-		}
-		InviteCode newInviteCode = InviteCode.generateInviteCode(code, setting.getEffectiveDuration(), userAccountId);
-		inviteCodeRepo.save(newInviteCode);
-	}
-
 	@ParamValid
 	@Transactional
 	public void delUserAccount(@NotBlank String userAccountId) {
 		userAccountRepo.deleteById(userAccountId);
+	}
+
+	@ParamValid
+	@Transactional(readOnly = true)
+	public PageResult<UserAccountDetailsInfoVO> findLowerLevelAccountDetailsInfoByPage(
+			LowerLevelAccountQueryCondParam param) {
+		UserAccount currentAccount = userAccountRepo.getOne(param.getCurrentAccountId());
+		UserAccount lowerLevelAccount = currentAccount;
+		if (StrUtil.isNotBlank(param.getUserName())) {
+			lowerLevelAccount = userAccountRepo.findByUserName(param.getUserName());
+			if (lowerLevelAccount == null) {
+				throw new BizException(BizError.用户名不存在);
+			}
+			// 说明该用户名对应的账号不是当前账号的下级账号
+			if (!lowerLevelAccount.getAccountLevelPath().startsWith(currentAccount.getAccountLevelPath())) {
+				throw new BizException(BizError.无权查看该账号的下级账号信息);
+			}
+		}
+		String lowerLevelAccountId = lowerLevelAccount.getId();
+		String lowerLevelAccountLevelPath = lowerLevelAccount.getAccountLevelPath();
+
+		Specification<UserAccount> spec = new Specification<UserAccount>() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			public Predicate toPredicate(Root<UserAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+				List<Predicate> predicates = new ArrayList<Predicate>();
+				if (Constant.下级账号查询范围_指定账号及直接下级.equals(param.getQueryScope())) {
+					Predicate predicate1 = builder.equal(root.get("id"), lowerLevelAccountId);
+					Predicate predicate2 = builder.equal(root.get("inviterId"), lowerLevelAccountId);
+					predicates.add(builder.or(predicate1, predicate2));
+				} else {
+					predicates.add(builder.like(root.get("accountLevelPath"), lowerLevelAccountLevelPath + "%"));
+				}
+				return predicates.size() > 0 ? builder.and(predicates.toArray(new Predicate[predicates.size()])) : null;
+			}
+		};
+		Page<UserAccount> result = userAccountRepo.findAll(spec,
+				PageRequest.of(param.getPageNum() - 1, param.getPageSize(), Sort.by(Sort.Order.asc("registeredTime"))));
+		PageResult<UserAccountDetailsInfoVO> pageResult = new PageResult<>(
+				UserAccountDetailsInfoVO.convertFor(result.getContent()), param.getPageNum(), param.getPageSize(),
+				result.getTotalElements());
+		return pageResult;
 	}
 
 }

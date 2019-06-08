@@ -16,7 +16,6 @@ import me.zohar.lottery.useraccount.param.ModifyLoginPwdParam;
 import me.zohar.lottery.useraccount.param.ModifyMoneyPwdParam;
 import me.zohar.lottery.useraccount.param.UserAccountRegisterParam;
 import me.zohar.lottery.useraccount.service.UserAccountService;
-import me.zohar.lottery.useraccount.vo.InviteDetailsInfoVO;
 import me.zohar.lottery.useraccount.vo.UserAccountInfoVO;
 
 @Controller
@@ -67,7 +66,8 @@ public class UserAccountController {
 	@PostMapping("/register")
 	@ResponseBody
 	public Result register(UserAccountRegisterParam param) {
-		return Result.success().setData(userAccountService.userAccountRegister(param));
+		userAccountService.register(param);
+		return Result.success();
 	}
 
 	@GetMapping("/getUserAccountInfo")
@@ -89,24 +89,6 @@ public class UserAccountController {
 				.getPrincipal();
 		param.setUserAccountId(user.getUserAccountId());
 		return Result.success().setData(userAccountService.findAccountChangeLogByPage(param));
-	}
-
-	@GetMapping("/getInviteDetailsInfo")
-	@ResponseBody
-	public Result getInviteDetailsInfo() {
-		UserAccountDetails user = (UserAccountDetails) SecurityContextHolder.getContext().getAuthentication()
-				.getPrincipal();
-		InviteDetailsInfoVO inviteDetailsInfo = userAccountService.getInviteDetailsInfo(user.getUserAccountId());
-		return Result.success().setData(inviteDetailsInfo);
-	}
-	
-	@GetMapping("/generateInviteCode")
-	@ResponseBody
-	public Result generateInviteCode() {
-		UserAccountDetails user = (UserAccountDetails) SecurityContextHolder.getContext().getAuthentication()
-				.getPrincipal();
-		userAccountService.generateInviteCode(user.getUserAccountId());
-		return Result.success();
 	}
 
 }

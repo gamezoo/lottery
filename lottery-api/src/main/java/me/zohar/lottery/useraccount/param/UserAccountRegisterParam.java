@@ -48,6 +48,8 @@ public class UserAccountRegisterParam {
 		po.setMoneyPwd(po.getLoginPwd());
 		po.setState(Constant.账号状态_启用);
 		po.setAccountType(Constant.账号类型_会员);
+		po.setBalance(0d);
+		po.setAccountLevelPath(po.getId());
 		return po;
 	}
 

@@ -2,8 +2,12 @@ package me.zohar.lottery.constants;
 
 public class Constant {
 
+	public static final String 下级账号查询范围_所有账号 = "10";
+
+	public static final String 下级账号查询范围_指定账号及直接下级 = "20";
+
 	public static final String 投注返点ID = "BETTING_REBATE_ID";
-	
+
 	public static final String 返点结算期号ID = "REBATE_SETTLEMENT_ISSUE_ID";
 
 	public static final String 登录提示_登录成功 = "登录成功";
@@ -99,9 +103,9 @@ public class Constant {
 	public static final String 账变日志类型_活动礼金 = "6";
 
 	public static final String 账变日志类型_撤单返款 = "7";
-	
+
 	public static final String 账变日志类型_投注返点 = "8";
-	
+
 	public static final String 账变日志类型_中奖返点 = "9";
 
 	public static final String 充提日志订单类型_充值 = "1";

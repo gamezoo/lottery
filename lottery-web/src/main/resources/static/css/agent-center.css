@@ -1,6 +1,6 @@
 @charset "UTF-8";
 
-.personal-center-navbar {
+.agent-center-navbar {
 	margin-top: 0;
 	margin-bottom: 8px;
 	padding-top: 0;
@@ -8,22 +8,28 @@
 	background-color: #F2F2F2 !important;
 }
 
-.personal-center-navbar li {
+.agent-center-navbar li {
 	padding-bottom: 0;
 	padding-top: 0;
-	min-width: 150px;
+	min-width: 120px;
 	text-align: center;
 }
 
-.selected-personal-center-navbar-item span, .personal-center-navbar span:hover
+.selected-agent-center-navbar-item span, .agent-center-navbar span:hover
 	{
 	border-bottom: 2px solid red;
 }
 
-.personal-center-navbar a {
+.agent-center-navbar a {
 	color: #666;
 	font-size: 14px;
 }
+
+/*下级账号管理样式start*/
+.lower-level-account-manage-table .user-name {
+	color: #ec494c;
+}
+/*下级账号管理样式end*/
 
 /*代理开户样式start*/
 #agentOpenAnAccountTab {
@@ -32,9 +38,22 @@
 }
 
 #agentOpenAnAccountTab .row {
-    padding-bottom: 20px;
+	padding-bottom: 20px;
 }
+
 #agentOpenAnAccountTab .row label {
 	float: right;
 }
 /*代理开户样式end*/
+
+/*下级开户start*/
+.lower-level-open-an-account-tip {
+	background: #fffaf7;
+	border: 1px solid #ffecdf;
+	padding: 1.5rem;
+}
+
+.lower-level-open-an-account-tip .row {
+	padding-bottom: 4px !important;
+}
+/*下级开户end*/

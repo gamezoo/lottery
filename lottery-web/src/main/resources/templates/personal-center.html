@@ -26,7 +26,6 @@
 				<div class="col-sm-12">
 					<nav class="navbar navbar-expand-sm bg-light personal-center-navbar">
 						<ul class="navbar-nav">
-							<li class="nav-item" v-if="inviteRegisterFlag && (headerVM.accountType == 'admin' || headerVM.accountType == 'agent')" v-bind:class="{'selected-personal-center-navbar-item': currentTab == 'inviteCode'}" v-on:click="switchInviteCodeTab"><a class="nav-link" href="#"><span>邀请码</span></a></li>
 							<li class="nav-item" v-bind:class="{'selected-personal-center-navbar-item': currentTab == 'bankCardInfo'}" v-on:click="switchBankCardInfoTab"><a class="nav-link" href="#"><span>银行卡资料管理</span></a></li>
 							<li class="nav-item" v-bind:class="{'selected-personal-center-navbar-item': currentTab == 'loginPwdModify'}" v-on:click="switchLoginPwdModifyTab"><a class=" nav-link" href="#"><span>登录密码修改</span></a></li>
 							<li class="nav-item" v-bind:class="{'selected-personal-center-navbar-item': currentTab == 'moneyPwdModify'}" v-on:click="switchMoneyPwdModifyTab"><a class="nav-link" href="#"><span>资金密码修改</span></a></li>
@@ -34,50 +33,6 @@
 							<li class="nav-item" v-bind:class="{'selected-personal-center-navbar-item': currentTab == 'rechargeWithdraw'}" v-on:click="switchRechargeWithdrawTab"><a class="nav-link" href="#"><span>个人充提</span></a></li>
 						</ul>
 					</nav>
-				</div>
-			</div>
-
-			<div id="inviteCodeTab" v-show="currentTab == 'inviteCode'">
-				<div class="none-invite-code" v-show="inviteDetailsInfo.periodOfValidity == null">
-					<div class="row">
-						<div class="col-sm-7 offset-sm-3">
-							<div class="alert alert-light" style="font-size: 30px;">
-								<span style="color: red;">*</span> 您还没有邀请码.
-							</div>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-sm-6 offset-sm-5">
-							<button type="button" class="btn btn-secondary btn-lg" v-on:click="generateInviteCode">获取邀请码</button>
-						</div>
-					</div>
-				</div>
-				<div class="invite-code-info" v-show="inviteDetailsInfo.periodOfValidity != null">
-					<div class="row">
-						<div class="col-sm-6 offset-sm-3 invite-code-info-item">
-							<label>邀请码:</label> <span>{{inviteDetailsInfo.code}}</span>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-sm-6 offset-sm-3 invite-code-info-item">
-							<label>已邀请人数:</label> <span>{{inviteDetailsInfo.numberOfInvite}}人</span>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-sm-6 offset-sm-3 invite-code-info-item">
-							<label>有效期:</label> <span>{{inviteDetailsInfo.periodOfValidity}}</span>
-						</div>
-					</div>
-					<div class="row" v-show="!inviteDetailsInfo.validFlag">
-						<div class="col-sm-7 offset-sm-3">
-							<div style="font-size: 30px; color: red;">你的邀请码已过期,请重新获取邀请码.</div>
-						</div>
-					</div>
-					<div class="row" v-show="!inviteDetailsInfo.validFlag">
-						<div class="col-sm-6 offset-sm-5">
-							<button type="button" class="btn btn-secondary btn-lg" v-on:click="generateInviteCode">获取邀请码</button>
-						</div>
-					</div>
 				</div>
 			</div>
 

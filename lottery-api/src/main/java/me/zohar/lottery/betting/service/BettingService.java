@@ -253,7 +253,7 @@ public class BettingService {
 				RebateAndOdds rebateAndOdds = rebateAndOddsRepo.findTopByRebate(
 						NumberUtil.round(userAccount.getRebate() - placeOrderParam.getRebate(), 4).doubleValue());
 				if (rebateAndOdds == null) {
-					throw new BizException(BizError.该返点赔率记录未设置);
+					throw new BizException(BizError.该返点赔率未设置);
 				}
 				accountOdds = rebateAndOdds.getOdds();
 			}

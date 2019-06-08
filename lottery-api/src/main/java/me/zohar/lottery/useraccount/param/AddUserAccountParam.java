@@ -67,6 +67,8 @@ public class AddUserAccountParam {
 		BeanUtils.copyProperties(this, po);
 		po.setId(IdUtils.getId());
 		po.setAccountLevel(0);
+		po.setAccountLevelPath(po.getId());
+		po.setBalance(0d);
 		po.setRegisteredTime(new Date());
 		po.setMoneyPwd(po.getLoginPwd());
 		return po;
