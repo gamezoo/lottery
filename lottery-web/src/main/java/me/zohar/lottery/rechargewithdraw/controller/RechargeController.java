@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import me.zohar.lottery.common.vo.Result;
 import me.zohar.lottery.config.security.UserAccountDetails;
+import me.zohar.lottery.rechargewithdraw.param.LowerLevelRechargeOrderQueryCondParam;
 import me.zohar.lottery.rechargewithdraw.param.MuspayCallbackParam;
 import me.zohar.lottery.rechargewithdraw.param.RechargeOrderParam;
 import me.zohar.lottery.rechargewithdraw.service.RechargeService;
@@ -43,6 +45,15 @@ public class RechargeController {
 				.getPrincipal();
 		param.setUserAccountId(user.getUserAccountId());
 		return Result.success().setData(rechargeService.generateRechargeOrder(param));
+	}
+
+	@GetMapping("/findLowerLevelRechargeOrderByPage")
+	@ResponseBody
+	public Result findLowerLevelRechargeOrderByPage(LowerLevelRechargeOrderQueryCondParam param) {
+		UserAccountDetails user = (UserAccountDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		param.setCurrentAccountId(user.getUserAccountId());
+		return Result.success().setData(rechargeService.findLowerLevelRechargeOrderByPage(param));
 	}
 
 }

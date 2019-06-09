@@ -12,6 +12,7 @@ import me.zohar.lottery.common.vo.Result;
 import me.zohar.lottery.config.security.UserAccountDetails;
 import me.zohar.lottery.useraccount.param.AccountChangeLogQueryCondParam;
 import me.zohar.lottery.useraccount.param.BindBankInfoParam;
+import me.zohar.lottery.useraccount.param.LowerLevelAccountChangeLogQueryCondParam;
 import me.zohar.lottery.useraccount.param.ModifyLoginPwdParam;
 import me.zohar.lottery.useraccount.param.ModifyMoneyPwdParam;
 import me.zohar.lottery.useraccount.param.UserAccountRegisterParam;
@@ -89,6 +90,15 @@ public class UserAccountController {
 				.getPrincipal();
 		param.setUserAccountId(user.getUserAccountId());
 		return Result.success().setData(userAccountService.findAccountChangeLogByPage(param));
+	}
+
+	@GetMapping("/findLowerLevelAccountChangeLogByPage")
+	@ResponseBody
+	public Result findLowerLevelAccountChangeLogByPage(LowerLevelAccountChangeLogQueryCondParam param) {
+		UserAccountDetails user = (UserAccountDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		param.setCurrentAccountId(user.getUserAccountId());
+		return Result.success().setData(userAccountService.findLowerLevelAccountChangeLogByPage(param));
 	}
 
 }

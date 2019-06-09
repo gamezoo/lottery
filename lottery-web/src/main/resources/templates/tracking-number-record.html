@@ -31,23 +31,23 @@
 		<div th:replace="common/header::html"></div>
 		<div th:replace="common/personal-navbar::html"></div>
 		<div id="betting-record" v-cloak>
-			<form class="form-inline common-query-cond-form" action="#">
+			<form class="form-inline common-query-cond-form">
 				<div class="form-group common-query-cond">
-					<label>游戏:</label> <select class="form-control" v-model="gameCode">
+					<label>游戏:</label> <select class="form-control-sm" v-model="gameCode">
 						<option value="">全部游戏</option>
 						<option v-for="dictItem in gameDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
 					</select>
 				</div>
 				<div class="form-group common-query-cond">
-					<label>时间:</label><input type="date" class="form-control" v-model="startTime"><span>到</span><input type="date" class="form-control" v-model="endTime">
+					<label>时间:</label><input type="date" class="form-control-sm" v-model="startTime"><span>到</span><input type="date" class="form-control-sm" v-model="endTime">
 				</div>
 				<div class="form-group common-query-cond">
-					<label>状态:</label> <select class="form-control" v-model="state">
+					<label>状态:</label> <select class="form-control-sm" v-model="state">
 						<option value="">全部</option>
 						<option v-for="dictItem in trackingNumberOrderStateDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
 					</select>
 				</div>
-				<button type="button" class="btn btn-danger" v-on:click="refreshTable">搜索</button>
+				<button type="button" class="btn btn-danger btn-sm" v-on:click="refreshTable">搜索</button>
 			</form>
 			<table class="common-table betting-record-table"></table>
 		</div>

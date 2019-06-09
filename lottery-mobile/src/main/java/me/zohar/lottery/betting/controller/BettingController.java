@@ -23,17 +23,17 @@ public class BettingController {
 	private BettingService bettingService;
 
 	/**
-	 * 获取投注信息详情
+	 * 获取我或下级账号投注信息详情
 	 * 
 	 * @param id
 	 * @return
 	 */
-	@GetMapping("/findMyBettingOrderDetails")
+	@GetMapping("/findMyOrLowerLevelBettingOrderDetails")
 	@ResponseBody
-	public Result findMyBettingOrderDetails(String id) {
+	public Result findMyOrLowerLevelBettingOrderDetails(String id) {
 		UserAccountDetails user = (UserAccountDetails) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
-		return Result.success().setData(bettingService.findMyBettingOrderDetails(id, user.getUserAccountId()));
+		return Result.success().setData(bettingService.findMyOrLowerLevelBettingOrderDetails(id, user.getUserAccountId()));
 	}
 
 	/**

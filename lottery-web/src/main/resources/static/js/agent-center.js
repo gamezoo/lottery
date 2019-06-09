@@ -3,6 +3,7 @@ var agentCenterVM = new Vue({
 	data : {
 		currentTab : '',
 		rebateAndOddses : [],
+		gameDictItems : [],
 
 		/**
 		 * 下级账号管理相关参数start
@@ -32,12 +33,49 @@ var agentCenterVM = new Vue({
 		rebateAndOddsLowerLevelOpenAnAccount : '',
 		inviteRegisterLink : null,
 
+		/**
+		 * 团队投注明细相关参数start
+		 */
+		startTimeBettingDetails : '',
+		endTimeBettingDetails : '',
+		userNameBettingDetails : '',
+		accountTypeBettingDetails : '',
+		accountTypeDictItems : [ {
+			dictItemCode : 'member',
+			dictItemName : '所以下级会员'
+		}, {
+			dictItemCode : 'agent',
+			dictItemName : '所有下级代理'
+		} ],
+		gameCodeBettingDetails : '',
+		gameDictItems : [],
+		issueNumBettingDetails : '',
+		stateBettingDetails : '',
+		bettingOrderStateDictItems : [],
+
+		/**
+		 * 团队充值明细相关参数start
+		 */
+		startTimeRechargeDetails : '',
+		endTimeRechargeDetails : '',
+		userNameRechargeDetails : '',
+		accountTypeRechargeDetails : '',
+
+		/**
+		 * 团队帐变报表相关参数start
+		 */
+		gameCodeAccountChange : '',
+		startTimeAccountChange : '',
+		endTimeAccountChange : '',
+		userNameAccountChange : '',
+		typeCodeAccountChange : '',
+		accountChangeTypeDictItems : [],
+
 	},
 	computed : {},
 	created : function() {
 	},
 	mounted : function() {
-		this.initRebateAndOddsData();
 		this.switchLowerLevelAccountManageTab();
 
 		var clipboard = new ClipboardJS('#copyInviteRegisterLinkBtn');
@@ -50,7 +88,7 @@ var agentCenterVM = new Vue({
 		});
 	},
 	methods : {
-		initRebateAndOddsData : function() {
+		loadRebateAndOddsData : function() {
 			var that = this;
 			this.$http.get('/agent/findAllRebateAndOdds').then(function(res) {
 				var resResult = res.body.data;
@@ -162,19 +200,6 @@ var agentCenterVM = new Vue({
 				}, {
 					title : '操作',
 					formatter : function(value, row, index) {
-						// return [ '<button type="button"
-						// class="account-edit-btn btn btn-outline-primary
-						// btn-sm" style="margin-right: 4px;">编辑</button>',
-						// '<button type="button" class="modify-login-pwd-btn
-						// btn btn-outline-secondary btn-sm"
-						// style="margin-right: 4px;">修改登录密码</button>', '<button
-						// type="button" class="del-account-btn btn
-						// btn-outline-danger btn-sm">删除</button>' ].join('');
-					},
-					events : {
-						'click .account-edit-btn' : function(event, value, row, index) {
-							that.showAccountEditModal(row);
-						}
 					}
 				} ]
 			});
@@ -195,6 +220,7 @@ var agentCenterVM = new Vue({
 			this.loginPwdAgentOpenAnAccount = '';
 			this.confirmLoginPwdAgentOpenAnAccount = '';
 			this.rebateAndOddsAgentOpenAnAccount = '';
+			this.loadRebateAndOddsData();
 		},
 
 		agentOpenAnAccount : function() {
@@ -268,6 +294,7 @@ var agentCenterVM = new Vue({
 			this.accountTypeLowerLevelOpenAnAccount = 'member';
 			this.rebateAndOddsLowerLevelOpenAnAccount = '';
 			this.inviteRegisterLink = null;
+			this.loadRebateAndOddsData();
 		},
 
 		generateRegiterLink : function() {
@@ -299,6 +326,362 @@ var agentCenterVM = new Vue({
 					shade : false
 				});
 				that.inviteRegisterLink = res.body.data.inviteRegisterLink;
+			});
+		},
+
+		/**
+		 * 团队投注明细tab相关方法start
+		 */
+		switchBettingDetailsTab : function() {
+			this.currentTab = 'bettingDetails';
+			this.loadGameDictItem();
+			this.loadBettingOrderStateDictItem();
+			this.resetBettingDetailsQueryCond();
+			this.initBettingDetailsTable();
+		},
+
+		loadGameDictItem : function() {
+			var that = this;
+			that.$http.get('/dictconfig/findDictItemInCache', {
+				params : {
+					dictTypeCode : 'game'
+				}
+			}).then(function(res) {
+				this.gameDictItems = res.body.data;
+			});
+		},
+
+		loadBettingOrderStateDictItem : function() {
+			var that = this;
+			that.$http.get('/dictconfig/findDictItemInCache', {
+				params : {
+					dictTypeCode : 'bettingOrderState'
+				}
+			}).then(function(res) {
+				this.bettingOrderStateDictItems = res.body.data;
+			});
+		},
+
+		resetBettingDetailsQueryCond : function() {
+			this.startTimeBettingDetails = dayjs().format('YYYY-MM-DD');
+			this.endTimeBettingDetails = dayjs().format('YYYY-MM-DD');
+			this.userNameBettingDetails = headerVM.userName;
+			this.accountTypeBettingDetails = '';
+			this.gameCodeBettingDetails = '';
+			this.issueNumBettingDetails = '';
+			this.stateBettingDetails = '';
+		},
+
+		initBettingDetailsTable : function() {
+			var that = this;
+			$('.betting-details-table').bootstrapTable('destroy');
+			$('.betting-details-table').bootstrapTable({
+				classes : 'table table-hover',
+				height : 540,
+				url : '/betting/findLowerLevelBettingOrderInfoByPage',
+				pagination : true,
+				sidePagination : 'server',
+				pageNumber : 1,
+				pageSize : 10,
+				pageList : [ 10, 25, 50, 100 ],
+				queryParamsType : '',
+				queryParams : function(params) {
+					var condParam = {
+						pageSize : params.pageSize,
+						pageNum : params.pageNumber,
+						startTime : that.startTimeBettingDetails,
+						endTime : that.endTimeBettingDetails,
+						userName : that.userNameBettingDetails,
+						accountType : that.accountTypeBettingDetails,
+						gameCode : that.gameCodeBettingDetails,
+						issueNum : that.issueNumBettingDetails,
+						state : that.stateBettingDetails
+					};
+					return condParam;
+				},
+				responseHandler : function(res) {
+					if (res.code != 200) {
+						layer.alert(res.msg, {
+							title : '提示',
+							icon : 7,
+							time : 3000
+						});
+						return {
+							total : 0,
+							rows : []
+						};
+					}
+					return {
+						total : res.data.total,
+						rows : res.data.content
+					};
+				},
+				columns : [ {
+					field : 'userName',
+					title : '用户名',
+					formatter : function(value) {
+						if (value == headerVM.userName) {
+							value += '(自己)';
+						}
+						return value;
+					}
+				}, {
+					field : 'orderNo',
+					title : '订单号',
+					cellStyle : {
+						classes : 'betting-record-order-no'
+					}
+				}, {
+					field : 'bettingTime',
+					title : '投注时间'
+				}, {
+					field : 'gameName',
+					title : '游戏'
+				}, {
+					field : 'issueNum',
+					title : '期号'
+				}, {
+					field : 'stateName',
+					title : '状态',
+					cellStyle : {
+						classes : 'betting-record-state'
+					}
+				}, {
+					field : 'totalBettingAmount',
+					title : '投注金额',
+					formatter : function(value) {
+						return value + '元';
+					}
+				}, {
+					field : 'totalWinningAmount',
+					title : '中奖金额',
+					formatter : function(value) {
+						return value + '元';
+					}
+				}, {
+					field : 'totalProfitAndLoss',
+					title : '盈亏',
+					formatter : function(value) {
+						return value + '元';
+					}
+				} ],
+				onClickCell : function(field, value, row) {
+					if ('orderNo' == field) {
+						bettingOrderDetailsModal.loadAndShowBettingOrderDetails(row.id);
+					}
+				}
+			});
+		},
+
+		refreshBettingDetailsTable : function() {
+			$('.betting-details-table').bootstrapTable('refreshOptions', {
+				pageNumber : 1
+			});
+		},
+
+		/**
+		 * 团队充值明细tab相关方法start
+		 */
+		switchRechargeDetailsTab : function() {
+			this.currentTab = 'rechargeDetails';
+			this.resetRechargeDetailsQueryCond();
+			this.initRechargeDetailsTable();
+		},
+
+		resetRechargeDetailsQueryCond : function() {
+			this.startTimeRechargeDetails = dayjs().format('YYYY-MM-DD');
+			this.endTimeRechargeDetails = dayjs().format('YYYY-MM-DD');
+			this.userNameRechargeDetails = '';
+			this.accountTypeRechargeDetails = '';
+		},
+
+		initRechargeDetailsTable : function() {
+			var that = this;
+			$('.recharge-details-table').bootstrapTable('destroy');
+			$('.recharge-details-table').bootstrapTable({
+				classes : 'table table-hover',
+				height : 540,
+				url : '/recharge/findLowerLevelRechargeOrderByPage',
+				pagination : true,
+				sidePagination : 'server',
+				pageNumber : 1,
+				pageSize : 10,
+				pageList : [ 10, 25, 50, 100 ],
+				queryParamsType : '',
+				queryParams : function(params) {
+					var condParam = {
+						pageSize : params.pageSize,
+						pageNum : params.pageNumber,
+						submitStartTime : that.startTimeRechargeDetails,
+						submitEndTime : that.endTimeRechargeDetails,
+						userName : that.userNameRechargeDetails,
+						accountType : that.accountTypeRechargeDetails
+					};
+					return condParam;
+				},
+				responseHandler : function(res) {
+					if (res.code != 200) {
+						layer.alert(res.msg, {
+							title : '提示',
+							icon : 7,
+							time : 3000
+						});
+						return {
+							total : 0,
+							rows : []
+						};
+					}
+					return {
+						total : res.data.total,
+						rows : res.data.content
+					};
+				},
+				columns : [ {
+					field : 'userName',
+					title : '用户名',
+					formatter : function(value) {
+						if (value == headerVM.userName) {
+							value += '(自己)';
+						}
+						return value;
+					}
+				}, {
+					field : 'orderNo',
+					title : '订单号'
+				}, {
+					field : 'submitTime',
+					title : '充值时间'
+				}, {
+					field : 'rechargeAmount',
+					title : '充值金额'
+				}, {
+					field : 'rechargeWayName',
+					title : '充值方式'
+				}, {
+					field : 'orderStateName',
+					title : '状态'
+				} ]
+			});
+		},
+
+		refreshRechargeDetailsTable : function() {
+			$('.recharge-details-table').bootstrapTable('refreshOptions', {
+				pageNumber : 1
+			});
+		},
+
+		/**
+		 * 团队帐变报表tab相关方法start
+		 */
+		switchAccountChangeTab : function() {
+			this.currentTab = 'accountChange';
+			this.loadGameDictItem();
+			this.loadAccountChangeTypeDictItem();
+			this.resetAccountChangeQueryCond();
+			this.initAccountChangeTable();
+		},
+
+		/**
+		 * 加载账变类型字典项
+		 */
+		loadAccountChangeTypeDictItem : function() {
+			var that = this;
+			that.$http.get('/dictconfig/findDictItemInCache', {
+				params : {
+					dictTypeCode : 'accountChangeType'
+				}
+			}).then(function(res) {
+				this.accountChangeTypeDictItems = res.body.data;
+			});
+		},
+
+		resetAccountChangeQueryCond : function() {
+			this.gameCodeAccountChange = '';
+			this.startTimeAccountChange = dayjs().format('YYYY-MM-DD');
+			this.endTimeAccountChange = dayjs().format('YYYY-MM-DD');
+			this.userNameAccountChange = '';
+			this.typeCodeAccountChange = '';
+		},
+
+		initAccountChangeTable : function() {
+			var that = this;
+			$('.account-change-table').bootstrapTable('destroy');
+			$('.account-change-table').bootstrapTable({
+				classes : 'table table-hover',
+				height : 540,
+				url : '/userAccount/findLowerLevelAccountChangeLogByPage',
+				pagination : true,
+				sidePagination : 'server',
+				pageNumber : 1,
+				pageSize : 10,
+				pageList : [ 10, 25, 50, 100 ],
+				queryParamsType : '',
+				queryParams : function(params) {
+					var condParam = {
+						pageSize : params.pageSize,
+						pageNum : params.pageNumber,
+						gameCode : that.gameCodeAccountChange,
+						startTime : that.startTimeAccountChange,
+						endTime : that.endTimeAccountChange,
+						userName : that.userNameAccountChange,
+						accountChangeTypeCode : that.typeCodeAccountChange
+					};
+					return condParam;
+				},
+				responseHandler : function(res) {
+					if (res.code != 200) {
+						layer.alert(res.msg, {
+							title : '提示',
+							icon : 7,
+							time : 3000
+						});
+						return {
+							total : 0,
+							rows : []
+						};
+					}
+					return {
+						total : res.data.total,
+						rows : res.data.content
+					};
+				},
+				columns : [ {
+					field : 'userName',
+					title : '用户名',
+					formatter : function(value) {
+						if (value == headerVM.userName) {
+							value += '(自己)';
+						}
+						return value;
+					}
+				}, {
+					field : 'orderNo',
+					title : '订单号'
+				}, {
+					field : 'gameName',
+					title : '游戏'
+				}, {
+					field : 'issueNum',
+					title : '期号'
+				}, {
+					field : 'accountChangeTime',
+					title : '账变时间'
+				}, {
+					field : 'accountChangeTypeName',
+					title : '类型'
+				}, {
+					field : 'accountChangeAmount',
+					title : '账变金额'
+				}, {
+					field : 'balance',
+					title : '余额'
+				} ]
+			});
+		},
+
+		refreshAccountChangeTable : function() {
+			$('.account-change-table').bootstrapTable('refreshOptions', {
+				pageNumber : 1
 			});
 		}
 	}

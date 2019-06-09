@@ -81,6 +81,16 @@ public class BettingOrderInfoVO {
 	 */
 	private String stateName;
 
+	/**
+	 * 投注人用户账号id
+	 */
+	private String userAccountId;
+
+	/**
+	 * 投注人用户名
+	 */
+	private String userName;
+
 	private Boolean cancelOrderFlag = false;
 
 	public static List<BettingOrderInfoVO> convertFor(Collection<BettingOrder> bettingOrders) {
@@ -102,6 +112,9 @@ public class BettingOrderInfoVO {
 		BeanUtils.copyProperties(bettingOrder, vo);
 		vo.setGameName(DictHolder.getDictItemName("game", vo.getGameCode()));
 		vo.setStateName(DictHolder.getDictItemName("bettingOrderState", vo.getState()));
+		if (bettingOrder.getUserAccount() != null) {
+			vo.setUserName(bettingOrder.getUserAccount().getUserName());
+		}
 		if (Constant.投注订单状态_未开奖.equals(bettingOrder.getState())) {
 			if (bettingOrder.getIssue() != null) {
 				if (new Date().getTime() < bettingOrder.getIssue().getEndTime().getTime()) {

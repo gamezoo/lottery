@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import me.zohar.lottery.betting.param.BettingOrderQueryCondParam;
+import me.zohar.lottery.betting.param.LowerLevelBettingOrderQueryCondParam;
 import me.zohar.lottery.betting.param.PlaceOrderParam;
 import me.zohar.lottery.betting.service.BettingService;
 import me.zohar.lottery.common.vo.Result;
@@ -31,17 +32,17 @@ public class BettingController {
 	}
 
 	/**
-	 * 获取投注信息详情
+	 * 获取我或下级账号投注信息详情
 	 * 
 	 * @param id
 	 * @return
 	 */
-	@GetMapping("/findMyBettingOrderDetails")
+	@GetMapping("/findMyOrLowerLevelBettingOrderDetails")
 	@ResponseBody
-	public Result findMyBettingOrderDetails(String id) {
+	public Result findMyOrLowerLevelBettingOrderDetails(String id) {
 		UserAccountDetails user = (UserAccountDetails) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
-		return Result.success().setData(bettingService.findMyBettingOrderDetails(id, user.getUserAccountId()));
+		return Result.success().setData(bettingService.findMyOrLowerLevelBettingOrderDetails(id, user.getUserAccountId()));
 	}
 
 	/**
@@ -98,6 +99,15 @@ public class BettingController {
 				.getPrincipal();
 		bettingService.batchCancelOrder(orderIds, user.getUserAccountId());
 		return Result.success();
+	}
+
+	@GetMapping("/findLowerLevelBettingOrderInfoByPage")
+	@ResponseBody
+	public Result findLowerLevelBettingOrderInfoByPage(LowerLevelBettingOrderQueryCondParam param) {
+		UserAccountDetails user = (UserAccountDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		param.setCurrentAccountId(user.getUserAccountId());
+		return Result.success().setData(bettingService.findLowerLevelBettingOrderInfoByPage(param));
 	}
 
 }

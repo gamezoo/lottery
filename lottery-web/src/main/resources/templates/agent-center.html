@@ -30,11 +30,11 @@
 							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == 'lowerLevelAccountManage'}" v-on:click="switchLowerLevelAccountManageTab"><a class="nav-link"><span>下级账号管理</span></a></li>
 							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == 'agentOpenAnAccount'}" v-on:click="switchAgentOpenAnAccountTab"><a class="nav-link"><span>代理开户</span></a></li>
 							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == 'lowerLevelOpenAnAccount'}" v-on:click="switchLowerLevelOpenAnAccountTab"><a class="nav-link"><span>下级开户</span></a></li>
-							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == ''}" v-on:click=""><a class="nav-link"><span>团队投注明细</span></a></li>
-							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == ''}" v-on:click=""><a class="nav-link"><span>团队充值明细</span></a></li>
+							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == 'bettingDetails'}" v-on:click="switchBettingDetailsTab"><a class="nav-link"><span>团队投注明细</span></a></li>
+							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == 'rechargeDetails'}" v-on:click="switchRechargeDetailsTab"><a class="nav-link"><span>团队充值明细</span></a></li>
 							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == ''}" v-on:click=""><a class="nav-link"><span>团队提现明细</span></a></li>
 							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == ''}" v-on:click=""><a class="nav-link"><span>团队盈亏报表</span></a></li>
-							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == ''}" v-on:click=""><a class="nav-link"><span>团队帐变报表</span></a></li>
+							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == 'accountChange'}" v-on:click="switchAccountChangeTab"><a class="nav-link"><span>团队帐变报表</span></a></li>
 							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == ''}" v-on:click=""><a class="nav-link"><span>团队汇总报表</span></a></li>
 						</ul>
 					</nav>
@@ -44,14 +44,14 @@
 			<div id="lowerLevelAccountManageTab" v-show="currentTab == 'lowerLevelAccountManage'">
 				<form class="form-inline common-query-cond-form">
 					<div class="form-group common-query-cond">
-						<label>用户名:</label><input type="text" class="form-control" v-model="userNameLowerLevelAccountManage">
+						<label>用户名:</label><input type="text" class="form-control-sm" v-model="userNameLowerLevelAccountManage">
 					</div>
 					<div class="form-group common-query-cond">
-						<label>范围:</label> <select class="form-control" v-model="queryScopeLowerLevelAccountManage">
+						<label>范围:</label> <select class="form-control-sm" v-model="queryScopeLowerLevelAccountManage">
 							<option v-for="dictItem in queryScopeDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
 						</select>
 					</div>
-					<button type="button" class="btn btn-danger" v-on:click="refreshLowerLevelAccountManageTable">搜索</button>
+					<button type="button" class="btn btn-danger btn-sm" v-on:click="refreshLowerLevelAccountManageTable">搜索</button>
 				</form>
 				<table class="common-table lower-level-account-manage-table"></table>
 			</div>
@@ -150,7 +150,88 @@
 					</div>
 				</div>
 			</div>
+
+			<div id="bettingDetailsTab" v-show="currentTab == 'bettingDetails'">
+				<form class="form-inline common-query-cond-form">
+					<div class="form-group common-query-cond">
+						<label>时间:</label><input type="date" class="form-control-sm" v-model="startTimeBettingDetails"><span>到</span><input type="date" class="form-control-sm" v-model="endTimeBettingDetails">
+					</div>
+					<div class="form-group common-query-cond">
+						<label>用户名:</label><input type="text" class="form-control-sm" v-model="userNameBettingDetails">
+					</div>
+					<div class="form-group common-query-cond">
+						<label>查询范围:</label> <select class="form-control-sm" v-model="accountTypeBettingDetails">
+							<option value="">全部</option>
+							<option v-for="dictItem in accountTypeDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
+						</select>
+					</div>
+				</form>
+				<form class="form-inline common-query-cond-form">
+					<div class="form-group common-query-cond">
+						<label>游戏:</label> <select class="form-control-sm" v-model="gameCodeBettingDetails">
+							<option value="">全部游戏</option>
+							<option v-for="dictItem in gameDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
+						</select>
+					</div>
+					<div class="form-group common-query-cond">
+						<label>期号:</label><input type="text" class="form-control-sm" v-model="issueNumBettingDetails">
+					</div>
+					<div class="form-group common-query-cond">
+						<label>状态:</label> <select class="form-control-sm" v-model="stateBettingDetails">
+							<option value="">全部</option>
+							<option v-for="dictItem in bettingOrderStateDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
+						</select>
+					</div>
+					<button type="button" class="btn btn-danger btn-sm" v-on:click="refreshBettingDetailsTable">搜索</button>
+				</form>
+				<table class="common-table betting-details-table"></table>
+			</div>
+
+			<div id="rechargeDetailsTab" v-show="currentTab == 'rechargeDetails'">
+				<form class="form-inline common-query-cond-form">
+					<div class="form-group common-query-cond">
+						<label>时间:</label><input type="date" class="form-control-sm" v-model="startTimeRechargeDetails"><span>到</span><input type="date" class="form-control-sm" v-model="endTimeRechargeDetails">
+					</div>
+					<div class="form-group common-query-cond">
+						<label>用户名:</label><input type="text" class="form-control-sm" v-model="userNameRechargeDetails">
+					</div>
+					<div class="form-group common-query-cond">
+						<label>查询范围:</label> <select class="form-control-sm" v-model="accountTypeRechargeDetails">
+							<option value="">全部</option>
+							<option v-for="dictItem in accountTypeDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
+						</select>
+					</div>
+					<button type="button" class="btn btn-danger btn-sm" v-on:click="refreshRechargeDetailsTable">搜索</button>
+				</form>
+				<table class="common-table recharge-details-table"></table>
+			</div>
+
+			<div id="accountChangeTab" v-show="currentTab == 'accountChange'">
+				<form class="form-inline common-query-cond-form">
+					<div class="form-group common-query-cond">
+						<label>游戏:</label> <select class="form-control-sm" v-model="gameCodeAccountChange">
+							<option value="">所有游戏</option>
+							<option v-for="dictItem in gameDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
+						</select>
+					</div>
+					<div class="form-group common-query-cond">
+						<label>时间:</label><input type="date" class="form-control-sm" v-model="startTimeAccountChange"><span>到</span><input type="date" class="form-control-sm" v-model="endTimeAccountChange">
+					</div>
+					<div class="form-group common-query-cond">
+						<label>用户名:</label><input type="text" class="form-control-sm" v-model="userNameAccountChange">
+					</div>
+					<div class="form-group common-query-cond">
+						<label>账变类型:</label> <select class="form-control-sm" v-model="typeCodeAccountChange">
+							<option value="">请选择</option>
+							<option v-for="dictItem in accountChangeTypeDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
+						</select>
+					</div>
+					<button type="button" class="btn btn-danger btn-sm" v-on:click="refreshAccountChangeTable">搜索</button>
+				</form>
+				<table class="common-table account-change-table"></table>
+			</div>
 		</div>
+		<div th:replace="component/betting-order-details-modal::html"></div>
 	</div>
 	<script src="/js/agent-center.js"></script>
 </body>

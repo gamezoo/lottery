@@ -57,3 +57,24 @@
 	padding-bottom: 4px !important;
 }
 /*下级开户end*/
+
+/*团队投注明细start*/
+.betting-details-table .betting-record-order-no {
+	color: #2765a1;
+	cursor: pointer;
+}
+
+.betting-details-table .betting-record-state {
+	color: #ec494c;
+}
+/*团队投注明细end*/
+
+/*团队帐变报表start*/
+#accountChangeTab input[type="date"] {
+	width: 150px;
+}
+
+#accountChangeTab input[type="text"] {
+	width: 150px;
+}
+/*团队帐变报表end*/

@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.validation.constraints.NotBlank;
@@ -35,6 +36,7 @@ import me.zohar.lottery.betting.domain.BettingRecord;
 import me.zohar.lottery.betting.param.BettingOrderQueryCondParam;
 import me.zohar.lottery.betting.param.BettingRecordParam;
 import me.zohar.lottery.betting.param.ChangeOrderParam;
+import me.zohar.lottery.betting.param.LowerLevelBettingOrderQueryCondParam;
 import me.zohar.lottery.betting.param.PlaceOrderParam;
 import me.zohar.lottery.betting.repo.BettingOrderRepo;
 import me.zohar.lottery.betting.repo.BettingRebateRepo;
@@ -103,9 +105,12 @@ public class BettingService {
 	}
 
 	@Transactional(readOnly = true)
-	public BettingOrderDetailsVO findMyBettingOrderDetails(String id, String userAccountId) {
+	public BettingOrderDetailsVO findMyOrLowerLevelBettingOrderDetails(String id, String userAccountId) {
 		BettingOrderDetailsVO vo = findBettingOrderDetails(id);
-		if (!userAccountId.equals(vo.getUserAccountId())) {
+		UserAccount bettingOrderAccount = userAccountRepo.getOne(vo.getUserAccountId());
+		UserAccount currentAccount = userAccountRepo.getOne(userAccountId);
+		// 说明该投注账号不是当前账号的下级账号
+		if (!bettingOrderAccount.getAccountLevelPath().startsWith(currentAccount.getAccountLevelPath())) {
 			throw new BizException(BizError.无权查看投注记录);
 		}
 		return vo;
@@ -482,6 +487,70 @@ public class BettingService {
 		for (String orderId : orderIds) {
 			cancelOrder(orderId, userAccountId);
 		}
+	}
+
+	/**
+	 * 分页获取下级账号投注订单信息
+	 * 
+	 * @param param
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public PageResult<BettingOrderInfoVO> findLowerLevelBettingOrderInfoByPage(
+			LowerLevelBettingOrderQueryCondParam param) {
+		UserAccount currentAccount = userAccountRepo.getOne(param.getCurrentAccountId());
+		UserAccount lowerLevelAccount = currentAccount;
+		if (StrUtil.isNotBlank(param.getUserName())) {
+			lowerLevelAccount = userAccountRepo.findByUserName(param.getUserName());
+			if (lowerLevelAccount == null) {
+				throw new BizException(BizError.用户名不存在);
+			}
+			// 说明该用户名对应的账号不是当前账号的下级账号
+			if (!lowerLevelAccount.getAccountLevelPath().startsWith(currentAccount.getAccountLevelPath())) {
+				throw new BizException(BizError.不是上级账号无权查看该账号及下级的投注记录);
+			}
+		}
+		String lowerLevelAccountLevelPath = lowerLevelAccount.getAccountLevelPath();
+
+		Specification<BettingOrder> spec = new Specification<BettingOrder>() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			public Predicate toPredicate(Root<BettingOrder> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+				List<Predicate> predicates = new ArrayList<Predicate>();
+				predicates.add(builder.like(root.join("userAccount", JoinType.INNER).get("accountLevelPath"),
+						lowerLevelAccountLevelPath + "%"));
+				if (StrUtil.isNotEmpty(param.getAccountType())) {
+					predicates.add(builder.equal(root.join("userAccount", JoinType.INNER).get("accountType"),
+							param.getAccountType()));
+				}
+				if (StrUtil.isNotEmpty(param.getGameCode())) {
+					predicates.add(builder.equal(root.get("gameCode"), param.getGameCode()));
+				}
+				if (param.getIssueNum() != null) {
+					predicates.add(builder.equal(root.get("issueNum"), param.getIssueNum()));
+				}
+				if (param.getStartTime() != null) {
+					predicates.add(builder.greaterThanOrEqualTo(root.get("bettingTime").as(Date.class),
+							DateUtil.beginOfDay(param.getStartTime())));
+				}
+				if (param.getEndTime() != null) {
+					predicates.add(builder.lessThanOrEqualTo(root.get("bettingTime").as(Date.class),
+							DateUtil.endOfDay(param.getEndTime())));
+				}
+				if (StrUtil.isNotEmpty(param.getState())) {
+					predicates.add(builder.equal(root.get("state"), param.getState()));
+				}
+				return predicates.size() > 0 ? builder.and(predicates.toArray(new Predicate[predicates.size()])) : null;
+			}
+		};
+		Page<BettingOrder> result = bettingOrderRepo.findAll(spec,
+				PageRequest.of(param.getPageNum() - 1, param.getPageSize(), Sort.by(Sort.Order.desc("bettingTime"))));
+		PageResult<BettingOrderInfoVO> pageResult = new PageResult<>(BettingOrderInfoVO.convertFor(result.getContent()),
+				param.getPageNum(), param.getPageSize(), result.getTotalElements());
+		return pageResult;
 	}
 
 }

@@ -111,7 +111,7 @@
 								</table>
 							</div>
 							<div class="modal-footer">
-								<button type="button" class="btn btn-danger btn-sm" v-show="bettingOrderDetails.cancelOrderFlag" v-on:click="cancelOrder(bettingOrderDetails.id)">撤单</button>
+								<button type="button" class="btn btn-danger btn-sm" v-show="bettingOrderDetails.userName == headerVM.userName && bettingOrderDetails.cancelOrderFlag" v-on:click="cancelOrder(bettingOrderDetails.id)">撤单</button>
 								<button type="button" class="btn btn-sm" v-on:click="showBettingOrderDetailsFlag = false">返回</button>
 							</div>
 						</div>
@@ -133,7 +133,7 @@
 			methods : {
 				loadAndShowBettingOrderDetails : function(id) {
 					var that = this;
-					that.$http.get('/betting/findMyBettingOrderDetails', {
+					that.$http.get('/betting/findMyOrLowerLevelBettingOrderDetails', {
 						params : {
 							id : id
 						}

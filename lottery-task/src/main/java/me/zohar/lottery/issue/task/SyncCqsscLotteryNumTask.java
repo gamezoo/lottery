@@ -14,7 +14,7 @@ public class SyncCqsscLotteryNumTask {
 	@Autowired
 	private CqsscService cqsscService;
 	
-//	@Scheduled(fixedRate = 6000)
+	@Scheduled(fixedRate = 6000)
 	public void execute() {
 		try {
 			log.info("执行同步重庆时时彩开奖号码定时任务start");
