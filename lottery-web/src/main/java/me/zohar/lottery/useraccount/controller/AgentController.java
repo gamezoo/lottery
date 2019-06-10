@@ -14,6 +14,8 @@ import me.zohar.lottery.agent.param.GenerateInviteCodeParam;
 import me.zohar.lottery.agent.service.AgentService;
 import me.zohar.lottery.common.vo.Result;
 import me.zohar.lottery.config.security.UserAccountDetails;
+import me.zohar.lottery.statisticalanalysis.param.AccountProfitAndLossQueryCondParam;
+import me.zohar.lottery.statisticalanalysis.service.StatisticalAnalysisService;
 import me.zohar.lottery.useraccount.param.LowerLevelAccountQueryCondParam;
 import me.zohar.lottery.useraccount.service.UserAccountService;
 
@@ -26,6 +28,9 @@ public class AgentController {
 
 	@Autowired
 	private UserAccountService userAccountService;
+
+	@Autowired
+	private StatisticalAnalysisService statisticalAnalysisService;
 
 	@GetMapping("/findAllRebateAndOdds")
 	@ResponseBody
@@ -60,6 +65,15 @@ public class AgentController {
 				.getPrincipal();
 		param.setCurrentAccountId(user.getUserAccountId());
 		return Result.success().setData(userAccountService.findLowerLevelAccountDetailsInfoByPage(param));
+	}
+
+	@GetMapping("/findAccountProfitAndLossByPage")
+	@ResponseBody
+	public Result findAccountProfitAndLossByPage(AccountProfitAndLossQueryCondParam param) {
+		UserAccountDetails user = (UserAccountDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		param.setCurrentAccountId(user.getUserAccountId());
+		return Result.success().setData(statisticalAnalysisService.findAccountProfitAndLossByPage(param));
 	}
 
 }

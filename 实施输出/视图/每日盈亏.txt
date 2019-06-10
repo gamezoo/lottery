@@ -1,0 +1,122 @@
+create view v_everyday_profit_and_loss as
+SELECT
+	concat( `t`.`user_account_id`, '_', CONVERT ( `t`.`everyday` USING utf8 ) ) AS `id`,
+	`lottery`.`user_account`.`id` AS `user_account_id`,
+	`lottery`.`user_account`.`user_name` AS `user_name`,
+	`lottery`.`user_account`.`account_type` AS `account_type`,
+	`lottery`.`user_account`.`account_level` AS `account_level`,
+	`lottery`.`user_account`.`account_level_path` AS `account_level_path`,
+	`lottery`.`user_account`.`balance` AS `balance`,
+	`t`.`everyday` AS `everyday`,
+	`t`.`recharge_amount` AS `recharge_amount`,
+	`t`.`withdraw_amount` AS `withdraw_amount`,
+	`t`.`total_betting_amount` AS `total_betting_amount`,
+	`t`.`total_winning_amount` AS `total_winning_amount`,
+	`t`.`rebate_amount` AS `rebate_amount`,
+	`t`.`lower_level_rebate_amount` AS `lower_level_rebate_amount`,
+	`t`.`betting_profit_and_loss` AS `betting_profit_and_loss` 
+FROM
+	(
+	(
+	(
+SELECT
+	concat( `t`.`user_account_id`, '_', CONVERT ( `t`.`everyday` USING utf8 ) ) AS `id`,
+	`t`.`user_account_id` AS `user_account_id`,
+	str_to_date( `t`.`everyday`, '%Y-%m-%d' ) AS `everyday`,
+	sum( `t`.`recharge_amount` ) AS `recharge_amount`,
+	sum( `t`.`withdraw_amount` ) AS `withdraw_amount`,
+	sum( `t`.`total_betting_amount` ) AS `total_betting_amount`,
+	sum( `t`.`total_winning_amount` ) AS `total_winning_amount`,
+	sum( `t`.`rebate_amount` ) AS `rebate_amount`,
+	sum( `t`.`lower_level_rebate_amount` ) AS `lower_level_rebate_amount`,
+	sum( ( ( `t`.`total_winning_amount` - `t`.`total_betting_amount` ) + `t`.`rebate_amount` ) ) AS `betting_profit_and_loss` 
+FROM
+	(
+SELECT
+	`lottery`.`recharge_order`.`user_account_id` AS `user_account_id`,
+	date_format( `lottery`.`recharge_order`.`submit_time`, '%Y-%m-%d' ) AS `everyday`,
+	sum( `lottery`.`recharge_order`.`recharge_amount` ) AS `recharge_amount`,
+	0 AS `withdraw_amount`,
+	0 AS `total_betting_amount`,
+	0 AS `total_winning_amount`,
+	0 AS `rebate_amount`,
+	0 AS `lower_level_rebate_amount` 
+FROM
+	`lottery`.`recharge_order` 
+WHERE
+	( `lottery`.`recharge_order`.`order_state` IN ( '2', '3' ) ) 
+GROUP BY
+	`lottery`.`recharge_order`.`user_account_id`,
+	date_format( `lottery`.`recharge_order`.`submit_time`, '%Y-%m-%d' ) UNION ALL
+SELECT
+	`lottery`.`withdraw_record`.`user_account_id` AS `user_account_id`,
+	date_format( `lottery`.`withdraw_record`.`submit_time`, '%Y-%m-%d' ) AS `everyday`,
+	0 AS `recharge_amount`,
+	sum( `lottery`.`withdraw_record`.`withdraw_amount` ) AS `withdraw_amount`,
+	0 AS `total_betting_amount`,
+	0 AS `total_winning_amount`,
+	0 AS `rebate_amount`,
+	0 AS `lower_level_rebate_amount` 
+FROM
+	`lottery`.`withdraw_record` 
+WHERE
+	( `lottery`.`withdraw_record`.`state` IN ( '1', '2', '4' ) ) 
+GROUP BY
+	`lottery`.`withdraw_record`.`user_account_id`,
+	date_format( `lottery`.`withdraw_record`.`submit_time`, '%Y-%m-%d' ) UNION ALL
+SELECT
+	`lottery`.`betting_order`.`user_account_id` AS `user_account_id`,
+	date_format( `lottery`.`betting_order`.`betting_time`, '%Y-%m-%d' ) AS `everyday`,
+	0 AS `recharge_amount`,
+	0 AS `withdraw_amount`,
+	sum(
+	(
+CASE
+	
+	WHEN ( `lottery`.`betting_order`.`state` IN ( '1', '2', '3' ) ) THEN
+	`lottery`.`betting_order`.`total_betting_amount` ELSE 0 
+END 
+	) 
+	) AS `total_betting_amount`,
+	sum( ( CASE WHEN ( `lottery`.`betting_order`.`state` = '3' ) THEN `lottery`.`betting_order`.`total_winning_amount` ELSE 0 END ) ) AS `total_winning_amount`,
+	sum(
+		(
+		CASE
+				
+				WHEN ( `lottery`.`betting_order`.`state` IN ( '1', '2', '3' ) ) THEN
+				`lottery`.`betting_order`.`rebate_amount` ELSE 0 
+			END 
+			) 
+		) AS `rebate_amount`,
+		0 AS `lower_level_rebate_amount` 
+	FROM
+		`lottery`.`betting_order` 
+	GROUP BY
+		`lottery`.`betting_order`.`user_account_id`,
+		date_format( `lottery`.`betting_order`.`betting_time`, '%Y-%m-%d' ) UNION ALL
+	SELECT
+		`lottery`.`betting_rebate`.`rebate_account_id` AS `user_account_id`,
+		date_format( `lottery`.`betting_rebate`.`create_time`, '%Y-%m-%d' ) AS `DATE_FORMAT(betting_rebate.create_time,'%Y-%m-%d')`,
+		0 AS `recharge_amount`,
+		0 AS `withdraw_amount`,
+		0 AS `total_betting_amount`,
+		0 AS `total_winning_amount`,
+		0 AS `rebate_amount`,
+		sum(
+			( CASE WHEN ( `lottery`.`betting_rebate`.`rebate_account_id` <> `lottery`.`betting_order`.`user_account_id` ) THEN `lottery`.`betting_rebate`.`rebate_amount` ELSE 0 END ) 
+		) AS `lower_level_rebate_amount` 
+	FROM
+		( `lottery`.`betting_rebate` LEFT JOIN `lottery`.`betting_order` ON ( ( `lottery`.`betting_rebate`.`betting_order_id` = `lottery`.`betting_order`.`id` ) ) ) 
+	GROUP BY
+		`lottery`.`betting_rebate`.`rebate_account_id`,
+		date_format( `lottery`.`betting_rebate`.`create_time`, '%Y-%m-%d' ) 
+	) `t` 
+GROUP BY
+	`t`.`user_account_id`,
+	`t`.`everyday` 
+	) 
+	) `t`
+	JOIN `lottery`.`user_account` 
+	) 
+WHERE
+( `t`.`user_account_id` = `lottery`.`user_account`.`id` )

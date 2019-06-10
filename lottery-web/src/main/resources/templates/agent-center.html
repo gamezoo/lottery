@@ -32,10 +32,9 @@
 							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == 'lowerLevelOpenAnAccount'}" v-on:click="switchLowerLevelOpenAnAccountTab"><a class="nav-link"><span>下级开户</span></a></li>
 							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == 'bettingDetails'}" v-on:click="switchBettingDetailsTab"><a class="nav-link"><span>团队投注明细</span></a></li>
 							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == 'rechargeDetails'}" v-on:click="switchRechargeDetailsTab"><a class="nav-link"><span>团队充值明细</span></a></li>
-							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == ''}" v-on:click=""><a class="nav-link"><span>团队提现明细</span></a></li>
-							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == ''}" v-on:click=""><a class="nav-link"><span>团队盈亏报表</span></a></li>
+							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == 'withdrawDetails'}" v-on:click="switchWithdrawDetailsTab"><a class="nav-link"><span>团队提现明细</span></a></li>
+							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == 'profitAndLoss'}" v-on:click="switchProfitAndLossTab"><a class="nav-link"><span>团队盈亏报表</span></a></li>
 							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == 'accountChange'}" v-on:click="switchAccountChangeTab"><a class="nav-link"><span>团队帐变报表</span></a></li>
-							<li class="nav-item" v-bind:class="{'selected-agent-center-navbar-item': currentTab == ''}" v-on:click=""><a class="nav-link"><span>团队汇总报表</span></a></li>
 						</ul>
 					</nav>
 				</div>
@@ -204,6 +203,44 @@
 					<button type="button" class="btn btn-danger btn-sm" v-on:click="refreshRechargeDetailsTable">搜索</button>
 				</form>
 				<table class="common-table recharge-details-table"></table>
+			</div>
+
+			<div id="withdrawDetailsTab" v-show="currentTab == 'withdrawDetails'">
+				<form class="form-inline common-query-cond-form">
+					<div class="form-group common-query-cond">
+						<label>时间:</label><input type="date" class="form-control-sm" v-model="startTimeWithdrawDetails"><span>到</span><input type="date" class="form-control-sm" v-model="endTimeWithdrawDetails">
+					</div>
+					<div class="form-group common-query-cond">
+						<label>用户名:</label><input type="text" class="form-control-sm" v-model="userNameWithdrawDetails">
+					</div>
+					<div class="form-group common-query-cond">
+						<label>查询范围:</label> <select class="form-control-sm" v-model="accountTypeWithdrawDetails">
+							<option value="">全部</option>
+							<option v-for="dictItem in accountTypeDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
+						</select>
+					</div>
+					<button type="button" class="btn btn-danger btn-sm" v-on:click="refreshWithdrawDetailsTable">搜索</button>
+				</form>
+				<table class="common-table withdraw-details-table"></table>
+			</div>
+
+			<div id="profitAndLossTab" v-show="currentTab == 'profitAndLoss'">
+				<form class="form-inline common-query-cond-form">
+					<div class="form-group common-query-cond">
+						<label>时间:</label><input type="date" class="form-control-sm" v-model="startTimeProfitAndLoss"><span>到</span><input type="date" class="form-control-sm" v-model="endTimeProfitAndLoss">
+					</div>
+					<div class="form-group common-query-cond">
+						<label>用户名:</label><input type="text" class="form-control-sm" v-model="userNameProfitAndLoss">
+					</div>
+					<div class="form-group common-query-cond">
+						<label>查询范围:</label> <select class="form-control-sm" v-model="accountTypeProfitAndLoss">
+							<option value="">全部</option>
+							<option v-for="dictItem in accountTypeDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
+						</select>
+					</div>
+					<button type="button" class="btn btn-danger btn-sm" v-on:click="refreshProfitAndLossTable">搜索</button>
+				</form>
+				<table class="common-table profit-and-loss-table"></table>
 			</div>
 
 			<div id="accountChangeTab" v-show="currentTab == 'accountChange'">

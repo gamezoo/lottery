@@ -11,7 +11,7 @@
 .agent-center-navbar li {
 	padding-bottom: 0;
 	padding-top: 0;
-	min-width: 120px;
+	min-width: 135px;
 	text-align: center;
 }
 
@@ -68,6 +68,12 @@
 	color: #ec494c;
 }
 /*团队投注明细end*/
+
+/*团队盈亏报表start*/
+.profit-and-loss-table .user-name {
+	color: #ec494c;
+}
+/*团队盈亏报表end*/
 
 /*团队帐变报表start*/
 #accountChangeTab input[type="date"] {

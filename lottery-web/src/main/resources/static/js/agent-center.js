@@ -62,6 +62,22 @@ var agentCenterVM = new Vue({
 		accountTypeRechargeDetails : '',
 
 		/**
+		 * 团队提现明细相关参数start
+		 */
+		startTimeWithdrawDetails : '',
+		endTimeWithdrawDetails : '',
+		userNameWithdrawDetails : '',
+		accountTypeWithdrawDetails : '',
+
+		/**
+		 * 团队盈亏报表相关参数start
+		 */
+		startTimeProfitAndLoss : '',
+		endTimeProfitAndLoss : '',
+		userNameProfitAndLoss : '',
+		accountTypeProfitAndLoss : '',
+
+		/**
 		 * 团队帐变报表相关参数start
 		 */
 		gameCodeAccountChange : '',
@@ -566,6 +582,197 @@ var agentCenterVM = new Vue({
 
 		refreshRechargeDetailsTable : function() {
 			$('.recharge-details-table').bootstrapTable('refreshOptions', {
+				pageNumber : 1
+			});
+		},
+
+		/**
+		 * 团队提现明细tab相关方法start
+		 */
+		switchWithdrawDetailsTab : function() {
+			this.currentTab = 'withdrawDetails';
+			this.resetWithdrawDetailsQueryCond();
+			this.initWithdrawDetailsTable();
+		},
+
+		resetWithdrawDetailsQueryCond : function() {
+			this.startTimeWithdrawDetails = dayjs().format('YYYY-MM-DD');
+			this.endTimeWithdrawDetails = dayjs().format('YYYY-MM-DD');
+			this.userNameWithdrawDetails = '';
+			this.accountTypeWithdrawDetails = '';
+		},
+
+		initWithdrawDetailsTable : function() {
+			var that = this;
+			$('.withdraw-details-table').bootstrapTable('destroy');
+			$('.withdraw-details-table').bootstrapTable({
+				classes : 'table table-hover',
+				height : 540,
+				url : '/withdraw/findLowerLevelWithdrawRecordByPage',
+				pagination : true,
+				sidePagination : 'server',
+				pageNumber : 1,
+				pageSize : 10,
+				pageList : [ 10, 25, 50, 100 ],
+				queryParamsType : '',
+				queryParams : function(params) {
+					var condParam = {
+						pageSize : params.pageSize,
+						pageNum : params.pageNumber,
+						submitStartTime : that.startTimeWithdrawDetails,
+						submitEndTime : that.endTimeWithdrawDetails,
+						userName : that.userNameWithdrawDetails,
+						accountType : that.accountTypeWithdrawDetails
+					};
+					return condParam;
+				},
+				responseHandler : function(res) {
+					if (res.code != 200) {
+						layer.alert(res.msg, {
+							title : '提示',
+							icon : 7,
+							time : 3000
+						});
+						return {
+							total : 0,
+							rows : []
+						};
+					}
+					return {
+						total : res.data.total,
+						rows : res.data.content
+					};
+				},
+				columns : [ {
+					field : 'userName',
+					title : '用户名',
+					formatter : function(value) {
+						if (value == headerVM.userName) {
+							value += '(自己)';
+						}
+						return value;
+					}
+				}, {
+					field : 'orderNo',
+					title : '订单号'
+				}, {
+					field : 'submitTime',
+					title : '申请提现时间'
+				}, {
+					field : 'withdrawAmount',
+					title : '提现金额'
+				}, {
+					field : 'stateName',
+					title : '状态'
+				} ]
+			});
+		},
+
+		refreshWithdrawDetailsTable : function() {
+			$('.withdraw-details-table').bootstrapTable('refreshOptions', {
+				pageNumber : 1
+			});
+		},
+
+		/**
+		 * 团队盈亏报表tab相关方法start
+		 */
+		switchProfitAndLossTab : function() {
+			this.currentTab = 'profitAndLoss';
+			this.resetProfitAndLossQueryCond();
+			this.initProfitAndLossTable();
+		},
+
+		resetProfitAndLossQueryCond : function() {
+			this.startTimeProfitAndLoss = dayjs().format('YYYY-MM-DD');
+			this.endTimeProfitAndLoss = dayjs().format('YYYY-MM-DD');
+			this.userNameProfitAndLoss = '';
+			this.accountTypeProfitAndLoss = '';
+		},
+
+		initProfitAndLossTable : function() {
+			var that = this;
+			$('.profit-and-loss-table').bootstrapTable('destroy');
+			$('.profit-and-loss-table').bootstrapTable({
+				classes : 'table table-hover',
+				height : 540,
+				url : '/agent/findAccountProfitAndLossByPage',
+				pagination : true,
+				sidePagination : 'server',
+				pageNumber : 1,
+				pageSize : 10,
+				pageList : [ 10, 25, 50, 100 ],
+				queryParamsType : '',
+				queryParams : function(params) {
+					var condParam = {
+						pageSize : params.pageSize,
+						pageNum : params.pageNumber,
+						startTime : that.startTimeProfitAndLoss,
+						endTime : that.endTimeProfitAndLoss,
+						userName : that.userNameProfitAndLoss,
+						accountType : that.accountTypeProfitAndLoss
+					};
+					return condParam;
+				},
+				responseHandler : function(res) {
+					if (res.code != 200) {
+						layer.alert(res.msg, {
+							title : '提示',
+							icon : 7,
+							time : 3000
+						});
+						return {
+							total : 0,
+							rows : []
+						};
+					}
+					return {
+						total : res.data.total,
+						rows : res.data.content
+					};
+				},
+				columns : [ {
+					title : '用户名',
+					formatter : function(value, row, index) {
+						var userName = row.userName;
+						if (row.accountType == 'admin') {
+							return userName + '(' + row.accountTypeName + ')';
+						}
+						return userName + '(' + row.accountLevel + '级' + row.accountTypeName + ')';
+					},
+					cellStyle : {
+						classes : 'user-name'
+					}
+				}, {
+					field : 'rechargeAmount',
+					title : '充值总额'
+				}, {
+					field : 'withdrawAmount',
+					title : '提现总额'
+				}, {
+					field : 'totalBettingAmount',
+					title : '彩票投注'
+				}, {
+					field : 'totalWinningAmount',
+					title : '彩票返奖'
+				}, {
+					field : 'rebateAmount',
+					title : '彩票返点'
+				}, {
+					field : 'lowerLevelRebateAmount',
+					title : '下级返点'
+				}, {
+					field : 'balance',
+					title : '余额'
+				}, {
+					field : 'bettingProfitAndLoss',
+					title : '投注盈亏'
+				} ]
+			});
+		},
+
+		refreshProfitAndLossTable : function() {
+			$('.profit-and-loss-table').bootstrapTable('refreshOptions', {
 				pageNumber : 1
 			});
 		},
