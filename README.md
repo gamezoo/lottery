@@ -8,9 +8,7 @@
 > 后台管理：http://zohar8888.xyz:8081/
 
 ## 交流群
-
-QQ群： [![加入QQ群](https://img.shields.io/badge/1382251-blue.svg)](https://jq.qq.com/?_wv=1027&k=56bFv7o)  点击按钮入群。
-
+加入qq交流群：567046072
 
 ## 截图
 
