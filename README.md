@@ -25,6 +25,10 @@
 
 > 由于程序不断优化，界面细节可能有所变化，请以实际页面为准
 
+## 交流群
+
+QQ群： [![加入QQ群](https://img.shields.io/badge/1382251-blue.svg)](https://jq.qq.com/?_wv=1027&k=5Ofd4Pb)  点击按钮入群。
+
 > 作者不喝咖啡 :coffee: 只喝茶 :tea: 觉得有帮助的可以请我喝茶
 
 
