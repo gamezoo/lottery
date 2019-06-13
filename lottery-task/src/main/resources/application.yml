@@ -16,3 +16,8 @@ spring:
   redis:
     port: 6379
     host: localhost
+xxl:
+  mq:
+    admin:
+      address: http://localhost:8080/xxl-mq-admin
+    accessToken: null

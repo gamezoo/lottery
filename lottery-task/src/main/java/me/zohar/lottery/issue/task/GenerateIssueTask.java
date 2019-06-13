@@ -21,12 +21,11 @@ public class GenerateIssueTask {
 	/**
 	 * 每天零点10分执行一次
 	 */
-//	@Scheduled(cron = "0 10 0 * * ?")
-	@Scheduled(fixedRate = 6000)
+	@Scheduled(cron = "0 10 0 * * ?")
 	public void execute() {
 		try {
 			log.info("执行生成期号数据定时任务start");
-			issueService.generateIssue(DateUtil.offset(new Date(), DateField.DAY_OF_YEAR, -2));
+			issueService.generateIssue(DateUtil.offset(new Date(), DateField.DAY_OF_YEAR, 0));
 			log.info("执行生成期号数据定时任务end");
 		} catch (Exception e) {
 			log.error("执行生成期号数据定时任务发生异常", e);

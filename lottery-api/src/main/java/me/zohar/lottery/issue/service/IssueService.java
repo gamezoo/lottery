@@ -14,6 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import com.alibaba.fastjson.JSON;
+import com.xxl.mq.client.message.XxlMqMessage;
+import com.xxl.mq.client.producer.XxlMqProducer;
+
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
@@ -33,6 +37,7 @@ import me.zohar.lottery.issue.domain.IssueGenerateRule;
 import me.zohar.lottery.issue.domain.IssueSetting;
 import me.zohar.lottery.issue.param.IssueEditParam;
 import me.zohar.lottery.issue.param.ManualLotteryParam;
+import me.zohar.lottery.issue.param.SyncLotteryNumMsg;
 import me.zohar.lottery.issue.repo.IssueRepo;
 import me.zohar.lottery.issue.repo.IssueSettingRepo;
 import me.zohar.lottery.issue.vo.IssueVO;
@@ -62,31 +67,28 @@ public class IssueService {
 	 * @param lotteryNum
 	 */
 	@Transactional
-	public void syncLotteryNum(@NotBlank String gameCode, @NotNull Long issueNum, @NotBlank String lotteryNum) {
-		Issue latestIssue = issueRepo.findByGameCodeAndIssueNum(gameCode, issueNum);
-		if (latestIssue == null) {
+	public Boolean syncLotteryNum(@NotBlank String gameCode, @NotNull Long issueNum, @NotBlank String lotteryNum) {
+		Issue issue = issueRepo.findByGameCodeAndIssueNum(gameCode, issueNum);
+		if (issue == null) {
 			log.error("当前期号没有生成,请检查定时任务是否发生了异常.gameCode:{},issueNum:{}", gameCode, issueNum);
-			return;
+			return false;
 		}
-		if (!Constant.期号状态_未开奖.equals(latestIssue.getState())) {
-			return;
+		if (!Constant.期号状态_未开奖.equals(issue.getState())) {
+			return false;
 		}
-		if (!latestIssue.getAutomaticLottery()) {
+		if (!issue.getAutomaticLottery()) {
 			log.warn("当前期号没有没有设置自动开奖,同步开奖结果失败.gameCode:{},issueNum:{}", gameCode, issueNum);
-			return;
+			return false;
 		}
 
-		latestIssue.syncLotteryNum(lotteryNum);
-		issueRepo.save(latestIssue);
-
-		if (!latestIssue.getAutomaticSettlement()) {
-			log.warn("当前期号没有没有设置自动结算,结算失败.gameCode:{},issueNum:{}", gameCode, issueNum);
-			return;
+		issue.syncLotteryNum(lotteryNum);
+		issueRepo.save(issue);
+		if (issue.getAutomaticSettlement()) {
+			ThreadPoolUtils.getLotterySettlementPool().schedule(() -> {
+				redisTemplate.opsForList().leftPush(Constant.当前开奖期号ID, issue.getId());
+			}, 1, TimeUnit.SECONDS);
 		}
-
-		ThreadPoolUtils.getLotterySettlementPool().schedule(() -> {
-			redisTemplate.opsForList().leftPush(Constant.当前开奖期号ID, latestIssue.getId());
-		}, 1, TimeUnit.SECONDS);
+		return true;
 	}
 
 	/**
@@ -183,14 +185,16 @@ public class IssueService {
 	}
 
 	/**
-	 * 获取最近的期号,即当前时间的上一期
+	 * 获取最近的期号,即当前时间的上一期或少于当前时间的最近一期
 	 * 
 	 * @return
 	 */
 	public IssueVO getLatelyIssue(String gameCode) {
 		IssueVO currentIssue = getCurrentIssue(gameCode);
 		if (currentIssue == null) {
-			return null;
+			Issue latelyIssue = issueRepo.findTopByGameCodeAndEndTimeLessThanEqualOrderByEndTimeDesc(gameCode,
+					new Date());
+			return IssueVO.convertFor(latelyIssue);
 		}
 		Issue latelyIssue = issueRepo.findTopByGameCodeAndIssueNumLessThanOrderByIssueNumDesc(gameCode,
 				currentIssue.getIssueNum());
@@ -229,6 +233,11 @@ public class IssueService {
 								.issueNumInner(issueNumInner).startTime(startTime).endTime(endTime)
 								.state(Constant.期号状态_未开奖).automaticLottery(true).automaticSettlement(true).build();
 						issueRepo.save(issue);
+
+						Date effectTime = DateUtil.offset(issue.getEndTime(), DateField.SECOND, 2);
+						XxlMqProducer.produce(new XxlMqMessage("SYNC_LOTTERY_NUM_" + issue.getGameCode(),
+								JSON.toJSONString(new SyncLotteryNumMsg(issue.getGameCode(), issue.getIssueNum(), 0)),
+								effectTime));
 					}
 					count += issueCount;
 				}

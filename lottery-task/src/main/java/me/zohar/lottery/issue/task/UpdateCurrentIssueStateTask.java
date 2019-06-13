@@ -15,7 +15,7 @@ public class UpdateCurrentIssueStateTask {
 	@Autowired
 	private IssueService issueService;
 
-	@Scheduled(fixedRate = 3000)
+//	@Scheduled(fixedRate = 3000)
 	public void execute() {
 		try {
 			log.info("更新游戏状态定时任务start");

@@ -40,12 +40,12 @@ public class CqsscService {
 	/**
 	 * 同步当前时间的开奖号码
 	 */
-	public void syncLotteryNum() {
+	public Boolean syncLotteryNum() {
 		IssueVO latestWithInterface = getLatestLotteryResultWithApi();
 		if (latestWithInterface == null) {
-			return;
+			return false;
 		}
-		issueService.syncLotteryNum(Constant.游戏_重庆时时彩, latestWithInterface.getIssueNum(),
+		return issueService.syncLotteryNum(Constant.游戏_重庆时时彩, latestWithInterface.getIssueNum(),
 				latestWithInterface.getLotteryNum());
 	}
 
@@ -133,8 +133,8 @@ public class CqsscService {
 			org.dom4j.Element element = elements.get(0);
 			long issueNum = Long.parseLong(element.attributeValue("expect"));
 			String lotteryNum = element.attributeValue("opencode");
-			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(null)
-					.lotteryNum(lotteryNum).build();
+			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(null).lotteryNum(lotteryNum)
+					.build();
 			return lotteryResult;
 		} catch (Exception e) {
 			log.error("通过500彩票网获取重庆时时彩最新开奖结果发生异常", e);
@@ -154,8 +154,8 @@ public class CqsscService {
 			JSONObject jsonObject = jsonArray.getJSONObject(0);
 			long issueNum = Long.parseLong(jsonObject.getString("expect"));
 			String lotteryNum = jsonObject.getString("opencode");
-			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(null)
-					.lotteryNum(lotteryNum).build();
+			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(null).lotteryNum(lotteryNum)
+					.build();
 			return lotteryResult;
 		} catch (Exception e) {
 			log.error("通过开彩票获取重庆时时彩最新开奖结果发生异常", e);

@@ -41,12 +41,12 @@ public class YnsscService {
 	/**
 	 * 同步当前时间的开奖号码
 	 */
-	public void syncLotteryNum() {
+	public Boolean syncLotteryNum() {
 		IssueVO latestWithInterface = getLatestLotteryResultWithApi();
 		if (latestWithInterface == null) {
-			return;
+			return false;
 		}
-		issueService.syncLotteryNum(Constant.游戏_云南时时彩, latestWithInterface.getIssueNum(),
+		return issueService.syncLotteryNum(Constant.游戏_云南时时彩, latestWithInterface.getIssueNum(),
 				latestWithInterface.getLotteryNum());
 	}
 

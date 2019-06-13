@@ -37,12 +37,12 @@ public class Gd11x5Service {
 	/**
 	 * 同步当前时间的开奖号码
 	 */
-	public void syncLotteryNum() {
+	public Boolean syncLotteryNum() {
 		IssueVO latestWithInterface = getLatestLotteryResultWithApi();
 		if (latestWithInterface == null) {
-			return;
+			return false;
 		}
-		issueService.syncLotteryNum(Constant.游戏_广东11选5, latestWithInterface.getIssueNum(),
+		return issueService.syncLotteryNum(Constant.游戏_广东11选5, latestWithInterface.getIssueNum(),
 				latestWithInterface.getLotteryNum());
 	}
 

@@ -41,4 +41,6 @@ public interface IssueRepo extends JpaRepository<Issue, String>, JpaSpecificatio
 	 */
 	Issue findTopByGameCodeAndStartTimeGreaterThanOrderByLotteryTimeAsc(String gameCode, Date startTime);
 
+	Issue findTopByGameCodeAndEndTimeLessThanEqualOrderByEndTimeDesc(String gameCode, Date now);
+
 }
