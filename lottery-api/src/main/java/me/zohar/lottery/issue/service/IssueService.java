@@ -21,7 +21,6 @@ import com.xxl.mq.client.producer.XxlMqProducer;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -67,18 +66,18 @@ public class IssueService {
 	 * @param lotteryNum
 	 */
 	@Transactional
-	public Boolean syncLotteryNum(@NotBlank String gameCode, @NotNull Long issueNum, @NotBlank String lotteryNum) {
+	public void syncLotteryNum(@NotBlank String gameCode, @NotNull Long issueNum, @NotBlank String lotteryNum) {
 		Issue issue = issueRepo.findByGameCodeAndIssueNum(gameCode, issueNum);
 		if (issue == null) {
 			log.error("当前期号没有生成,请检查定时任务是否发生了异常.gameCode:{},issueNum:{}", gameCode, issueNum);
-			return false;
+			return;
 		}
 		if (!Constant.期号状态_未开奖.equals(issue.getState())) {
-			return false;
+			return;
 		}
 		if (!issue.getAutomaticLottery()) {
 			log.warn("当前期号没有没有设置自动开奖,同步开奖结果失败.gameCode:{},issueNum:{}", gameCode, issueNum);
-			return false;
+			return;
 		}
 
 		issue.syncLotteryNum(lotteryNum);
@@ -87,42 +86,6 @@ public class IssueService {
 			ThreadPoolUtils.getLotterySettlementPool().schedule(() -> {
 				redisTemplate.opsForList().leftPush(Constant.当前开奖期号ID, issue.getId());
 			}, 1, TimeUnit.SECONDS);
-		}
-		return true;
-	}
-
-	/**
-	 * 更新游戏当期状态
-	 * 
-	 * @param gameCode
-	 */
-	@Transactional
-	public void updateGameCurrentIssueState(String gameCode) {
-		Date now = new Date();
-		Issue issue = issueRepo.findTopByGameCodeAndStartTimeLessThanEqualAndEndTimeGreaterThan(gameCode, now, now);
-		if (issue == null) {
-			String stateWithRedis = redisTemplate.opsForValue().get(gameCode + Constant.游戏当期状态);
-			if (!Constant.游戏当期状态_休市中.equals(stateWithRedis)) {
-				redisTemplate.opsForValue().set(gameCode + Constant.游戏当期状态, Constant.游戏当期状态_休市中);
-			}
-			String currentIssueWithRedis = redisTemplate.opsForValue().get(gameCode + Constant.游戏当前期号);
-			if (StrUtil.isNotEmpty(currentIssueWithRedis)) {
-				redisTemplate.opsForValue().set(gameCode + Constant.游戏当前期号, "");
-			}
-			return;
-		}
-		long second = DateUtil.between(issue.getEndTime(), now, DateUnit.SECOND);
-		String state = Constant.游戏当期状态_已截止投注;
-		if (second > 30) {
-			state = Constant.游戏当期状态_可以投注;
-		}
-		String stateWithRedis = redisTemplate.opsForValue().get(gameCode + Constant.游戏当期状态);
-		if (!state.equals(stateWithRedis)) {
-			redisTemplate.opsForValue().set(gameCode + Constant.游戏当期状态, state);
-		}
-		String currentIssueWithRedis = redisTemplate.opsForValue().get(gameCode + Constant.游戏当前期号);
-		if (!("" + issue.getIssueNum()).equals(currentIssueWithRedis)) {
-			redisTemplate.opsForValue().set(gameCode + Constant.游戏当前期号, "" + issue.getIssueNum());
 		}
 	}
 
@@ -309,6 +272,10 @@ public class IssueService {
 		List<Issue> issues = issueRepo.findByGameCodeAndLotteryDateAndLotteryTimeGreaterThanEqualOrderByLotteryTimeAsc(
 				gameCode, currentIssue.getLotteryDate(), currentIssue.getLotteryTime());
 		return IssueVO.convertFor(issues);
+	}
+
+	public IssueVO findByGameCodeAndIssueNum(String gameCode, Long issueNum) {
+		return IssueVO.convertFor(issueRepo.findByGameCodeAndIssueNum(gameCode, issueNum));
 	}
 
 }

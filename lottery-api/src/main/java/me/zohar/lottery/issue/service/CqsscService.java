@@ -40,12 +40,12 @@ public class CqsscService {
 	/**
 	 * 同步当前时间的开奖号码
 	 */
-	public Boolean syncLotteryNum() {
+	public void syncLotteryNum() {
 		IssueVO latestWithInterface = getLatestLotteryResultWithApi();
 		if (latestWithInterface == null) {
-			return false;
+			return;
 		}
-		return issueService.syncLotteryNum(Constant.游戏_重庆时时彩, latestWithInterface.getIssueNum(),
+		issueService.syncLotteryNum(Constant.游戏_重庆时时彩, latestWithInterface.getIssueNum(),
 				latestWithInterface.getLotteryNum());
 	}
 

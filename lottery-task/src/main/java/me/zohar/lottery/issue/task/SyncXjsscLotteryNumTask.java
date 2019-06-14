@@ -17,6 +17,7 @@ import com.xxl.mq.client.producer.XxlMqProducer;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
 import lombok.extern.slf4j.Slf4j;
+import me.zohar.lottery.constants.Constant;
 import me.zohar.lottery.issue.param.SyncLotteryNumMsg;
 import me.zohar.lottery.issue.service.IssueService;
 import me.zohar.lottery.issue.service.XjsscService;
@@ -49,7 +50,9 @@ public class SyncXjsscLotteryNumTask implements IMqConsumer {
 		Boolean syncSuccessFlag = false;
 		try {
 			log.info("执行同步新疆时时彩开奖号码定时任务start");
-			syncSuccessFlag = xjsscService.syncLotteryNum();
+			xjsscService.syncLotteryNum();
+			IssueVO issue = issueService.findByGameCodeAndIssueNum(msg.getGameCode(), msg.getIssueNum());
+			syncSuccessFlag = !Constant.期号状态_未开奖.equals(issue.getState());
 			log.info("执行同步新疆时时彩开奖号码定时任务end");
 		} catch (Exception e) {
 			log.error("执行同步新疆时时彩开奖号码定时任务发生异常", e);

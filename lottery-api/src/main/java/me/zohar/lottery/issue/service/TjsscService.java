@@ -41,12 +41,12 @@ public class TjsscService {
 	/**
 	 * 同步当前时间的开奖号码
 	 */
-	public Boolean syncLotteryNum() {
+	public void syncLotteryNum() {
 		IssueVO latestWithInterface = getLatestLotteryResultWithApi();
 		if (latestWithInterface == null) {
-			return false;
+			return;
 		}
-		return issueService.syncLotteryNum(Constant.游戏_天津时时彩, latestWithInterface.getIssueNum(),
+		issueService.syncLotteryNum(Constant.游戏_天津时时彩, latestWithInterface.getIssueNum(),
 				latestWithInterface.getLotteryNum());
 	}
 
@@ -54,7 +54,7 @@ public class TjsscService {
 		List<IssueVO> issues = new ArrayList<>();
 		CountDownLatch countlatch = new CountDownLatch(3);
 		List<Future<IssueVO>> futures = new ArrayList<>();
-		
+
 		futures.add(ThreadPoolUtils.getSyncLotteryThreadPool().submit(() -> {
 			return getLatestLotteryResultWithBowangcai();
 		}));
@@ -110,7 +110,7 @@ public class TjsscService {
 			JSONObject resultJsonObject = JSON.parseObject(result);
 			JSONObject jsonObject = resultJsonObject.getJSONObject("rsm").getJSONObject("info").getJSONArray("list")
 					.getJSONObject(0);
-			
+
 			String lotteryNum = jsonObject.getString("lottery_numbers");
 			long issueNum = jsonObject.getLong("lottery_issue");
 			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(null).lotteryNum(lotteryNum)

@@ -37,12 +37,12 @@ public class XjsscService {
 	/**
 	 * 同步当前时间的开奖号码
 	 */
-	public Boolean syncLotteryNum() {
+	public void syncLotteryNum() {
 		IssueVO latestWithInterface = getLatestLotteryResultWithApi();
 		if (latestWithInterface == null) {
-			return false;
+			return;
 		}
-		return issueService.syncLotteryNum(Constant.游戏_新疆时时彩, latestWithInterface.getIssueNum(),
+		issueService.syncLotteryNum(Constant.游戏_新疆时时彩, latestWithInterface.getIssueNum(),
 				latestWithInterface.getLotteryNum());
 	}
 
@@ -56,7 +56,7 @@ public class XjsscService {
 		futures.add(ThreadPoolUtils.getSyncLotteryThreadPool().submit(() -> {
 			return getLatestLotteryResultWithCaim8();
 		}));
-		
+
 		for (Future<IssueVO> future : futures) {
 			try {
 				IssueVO issueVO = future.get(3, TimeUnit.SECONDS);
@@ -98,8 +98,8 @@ public class XjsscService {
 			JSONObject resultJsonObject = JSON.parseObject(result).getJSONObject("data").getJSONObject("newest");
 			long issueNum = Long.parseLong(resultJsonObject.getString("issue"));
 			String lotteryNum = resultJsonObject.getString("code");
-			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(null)
-					.lotteryNum(lotteryNum).build();
+			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(null).lotteryNum(lotteryNum)
+					.build();
 			return lotteryResult;
 		} catch (Exception e) {
 			log.error("通过开奖助手获取新疆时时彩最新开奖结果发生异常", e);

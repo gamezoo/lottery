@@ -19,5 +19,5 @@ spring:
 xxl:
   mq:
     admin:
-      address: http://localhost:8080/xxl-mq-admin
+      address: http://localhost:8088/xxl-mq-admin
     accessToken: null

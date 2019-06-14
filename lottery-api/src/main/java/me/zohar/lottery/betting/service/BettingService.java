@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
@@ -206,17 +207,9 @@ public class BettingService {
 			throw new BizException(BizError.休市中);
 		}
 		if (currentIssue.getIssueNum() == placeOrderParam.getIssueNum()) {
-			String gameState = redisTemplate.opsForValue().get(placeOrderParam.getGameCode() + Constant.游戏当期状态);
-			if (Constant.游戏当期状态_休市中.equals(gameState)) {
-				throw new BizException(BizError.休市中);
-			}
-			if (Constant.游戏当期状态_已截止投注.equals(gameState)) {
+			long second = DateUtil.between(currentIssue.getEndTime(), now, DateUnit.SECOND);
+			if (second <= 30) {
 				throw new BizException(BizError.已截止投注);
-			}
-			String gameCurrentIssueNum = redisTemplate.opsForValue()
-					.get(placeOrderParam.getGameCode() + Constant.游戏当前期号);
-			if (StrUtil.isEmpty(gameCurrentIssueNum)) {
-				throw new BizException(BizError.休市中);
 			}
 		} else {
 			if (bettingIssue == null) {

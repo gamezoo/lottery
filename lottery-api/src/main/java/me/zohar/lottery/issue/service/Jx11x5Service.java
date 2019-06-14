@@ -34,12 +34,12 @@ public class Jx11x5Service {
 	/**
 	 * 同步当前时间的开奖号码
 	 */
-	public Boolean syncLotteryNum() {
+	public void syncLotteryNum() {
 		IssueVO latestWithInterface = getLatestLotteryResultWithApi();
 		if (latestWithInterface == null) {
-			return false;
+			return;
 		}
-		return issueService.syncLotteryNum(Constant.游戏_江西11选5, latestWithInterface.getIssueNum(),
+		issueService.syncLotteryNum(Constant.游戏_江西11选5, latestWithInterface.getIssueNum(),
 				latestWithInterface.getLotteryNum());
 	}
 
@@ -96,8 +96,8 @@ public class Jx11x5Service {
 				lotteryNums.add(String.format("%02d", Integer.parseInt(jsonArray.getString(i))));
 			}
 			String lotteryNum = String.join(",", lotteryNums);
-			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(null)
-					.lotteryNum(lotteryNum).build();
+			IssueVO lotteryResult = IssueVO.builder().issueNum(issueNum).lotteryDate(null).lotteryNum(lotteryNum)
+					.build();
 			return lotteryResult;
 		} catch (Exception e) {
 			log.error("通过开奖助手获取江西11选5最新开奖结果发生异常", e);

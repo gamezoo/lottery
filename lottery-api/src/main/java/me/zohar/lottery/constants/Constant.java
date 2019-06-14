@@ -60,19 +60,9 @@ public class Constant {
 
 	public static final String 期号状态_已作废 = "4";
 
-	public static final String 游戏当期状态 = "_GAME_CURRENT_ISSUE_STATE";
-
-	public static final String 游戏当期状态_可以投注 = "1";
-
-	public static final String 游戏当期状态_已截止投注 = "2";
-
-	public static final String 游戏当期状态_休市中 = "3";
-
 	public static final String 游戏玩法状态_启用 = "1";
 
 	public static final String 游戏玩法状态_禁用 = "0";
-
-	public static final String 游戏当前期号 = "_GAME_CURRENT_ISSUE";
 
 	public static final String 当前开奖期号ID = "CURRENT_LOTTERY_ISSUE_ID";
 

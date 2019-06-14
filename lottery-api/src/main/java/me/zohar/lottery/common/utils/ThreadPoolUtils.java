@@ -30,22 +30,22 @@ public class ThreadPoolUtils {
 	/**
 	 * 开奖结算线程池
 	 */
-	private static ScheduledThreadPoolExecutor lotterySettlementPool = new ScheduledThreadPoolExecutor(5);
+	private static ScheduledThreadPoolExecutor lotterySettlementPool = new ScheduledThreadPoolExecutor(4);
 
 	/**
 	 * 充值结算线程池
 	 */
-	private static ScheduledThreadPoolExecutor rechargeSettlementPool = new ScheduledThreadPoolExecutor(5);
+	private static ScheduledThreadPoolExecutor rechargeSettlementPool = new ScheduledThreadPoolExecutor(4);
 
 	/**
 	 * 登录日志线程池
 	 */
-	private static ScheduledThreadPoolExecutor loginLogPool = new ScheduledThreadPoolExecutor(3);
+	private static ScheduledThreadPoolExecutor loginLogPool = new ScheduledThreadPoolExecutor(2);
 
 	/**
 	 * 投注返点结算线程池
 	 */
-	private static ScheduledThreadPoolExecutor bettingRebateSettlementPool = new ScheduledThreadPoolExecutor(5);
+	private static ScheduledThreadPoolExecutor bettingRebateSettlementPool = new ScheduledThreadPoolExecutor(4);
 
 	static {
 		syncLotteryThreadPool.prestartAllCoreThreads();
